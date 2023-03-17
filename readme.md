@@ -66,7 +66,11 @@ The project is organized as follow :
 
 
 
+## Usage Example
 
+The folder `example` contains flight data over one month, in france bounding box.
+
+You can use these files to test the application by dropping the files you want into the application.
 
 
 
