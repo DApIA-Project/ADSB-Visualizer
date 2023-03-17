@@ -1,0 +1,11 @@
+header{
+    background-color: $backgound-1;
+    height: 50px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+header>*{
+    padding: 0 10px;
+    font-size: 30px;
+}

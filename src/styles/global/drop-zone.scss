@@ -1,0 +1,21 @@
+
+#drop-zone, #loading-screen {
+    z-index: 10000;
+    background-color: rgba($backgound-1, 0.5);
+    display: none;
+}
+
+#start-screen{
+    z-index: 20000;
+    background-color: $backgound-1;
+    // display: none;
+}
+
+
+#loading-bar{
+    background: $backgound-3;
+}
+
+#loading-bar>div{
+    background: $secondary;
+}

@@ -1,0 +1,16 @@
+#window-flight-list{
+    background-color: rgba($backgound-1, 0.8);
+}
+
+#window-flight-list>h1{
+    background-color: rgba($backgound-2, 0.8);
+}
+
+.flight{
+    background-color: $backgound-3;
+    border : 1px solid transparent;
+}
+
+.flight[visible="true"]{
+    border : 1px solid $secondary;
+}

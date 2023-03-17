@@ -1,0 +1,85 @@
+
+input:focus {
+    outline: none;
+}
+
+
+.btn, .btn-valid, .btn-alert, .btn-cancel, .btn-info{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    width: fit-content;
+  
+    background-color: #2f2f2f;
+    border: none;
+    color: #d6d6d6;
+    text-decoration: none;
+    cursor: pointer;
+  
+    padding: 5px;
+    border-radius: 5px;
+  
+    transition: all 0.1s ease-in-out;
+  
+    -webkit-user-select: none; /* Safari */        
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* IE10+/Edge */
+    user-select: none; /* Standard */
+
+    font-size: inherit;
+}
+.btn-valid{
+    background-color: #5d8c43;
+    
+}
+.btn-alert{
+    background-color: #bd9544;
+    
+}
+.btn-cancel{
+    background-color: #c23616;
+}
+.btn-info{
+    background-color: #43688c;
+}
+.btn:hover{
+    background-color: #434343;
+  
+    transform: scale(1.05);
+    transition: all 0.1s ease-in-out;
+}
+.btn-valid:hover{
+    background-color: #3a6523;
+  
+    transform: scale(1.05);
+    transition: all 0.1s ease-in-out;
+}
+.btn-alert:hover{
+    background-color: #9b752b;
+  
+    transform: scale(1.05);
+    transition: all 0.1s ease-in-out;
+}
+.btn-cancel:hover{
+    background-color: #8c1e05;
+  
+    transform: scale(1.05);
+    transition: all 0.1s ease-in-out;
+}
+.btn-info:hover{
+    background-color: #43688c;
+  
+    transform: scale(1.05);
+    transition: all 0.1s ease-in-out;
+}
+
+
+
+
+input[type="text"]{
+    color: $base;
+    background-color: $backgound-3;
+    border: 1px solid $backgound-2;
+}
+  

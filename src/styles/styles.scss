@@ -1,0 +1,94 @@
+/* style definition */
+$backgound-1: #2d3436;
+$backgound-2: #3e4547;
+$backgound-3: #464e52;
+
+$base: #dfe6e9;
+$secondary: #0984e3;
+
+
+/* GLOBAL PAGE CONFIGURATION */
+
+// @font-face {
+//     font-family: 'main-font';
+//     src: url('/src/assets/fonts/Asap-VariableFont_wdth\,wght.ttf');
+// }
+
+@font-face {
+    font-family: 'main-font';
+    src: url('/src/assets/fonts/Poppins-Medium.ttf');
+}
+
+  
+* {
+    font-family: "main-font", sans-serif;
+}
+  
+body, html {
+    margin: 0;
+    padding: 0;
+    color : $base;
+    overflow: hidden;
+}
+
+
+
+/* GOOGLE MATERIAL ICONS */
+.material-icons{
+    font-size: inherit !important;
+    font-weight: bold;
+}
+  
+.material-icons-outlined{
+    font-size: inherit !important;
+    font-weight: bold;
+}
+  
+  
+/* uses utils theme */
+
+@import "./utils/scrollbar.scss";
+@import "./utils/widget.scss";
+@import "./utils/window.scss";
+
+
+
+/* Open all global css styles */
+
+@import "./global/drop-zone.scss";
+@import "./global/flight-list.scss";
+@import "./global/header.scss";
+@import "./global/map.scss";
+@import "./global/play-bar.scss";
+
+/* Import css style in function of the screen size */
+
+
+@media all and (max-width: 799px) and (max-height: 799px) and (max-aspect-ratio:3/2) {
+    // @import "./small-width/";
+}
+@media all and (max-width: 799px) and (max-height: 799px) and (min-aspect-ratio:3/2) {
+    // @import "./small-height/";
+}
+@media all and (min-width: 800px) and (max-height: 799px) and (max-aspect-ratio:8/10), all and (min-height: 800px) and (max-width: 799px) and (max-aspect-ratio:8/10) {
+    // @import "./small-width/";
+}
+@media all and (min-width: 800px) and (max-height: 799px) and (min-aspect-ratio:8/10) and (max-aspect-ratio:4/3), all and (min-height: 800px) and (max-width: 799px) and (min-aspect-ratio:8/10) and (max-aspect-ratio:4/3) {
+    // @import "./large/";
+    @import "./large/drop-zone.scss";
+    @import "./large/flight-list.scss";
+    @import "./large/header.scss";
+    @import "./large/map.scss";
+    @import "./large/play-bar.scss";
+}
+@media all and (min-width: 800px) and (max-height: 799px) and (min-aspect-ratio:4/3), all and (min-height: 800px) and (max-width: 799px) and (min-aspect-ratio:4/3) {
+    // @impor[type=range]t "./small-height/";
+}
+@media all and (min-width: 800px) and (min-height: 800px) {
+    // @import "./large/";
+    @import "./large/drop-zone.scss";
+    @import "./large/flight-list.scss";
+    @import "./large/header.scss";
+    @import "./large/map.scss";
+    @import "./large/play-bar.scss";
+}

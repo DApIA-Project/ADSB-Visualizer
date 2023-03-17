@@ -1,0 +1,13 @@
+{ 
+  "compilerOptions": 
+  {
+    "target": "es2016", // modern browsers
+    "experimentalDecorators": true,
+    "jsxImportSource": "preact",
+    "isolatedModules": true,
+    "types": ["node"]
+  },
+  "include": ["**/*.ts", "**/*.tsx"],
+  "exclude": ["node_modules"],
+
+}
