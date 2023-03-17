@@ -232,7 +232,6 @@ export class Map {
                     this.markers[i].setIcon(flip_icon_map[data[i].type]);
                     this.markers[i].setRotationAngle(angle + 180);
                 }
-
             }
         }
 

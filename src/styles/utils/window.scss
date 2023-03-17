@@ -14,7 +14,7 @@
 }
 
 .window>h1{
-    width: 100%;
+    width: calc(100% - 30px);
     height: 40px;
     border-radius: 10px 10px 0 0;
     background-color: $backgound-2;
@@ -22,4 +22,9 @@
     line-height: 40px;
     font-size: 20px;
     margin: 0px;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 15px;
   }

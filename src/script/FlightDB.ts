@@ -44,6 +44,7 @@ export class FlightDB{
     private max_timestamp:number = -1;
 
     private allow_list_autoscroll:boolean = true;
+    private next_scroll_is_autoscroll = false;
     private autoscroll_timeout:NodeJS.Timeout = undefined
 
 
@@ -54,6 +55,10 @@ export class FlightDB{
         this.html_flight_list = document.getElementById('flight-list');
         this.html_flight_list.addEventListener('scroll', (e) => {
             this.onScroll();
+        });
+
+        document.getElementById('clear-list-btn').addEventListener('click', (e) => {
+            this.clear();
         });
     }
 
@@ -296,9 +301,14 @@ export class FlightDB{
         if (this.html_flights[i].offsetTop > this.html_flight_list.scrollTop + this.html_flight_list.clientHeight ||
             this.html_flights[i].offsetTop + this.html_flights[i].clientHeight < this.html_flight_list.scrollTop){
             this.html_flight_list.scrollTop = this.html_flights[i].offsetTop - this.html_flight_list.clientHeight/2;
+            this.next_scroll_is_autoscroll = true;
         }
     }
     private onScroll(){
+        if (this.next_scroll_is_autoscroll){
+            this.next_scroll_is_autoscroll = false;
+            return;
+        }
         this.allow_list_autoscroll = false;
 
         
@@ -312,5 +322,16 @@ export class FlightDB{
             this.autoscroll_timeout = undefined;
             
         }.bind(this), 10 * 1000);
+    }
+
+    private clear(){
+        this.flights = Array();
+        this.flights_filename = Array();
+        this.html_flight_list.innerHTML = "";
+        this.html_flights = Array();
+        this.html_flights_visible = Array();
+
+        this.min_timestamp = -1;
+        this.max_timestamp = -1;
     }
 }

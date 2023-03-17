@@ -35,3 +35,11 @@ export function timestamp_to_hhmmss(timestamp){
 export function timestamp_to_date_hour(timestamp){
     return timestamp_to_date(timestamp) + ' ' + timestamp_to_hhmmss(timestamp);
 }
+
+
+export function num_to_hex(num:number):string{
+    var hex = num.toString(16);
+    if (hex.length < 2)
+        hex = '0' + hex;
+    return hex;
+}

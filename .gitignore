@@ -1,0 +1,13 @@
+.cache/
+.parcel-cache/
+node_modules/
+dist/
+
+
+src/assets/exp # personal experience to generate assets
+
+
+
+.vscode/
+.idea/
+*.iml

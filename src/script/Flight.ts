@@ -1,5 +1,5 @@
 import * as L from 'leaflet';
-
+import * as U from './Utils';
 // manage the data of a flight
 // - parse the file aircraft.txt containing the list of aircraft types
 // - parse flight files from .csv (and soon .db and others ...)
@@ -123,14 +123,14 @@ export class Flight
         this.filename = filename
 
         if (filename.endsWith(".csv")){
-            return this.loadFromCSV(file_content);
+            return this.loadFromCSV(filename, file_content);
         }
         else{
             return false;
         }
     }
 
-    loadFromCSV(file_content:string) : boolean
+    loadFromCSV(filename:string, file_content:string) : boolean
     {
         // split the file content into lines
         file_content = file_content.trim();
@@ -148,43 +148,46 @@ export class Flight
         // loop through the header and assign the data to the correct array
         for (var c = 0; c < header.length; c++) {
             var column = header[c];
-            if (column == "time"){
+            if (column == "time" || column == "7_8"){
                 for (var i = 0; i < data.length; i++) {
                     this.time.push(parseInt(data[i][c]));
                 }
             }
-            else if (column == "icao24"){
+            if(column == "icao24"){
                 this.icao24 = data[0][c];
             }
-            else if (column == "lat"){
+            if(column == "4"){
+                this.icao24 = U.num_to_hex(parseInt(data[0][c]));
+            }
+            if(column == "lat" || column == "15"){
                 for (var i = 0; i < data.length; i++) {
                     this.lat.push(parseFloat(data[i][c]));
                 }
             }
-            else if (column == "lon"){
+            if(column == "lon" || column == "16"){
                 for (var i = 0; i < data.length; i++) {
                     this.lon.push(parseFloat(data[i][c]));
                 }
             }
-            else if (column == "velocity"){
+            if (column == "velocity" || column == "13"){
                 for (var i = 0; i < data.length; i++) {
                     this.velocity.push(parseFloat(data[i][c]));
                 }
             }
-            else if (column == "heading"){
+            if (column == "heading" || column == "14"){
                 for (var i = 0; i < data.length; i++) {
                     this.heading.push(parseFloat(data[i][c]));
                 }
             }
-            else if (column == "vertrate"){
+            if (column == "vertrate" || column == "17"){
                 for (var i = 0; i < data.length; i++) {
                     this.vertical_rate.push(parseFloat(data[i][c]));
                 }
             }
-            else if (column == "callsign"){
+            if (column == "callsign"){
                 this.callsign = data[0][c];
             }
-            else if (column == "onground"){
+            if (column == "onground"){
                 for (var i = 0; i < data.length; i++) {
                     // convert to boolean
                     if (data[i][c] == "true"){
@@ -196,7 +199,7 @@ export class Flight
                     
                 }
             }
-            else if (column == "alert"){
+            if (column == "alert"){
                 for (var i = 0; i < data.length; i++) {
                     // convert to boolean
                     if (data[i][c] == "true"){
@@ -207,7 +210,7 @@ export class Flight
                     }
                 }
             }
-            else if (column == "spi"){
+            if (column == "spi"){
                 for (var i = 0; i < data.length; i++) {
                     // convert to boolean
                     if (data[i][c] == "true"){
@@ -218,33 +221,33 @@ export class Flight
                     }
                 }
             }
-            else if (column == "squawk"){
+            if (column == "squawk"){
                 for (var i = 0; i < data.length; i++) {
                     this.squawk.push(parseInt(data[i][c]));
                 }
             }
-            else if (column == "baroaltitude"){
+            if (column == "baroaltitude" || column == "12"){
                 for (var i = 0; i < data.length; i++) {
                     this.baro_altitude.push(parseFloat(data[i][c]));
                 }
             }
-            else if (column == "geoaltitude"){
+            if (column == "geoaltitude"  || column == "12"){
                 for (var i = 0; i < data.length; i++) {
                     this.geo_altitude.push(parseFloat(data[i][c]));
                 }
             }
-            else if (column == "lastposupdate"){
+            if (column == "lastposupdate"){
                 for (var i = 0; i < data.length; i++) {
                     this.last_pos_update.push(parseFloat(data[i][c]));
                 }
             }
-            else if (column == "lastcontact"){
+            if (column == "lastcontact"){
                 for (var i = 0; i < data.length; i++) {
                     this.last_contact.push(parseFloat(data[i][c]));
 
                 }
             }
-            else if (column == "hour"){
+            if (column == "hour"){
                 for (var i = 0; i < data.length; i++) {
                     this.hour.push(parseInt(data[i][c]));
                 }
@@ -265,10 +268,33 @@ export class Flight
             return false;
         }
 
+
+        if (this.time[0] < 30 * 24 * 60 * 60)
+        {
+            // shift time to today
+            var today = new Date();
+            var today_start = new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime() / 1000;
+            var shift = today_start - this.time[0];
+            for (var i = 0; i < this.time.length; i++) {
+                this.time[i] += shift;
+            }
+        }
+
         this.start_time = this.time[0];
         this.end_time = this.time[this.time.length - 1];
 
         this.type = getAircraftType(this.callsign, this.icao24);
+
+        if (this.callsign == ""){
+            this.callsign = "NULL";
+        }
+
+        var filename_callsign = filename.split("_");
+        console.log(filename_callsign);
+        
+        if (filename_callsign[0] == "callsign"){
+            this.callsign = filename_callsign[1];
+        }
         
         return true;
     }
