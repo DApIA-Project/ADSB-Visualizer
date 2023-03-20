@@ -54,8 +54,8 @@ export class InputReader{
         this.map = map;
     }
     private ondrop(filename: string, content: string) : void {
-        // do the parsing and add the flight to the database
-        this.flight_db.addFlight(filename, content);
+        // do the parsing and add the flights of the file to the database
+        this.flight_db.addFlights(filename, content);
     }
     ///////////////////////////
 

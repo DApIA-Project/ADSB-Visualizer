@@ -1,12 +1,10 @@
 import * as L from 'leaflet';
 import * as U from './Utils';
 // manage the data of a flight
-// - parse the file aircraft.txt containing the list of aircraft types
-// - parse flight files from .csv (and soon .db and others ...)
-// - auto-detect the aircraft type
-// - store all the data of a flight in a FlightData object
+// - store all the data of a flight
 
-
+import { loadFromCSV } from './parsers/parse_csv';
+import { loadFromSBS } from './parsers/parse_sbs';
 
 
 
@@ -65,7 +63,7 @@ function numberToType(number:number) : AircraftType
 }
 
 
-function getAircraftType(callsign:string, icao24:string) : AircraftType
+function computeAircraftType(callsign:string, icao24:string) : AircraftType
 {
     if (callsign.includes("SAMU"))
         return AircraftType.HELICOPTER;
@@ -108,7 +106,6 @@ export class Flight
     private hour:Array<number> =  Array();
     private start_time:number =  0;
     private end_time:number =  0;
-    private filename:string =  ""
     private type:AircraftType =  AircraftType.UNKNOWN;
 
 
@@ -117,190 +114,34 @@ export class Flight
         
     }
 
+    setAttribute(a)
+    {
+        this.time = a.time;
+        this.icao24 = a.icao24;
+        this.lat = a.lat;
+        this.lon = a.lon;
+        this.velocity = a.velocity;
+        this.heading = a.heading;
+        this.vertical_rate = a.vertical_rate;
+        this.callsign = a.callsign;
+        this.on_ground = a.on_ground;
+        this.alert = a.alert;
+        this.spi = a.spi;
+        this.squawk = a.squawk;
+        this.baro_altitude = a.baro_altitude;
+        this.geo_altitude = a.geo_altitude;
+        this.last_pos_update = a.last_pos_update;
+        this.last_contact = a.last_contact;
+        this.hour = a.hour;
+        this.start_time = a.start_time;
+        this.end_time = a.end_time;
+        this.type = computeAircraftType(this.callsign, this.icao24);
+
+        console.log(this);
+        
+    }
+
     
-    loadFromFile(filename:string, file_content:string) : boolean
-    {
-        this.filename = filename
-
-        if (filename.endsWith(".csv")){
-            return this.loadFromCSV(filename, file_content);
-        }
-        else{
-            return false;
-        }
-    }
-
-    loadFromCSV(filename:string, file_content:string) : boolean
-    {
-        // split the file content into lines
-        file_content = file_content.trim();
-        var lines = file_content.split('\n');
-
-        // first line is the header
-        var header = lines[0].split(',');
-
-        var data:string[][] = [];
-        for (var i = 1; i < lines.length; i++) {
-            var line:string[] = lines[i].split(',');
-            data.push(line);
-        }
-
-        // loop through the header and assign the data to the correct array
-        for (var c = 0; c < header.length; c++) {
-            var column = header[c];
-            if (column == "time" || column == "7_8"){
-                for (var i = 0; i < data.length; i++) {
-                    this.time.push(parseInt(data[i][c]));
-                }
-            }
-            if(column == "icao24"){
-                this.icao24 = data[0][c];
-            }
-            if(column == "4"){
-                this.icao24 = U.num_to_hex(parseInt(data[0][c]));
-            }
-            if(column == "lat" || column == "15"){
-                for (var i = 0; i < data.length; i++) {
-                    this.lat.push(parseFloat(data[i][c]));
-                }
-            }
-            if(column == "lon" || column == "16"){
-                for (var i = 0; i < data.length; i++) {
-                    this.lon.push(parseFloat(data[i][c]));
-                }
-            }
-            if (column == "velocity" || column == "13"){
-                for (var i = 0; i < data.length; i++) {
-                    this.velocity.push(parseFloat(data[i][c]));
-                }
-            }
-            if (column == "heading" || column == "14"){
-                for (var i = 0; i < data.length; i++) {
-                    this.heading.push(parseFloat(data[i][c]));
-                }
-            }
-            if (column == "vertrate" || column == "17"){
-                for (var i = 0; i < data.length; i++) {
-                    this.vertical_rate.push(parseFloat(data[i][c]));
-                }
-            }
-            if (column == "callsign"){
-                this.callsign = data[0][c];
-            }
-            if (column == "onground"){
-                for (var i = 0; i < data.length; i++) {
-                    // convert to boolean
-                    if (data[i][c] == "true"){
-                        this.on_ground.push(true);
-                    }
-                    else{
-                        this.on_ground.push(false);
-                    }
-                    
-                }
-            }
-            if (column == "alert"){
-                for (var i = 0; i < data.length; i++) {
-                    // convert to boolean
-                    if (data[i][c] == "true"){
-                        this.alert.push(true);
-                    }
-                    else{
-                        this.alert.push(false);
-                    }
-                }
-            }
-            if (column == "spi"){
-                for (var i = 0; i < data.length; i++) {
-                    // convert to boolean
-                    if (data[i][c] == "true"){
-                        this.spi.push(true);
-                    }
-                    else{
-                        this.spi.push(false);
-                    }
-                }
-            }
-            if (column == "squawk"){
-                for (var i = 0; i < data.length; i++) {
-                    this.squawk.push(parseInt(data[i][c]));
-                }
-            }
-            if (column == "baroaltitude" || column == "12"){
-                for (var i = 0; i < data.length; i++) {
-                    this.baro_altitude.push(parseFloat(data[i][c]));
-                }
-            }
-            if (column == "geoaltitude"  || column == "12"){
-                for (var i = 0; i < data.length; i++) {
-                    this.geo_altitude.push(parseFloat(data[i][c]));
-                }
-            }
-            if (column == "lastposupdate"){
-                for (var i = 0; i < data.length; i++) {
-                    this.last_pos_update.push(parseFloat(data[i][c]));
-                }
-            }
-            if (column == "lastcontact"){
-                for (var i = 0; i < data.length; i++) {
-                    this.last_contact.push(parseFloat(data[i][c]));
-
-                }
-            }
-            if (column == "hour"){
-                for (var i = 0; i < data.length; i++) {
-                    this.hour.push(parseInt(data[i][c]));
-                }
-            }
-        }
-
-        // check required columns
-        if (this.icao24 == "" && this.callsign.length == 0){
-            return false;
-        }
-        if (this.lat.length == 0 || this.lon.length == 0){
-            return false;
-        }
-        if (this.time.length == 0){
-            return false;
-        }
-        if (this.baro_altitude.length == 0 && this.geo_altitude.length == 0){
-            return false;
-        }
-
-
-        if (this.time[0] < 30 * 24 * 60 * 60)
-        {
-            // shift time to today
-            var today = new Date();
-            var today_start = new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime() / 1000;
-            var shift = today_start - this.time[0];
-            for (var i = 0; i < this.time.length; i++) {
-                this.time[i] += shift;
-            }
-        }
-
-        this.start_time = this.time[0];
-        this.end_time = this.time[this.time.length - 1];
-
-        this.type = getAircraftType(this.callsign, this.icao24);
-
-        if (this.callsign == ""){
-            this.callsign = "NULL";
-        }
-
-        var filename_callsign = filename.split("_");
-        console.log(filename_callsign);
-        
-        if (filename_callsign[0] == "callsign"){
-            this.callsign = filename_callsign[1];
-        }
-        
-        return true;
-    }
-
-
-
     getLatLngs() : [number,number][]
     {
         var latlngs:[number,number][] = [];
@@ -315,12 +156,15 @@ export class Flight
     getbounds() : L.LatLngBounds
     {
         var latlngs = this.getLatLngs();
+        
+        
         var bounds = L.latLngBounds(latlngs);
         return bounds;
     }
 
     getLatLngsForTime(time) : [number,number][]
     {
+        const MAX_LENGTH = 1000;
         if (time < this.start_time){
             return [];
         }
@@ -330,6 +174,10 @@ export class Flight
 
         var latlngs:[number,number][] = [];
         var i = 0;
+        while (i < this.time.length && this.time[i] < time){
+            i++;
+        }
+        i = Math.max(0, i - MAX_LENGTH);
         while (this.time[i] < time){
             latlngs.push([this.lat[i], this.lon[i]]);
             i++;
@@ -347,7 +195,7 @@ export class Flight
         }
 
         var i = 0;
-        while (this.time[i] < time){
+        while (i < this.time.length && this.time[i] < time){
             i++;
         }
         return this.heading[i];
@@ -364,8 +212,10 @@ export class Flight
 
 
     getMapData(timestamp:number=undefined, end:number=undefined):
-        {type: AircraftType;callsign: string;icao24: string;coords: [number, number][];rotation:number[];start_time: number;end_time: number;}
+        {type: AircraftType;callsign: string;icao24: string;coords: [number, number][];rotation:number;start_time: number;end_time: number;}
     {
+
+        const MAX_LENGTH = 10000;
         if (timestamp == undefined){
             timestamp = this.end_time;
         }
@@ -373,15 +223,19 @@ export class Flight
             // check if timestamp is in range
             
             if (timestamp > this.end_time || timestamp < this.start_time){
-                return {"type": AircraftType.UNKNOWN,"callsign": "NULL","icao24": "NULL","coords": [], "rotation":[],"start_time": -1,"end_time": -1,};
+                return {"type": AircraftType.UNKNOWN,"callsign": "NULL","icao24": "NULL","coords": [], "rotation":-1,"start_time": -1,"end_time": -1,};
             }
             // if it's the case gather all data
             var coords:[number, number][] = [];
             var rot:number[] = [];
             var i = 0;
             while (i < this.time.length && this.time[i] <= timestamp){
+                i++;
+            }
+            i = Math.max(0, i - MAX_LENGTH);
+            while (i < this.time.length && this.time[i] <= timestamp){
                 coords.push([this.lat[i], this.lon[i]]);
-                rot.push(this.heading[i]);
+                
                 i++;
             }
             
@@ -391,7 +245,7 @@ export class Flight
                 "callsign": this.callsign,
                 "icao24": this.icao24,
                 "coords": coords,
-                "rotation": rot,
+                "rotation":  this.heading[i - 1],
                 "start_time": this.start_time,
                 "end_time": this.end_time,
             };
@@ -399,7 +253,7 @@ export class Flight
         else
         {
             if (timestamp > this.end_time || timestamp < this.start_time){
-                return {"type": AircraftType.UNKNOWN,"callsign": "NULL","icao24": "NULL","coords": [], "rotation":[],"start_time": -1,"end_time": -1,};
+                return {"type": AircraftType.UNKNOWN,"callsign": "NULL","icao24": "NULL","coords": [], "rotation":-1,"start_time": -1,"end_time": -1,};
             }
 
             if (timestamp < this.start_time){
@@ -420,7 +274,7 @@ export class Flight
                 "callsign": this.callsign,
                 "icao24": this.icao24,
                 "coords": coords,
-                "rotation": this.heading,
+                "rotation": this.heading[i - 1],
                 "start_time": this.start_time,
                 "end_time": this.end_time,
             };

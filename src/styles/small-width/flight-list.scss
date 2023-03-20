@@ -1,0 +1,82 @@
+
+  
+  
+#window-flight-list{
+    top: 0vh;
+    left: 100vw;
+    width: 36vw;
+    height: 40vw;
+  
+    transform: translate(calc(-100% - 4vw), 10vw); 
+
+    /** desctivate selection */
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+    -khtml-user-select: none; /* Konqueror HTML */
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* Internet Explorer/Edge */
+    user-select: none; /* Non-prefixed version, currently
+                          supported by Chrome and Opera */
+
+    
+}
+  
+
+  
+#window-flight-list>.list{
+    width: calc(100% - 2vw);
+    height: 100%;
+    /* overflow Y */
+    overflow-y: scroll;
+    overflow-x: hidden;
+  
+    margin: 0px 2vw;
+    
+
+}
+  
+.flight{
+    width: calc(100% - 4vw);
+    height: 6vw;
+    border-radius: 1vw;
+    margin: 1vw 2vw 0 0.5vw;
+    padding: 0 1vw;
+  
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-direction: row;
+
+
+}
+
+/* last flight margin for scroll */ 
+.flight:last-child{
+    margin-bottom: 1vw;
+}
+  
+.flight>.flight-info{
+    width: 75%;
+    height: 100%;
+  
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-direction: row;
+    padding: 0 10px;
+
+    font-size: 2vw;
+}
+
+.flight-info>img{
+    width: 4vw;
+    height: 4vw;
+}
+  
+  
+
+#clear-list-btn{
+    float: right;
+    height: 20px;
+    font-size: 12px;
+}

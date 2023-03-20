@@ -178,7 +178,7 @@ export class Map {
                 callsign: string;
                 icao24: string;
                 coords: [number, number][];
-                rotation:number[];
+                rotation:number;
                 start_time: number;
                 end_time: number;}> = []
 
@@ -196,7 +196,7 @@ export class Map {
                 this.polylines.push(poly);
 
                 var last = data[i].coords[data[i].coords.length-1];
-                var angle = data[i].rotation[data[i].rotation.length-1] + 90;
+                var angle = data[i].rotation + 90;
 
                 var marker: L.Marker;
                 if (angle < 90 || angle > 270){
@@ -221,7 +221,7 @@ export class Map {
 
                 var last = data[i].coords[data[i].coords.length-1];
                 
-                var angle = data[i].rotation[data[i].rotation.length-1] + 90;
+                var angle = data[i].rotation + 90;
                 this.markers[i].setLatLng({lat: last[0], lng: last[1]});
                 
                 if (angle < 90 || angle > 270){

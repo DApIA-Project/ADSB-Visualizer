@@ -66,12 +66,22 @@ body, html {
 
 @media all and (max-width: 799px) and (max-height: 799px) and (max-aspect-ratio:3/2) {
     // @import "./small-width/";
+    @import "./small-width/drop-zone.scss";
+    @import "./small-width/flight-list.scss";
+    @import "./small-width/header.scss";
+    @import "./small-width/map.scss";
+    @import "./small-width/play-bar.scss";
 }
 @media all and (max-width: 799px) and (max-height: 799px) and (min-aspect-ratio:3/2) {
     // @import "./small-height/";
 }
 @media all and (min-width: 800px) and (max-height: 799px) and (max-aspect-ratio:8/10), all and (min-height: 800px) and (max-width: 799px) and (max-aspect-ratio:8/10) {
     // @import "./small-width/";
+    @import "./small-width/drop-zone.scss";
+    @import "./small-width/flight-list.scss";
+    @import "./small-width/header.scss";
+    @import "./small-width/map.scss";
+    @import "./small-width/play-bar.scss";
 }
 @media all and (min-width: 800px) and (max-height: 799px) and (min-aspect-ratio:8/10) and (max-aspect-ratio:4/3), all and (min-height: 800px) and (max-width: 799px) and (min-aspect-ratio:8/10) and (max-aspect-ratio:4/3) {
     // @import "./large/";

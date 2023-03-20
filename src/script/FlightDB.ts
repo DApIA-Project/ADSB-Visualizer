@@ -4,6 +4,8 @@ import * as U from './Utils';
 import {Map} from './Map';
 import * as L from 'leaflet';
 import { TimeManager } from './TimeManager';
+import { loadFromCSV } from './parsers/parse_csv';
+import { loadFromSBS } from './parsers/parse_sbs';
 
 
 var URL_helico = require('/src/assets/images/helico.gif')
@@ -14,6 +16,7 @@ var URL_goundvehicle = require('/src/assets/images/gound-vehicle.png')
 var URL_unknown = require('/src/assets/images/unknown-plane.png')
 
 // manage the flight database
+// - load the flights from files
 // - contains all the flights
 // - sort them by start time for performances (find a flight by timestamp fastly)
 //      + also for a nice display
@@ -70,20 +73,56 @@ export class FlightDB{
     {
         this.timer = timer;
     }
+
+    private parseFile(filename:string, content:string) : Array<Flight>
+    {
+        var flights:Array<Flight> = Array();
+        if (filename.endsWith(".csv")){
+            var attributes = loadFromCSV(filename, content);
+            if (attributes.length == 1)
+            {
+                var flight = new Flight();
+                flight.setAttribute(attributes[0]);
+                flights.push(flight);
+            }
+
+        }
+        else if (filename.endsWith(".sbs"))
+        {
+            var attributes = loadFromSBS(filename, content);
+            
+            for (var i = 0; i < attributes.length; i++)
+            {
+                var flight = new Flight();
+                flight.setAttribute(attributes[i]);
+                flights.push(flight);
+            }
+        }
+        return flights;
+    }
+
   
 
-    public addFlight(filename:string, content) : void
+    public addFlights(filename:string, content:string) : void
     {
-        var flight = new Flight();
-        if (flight.loadFromFile(filename, content)){
+        var flights = this.parseFile(filename, content);
+
+        console.log(flights);
+        
+        
+        for (var i = 0; i < flights.length; i++)
+        {
+            var flight = flights[i];
+            
             // add flight object
             // sorted by start time
-            var i = 0;
-            while (i < this.flights.length && this.flights[i].getStartTimestamp() < flight.getStartTimestamp()){
-                i++;
+            var t = 0;
+            while (t < this.flights.length && this.flights[t].getStartTimestamp() < flight.getStartTimestamp()){
+                t++;
             }
-            this.flights.splice(i, 0, flight);
-            this.flights_filename.splice(i, 0, filename);
+            
+            this.flights.splice(t, 0, flight);
+            this.flights_filename.splice(t, 0, filename);
 
             if (flight.getStartTimestamp() < this.min_timestamp || this.min_timestamp == -1){
                 this.min_timestamp = flight.getStartTimestamp();
@@ -91,17 +130,17 @@ export class FlightDB{
             if (flight.getEndTimestamp() > this.max_timestamp || this.max_timestamp == -1){
                 this.max_timestamp = flight.getEndTimestamp();
             }
-
+            
             // gen html
             var html_flight = this.generateFlightHTML(flight);
-            this.html_flights.splice(i, 0, html_flight);
-            this.html_flights_visible.splice(i, 0, false);
+            this.html_flights.splice(t, 0, html_flight);
+            this.html_flights_visible.splice(t, 0, false);
 
-            this.html_flight_list.insertBefore(html_flight, this.html_flight_list.childNodes[i]);
-
-            // re-calculate flight indexing
-            this.recalculate_db();
+            this.html_flight_list.insertBefore(html_flight, this.html_flight_list.childNodes[t]);
         }
+        // re-calculate flight indexing
+    
+        this.recalculate_db();
     }
 
     public removeFlight(index:number) : void
@@ -215,7 +254,7 @@ export class FlightDB{
 
 
     public getMapData(timestamp:number = undefined, end:number = undefined) : 
-        Array<{type: AircraftType;callsign: string;icao24: string;coords: [number, number][];rotation:number[];start_time: number;end_time: number;}>
+        Array<{type: AircraftType;callsign: string;icao24: string;coords: [number, number][];rotation:number;start_time: number;end_time: number;}>
     {
         var flights = Array();
         for (let i = 0; i < this.flights.length; i++) {
@@ -254,6 +293,7 @@ export class FlightDB{
     {
         var alllatlngs = Array();
         for (let i = 0; i < this.flights.length; i++) {
+            
             var bounds = this.flights[i].getbounds();
             
             var flight_min_lat = bounds.getSouth();
