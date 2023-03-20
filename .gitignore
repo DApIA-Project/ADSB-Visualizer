@@ -3,14 +3,13 @@
 node_modules/
 dist/
 
-
-src/assets/exp # personal experience to generate assets
-
+# personal experience to generate assets
+src/assets/exp 
+# too big
+dump24h.sbs 
 
 
 .vscode/
 .idea/
 *.iml
 
-
-example/sbs/dump24h.sbs # too big to be in git
