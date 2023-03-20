@@ -2,18 +2,12 @@
 #window-play-bar{
     top: 100vh;
     left: 50vw;
-    width: 90vw;
-
-    padding: 1vw;
-
-    // height: 30px;
+    width: 95vw;
+    height: 5vh;
   
     flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: center;
-    column-gap: 5vw;
   
-    transform: translate(-50%, calc(-100% - 5vw));
+    transform: translate(-50%, calc(-100% - 5vh));
 
     /** desctivate selection */
     -webkit-touch-callout: none; /* iOS Safari */
@@ -24,22 +18,26 @@
     user-select: none; /* Non-prefixed version, currently
                           supported by Chrome and Opera */
 
+    font-size: 3vh;
 
-    font-size: 3vw;
+}
+#window-play-bar>a{
+    padding: 0.7vh;
 }
   
   /* range bar */
 #time-bar{
-    width: 100%;
+    width: 50%;
     height: 100%;
 }
   
 #time-speed{
-    width: 20px;
+    width: 4vh;
+    height: 3.5vh;
+    font-size: 3vh;
 }
 
 #time-display{
-    width: 45vw;
+    width: 20vw;
     text-align: center;
 }
-  

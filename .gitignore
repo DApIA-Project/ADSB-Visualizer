@@ -11,3 +11,6 @@ src/assets/exp # personal experience to generate assets
 .vscode/
 .idea/
 *.iml
+
+
+example/sbs/dump24h.sbs # too big to be in git

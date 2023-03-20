@@ -4,10 +4,10 @@
 #window-flight-list{
     top: 0vh;
     left: 100vw;
-    width: 40vw;
-    height: 40vw;
+    width: 50vh;
+    height: 50vh;
   
-    transform: translate(calc(-100% - 4vw), 10vw); 
+    transform: translate(calc(-100% - 4vh), 10vh); 
 
     /** desctivate selection */
     -webkit-touch-callout: none; /* iOS Safari */
@@ -24,45 +24,45 @@
 
   
 #window-flight-list>.list{
-    width: calc(100% - 2vw);
+    width: calc(100% - 2vh);
     height: 100%;
     /* overflow Y */
     overflow-y: scroll;
     overflow-x: hidden;
   
-    margin: 0px 2vw;
+    margin: 0 2vh;
 }
 
 #window-flight-list>h1{
-    width: calc(100% - 2vw);
-    height: 5vw;
+    width: calc(100% - 2vh);
+    height: 5vh;
     margin: 0;
-    padding: 0 1vw;
+    padding: 0 1vh;
     text-align: center;
-    font-size: 4vw;
+    font-size: 4vh;
 }
   
 .flight{
-    width: calc(100% - 4vw);
-    // height: 6vw;
-    border-radius: 1vw;
-    margin: 1vw 2vw 0 0.5vw;
-    padding: 1vw 1vw;
+    width: calc(100% - 4vh);
+    // height: 6vh;
+    border-radius: 1vh;
+    margin: 1vh 2vh 0 0.5vh;
+    padding: 1vh 1vh;
   
     display: flex;
     justify-content: space-evenly;
-    flex-wrap: wrap;
+    // flex-wrap: wrap;
     align-items: center;
     flex-direction: row;
 }
 
 /* last flight margin for scroll */ 
 .flight:last-child{
-    margin-bottom: 1vw;
+    margin-bottom: 1vh;
 }
   
 .flight>.flight-info{
-    width: 100%;
+    width: 70%;
     height: 100%;
   
     display: flex;
@@ -70,29 +70,29 @@
     align-items: center;
     flex-direction: row;
 
-    font-size: 2vw;
+    font-size: 2vh;
 }
 
 
 .flight>a{
-    font-size: 3vw !important;
-    padding: 0.5vw;
+    font-size: 3vh !important;
+    padding: 0.5vh;
 }
   
 
 .flight-info>img{
-    width: 4vw;
-    height: 4vw;
-    font-size: 2vw !important;
+    width: 4vh;
+    height: 4vh;
+    font-size: 2vh !important;
 }
 
   
 
 #clear-list-btn{
     float: right;
-    height: 4vw;
+    height: 4vh;
 
-    font-size: 2vw;
+    font-size: 2vh;
     margin: 0;
-    padding: 0 1vw;
+    padding: 0 1vh;
 }
