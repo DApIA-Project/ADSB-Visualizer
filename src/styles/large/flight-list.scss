@@ -74,9 +74,10 @@
 }
   
   
-
-#clear-list-btn{
-    float: right;
-    height: 20px;
-    font-size: 12px;
+#window-flight-list>h1>div{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-direction: row;
+    width: 20%;
 }

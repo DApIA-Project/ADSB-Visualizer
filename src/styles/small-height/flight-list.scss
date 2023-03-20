@@ -87,12 +87,17 @@
 }
 
   
+#window-flight-list>h1>div{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-direction: row;
+    width: 22.5%;
+}
+#window-flight-list>h1>div>a{
 
-#clear-list-btn{
-    float: right;
-    height: 4vh;
-
-    font-size: 2vh;
+    height: 3.5vh;
+    font-size: 3.5vh !important;
+    padding: 0.5vh;
     margin: 0;
-    padding: 0 1vh;
 }

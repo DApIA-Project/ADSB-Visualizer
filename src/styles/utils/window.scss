@@ -10,13 +10,13 @@
     justify-content: space-evenly;
     align-items: center;
     flex-direction: column;
-    border-radius: 10px;
+    border-radius: min(1vw, 1vh, 10px);
 }
 
 .window>h1{
     width: calc(100% - 30px);
     height: 40px;
-    border-radius: 10px 10px 0 0;
+    border-radius: min(1vw, 1vh, 10px) min(1vw, 1vh, 10px) 0 0;
     background-color: $backgound-2;
     text-align: center;
     line-height: 40px;

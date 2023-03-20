@@ -26,6 +26,7 @@ export class TimeManager{
     private html_time_range: HTMLInputElement;
     private html_speed_input: HTMLInputElement;
     private html_time_display: HTMLElement;
+    private html_view_all_button: HTMLElement;
 
     private database:FlightDB
     private map:Map
@@ -37,6 +38,7 @@ export class TimeManager{
     private playing:boolean = false;
     private today:Date = new Date();
     private allow_jump:boolean = true;
+    private view_all:boolean = false;
 
     // optimization
     private last_time:number = 0.0;
@@ -50,6 +52,8 @@ export class TimeManager{
         this.html_time_range = <HTMLInputElement>document.getElementById('time-bar');
         this.html_speed_input = <HTMLInputElement>document.getElementById('time-speed');
         this.html_time_display = document.getElementById('time-display');
+        this.html_view_all_button = document.getElementById('view-all-btn');
+
 
         this.html_play_button.addEventListener('click', this.onPlayButton.bind(this));
         this.html_forward_button.addEventListener('click', this.onForwardButton.bind(this));
@@ -57,6 +61,8 @@ export class TimeManager{
         this.html_time_range.addEventListener('input', this.onTimeRange.bind(this));
         this.html_speed_input.addEventListener('change', this.onSpeedChange.bind(this));
         document.addEventListener('keydown', this.onKeyDown.bind(this));
+        this.html_view_all_button.addEventListener('click', this.onViewAll.bind(this));
+
 
         this.today = new Date();
         this.today.setHours(12,0,0,0);
@@ -143,6 +149,7 @@ export class TimeManager{
 
         if (this.playing){
             this.html_play_button.innerHTML = 'pause';
+            this.view_all = false;
         }
         else{
             this.html_play_button.innerHTML = 'play_arrow';
@@ -151,7 +158,6 @@ export class TimeManager{
 
     public onForwardButton(){        
         this.time += this.time_speed;
-
         // not nessessary to do a jump, next update will do it
     }
 
@@ -221,4 +227,28 @@ export class TimeManager{
         }
     }
 
+
+    private onViewAll(){
+        this.view_all = !this.view_all;
+
+        console.log('view all: ' + this.view_all
+            + ' playing: ' + this.playing);
+        
+
+        if (this.view_all && this.playing){
+            console.log('stop playing');
+            
+            this.onPlayButton(); 
+        }
+        else if (!this.view_all && !this.playing){
+            console.log('restart playing');
+            this.onPlayButton();
+        }
+
+        if (this.view_all){
+            var min_time = this.database.getMinTimestamp();
+            var max_time = this.database.getMaxTimestamp();
+            this.map.update(min_time, max_time);
+        }
+    }
 }

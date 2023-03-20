@@ -181,18 +181,20 @@ export class Map {
                 rotation:number;
                 start_time: number;
                 end_time: number;}> = []
-
+            
+        var show_range: boolean = false;
         if (minTimestamp == maxTimestamp){
             data = this.database.getMapData(minTimestamp);
         }
         else{
             data = this.database.getMapData(minTimestamp, maxTimestamp);
+            show_range = true;
         }
         
         for (let i = 0; i < data.length; i++) {
 
             if (i >= this.polylines.length){
-                var poly = L.polyline(data[i].coords, {color: 'red'}).addTo(this.map);
+                var poly = L.polyline(data[i].coords, {color: 'blue'}).addTo(this.map);
                 this.polylines.push(poly);
 
                 var last = data[i].coords[data[i].coords.length-1];
@@ -225,11 +227,13 @@ export class Map {
                 this.markers[i].setLatLng({lat: last[0], lng: last[1]});
                 
                 if (angle < 90 || angle > 270){
-                    this.markers[i].setIcon(icon_map[data[i].type]);
+                    if (this.markers[i].options.icon != icon_map[data[i].type])
+                        this.markers[i].setIcon(icon_map[data[i].type]);
                     this.markers[i].setRotationAngle(angle);
                 }
                 else{
-                    this.markers[i].setIcon(flip_icon_map[data[i].type]);
+                    if (this.markers[i].options.icon != flip_icon_map[data[i].type])
+                        this.markers[i].setIcon(flip_icon_map[data[i].type]);
                     this.markers[i].setRotationAngle(angle + 180);
                 }
             }
@@ -245,6 +249,19 @@ export class Map {
             this.polylines.splice(data.length, nb_to_remove);
             this.markers.splice(data.length, nb_to_remove);
         }
+
+        // if show range hide all markers
+        if (show_range){
+            for (let i = 0; i < this.markers.length; i++) {
+                this.markers[i].setOpacity(0);
+            }
+        }
+        else{
+            for (let i = 0; i < this.markers.length; i++) {
+                this.markers[i].setOpacity(1);
+            }
+        }
+
         return data.length;
 
     }

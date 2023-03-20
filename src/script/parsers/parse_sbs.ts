@@ -234,8 +234,6 @@ export function loadFromSBS(filename:string, file_content:string)
         data.push(row);
     }
     var data_splited = split_on_icao24(data);
-    console.log(data_splited);
-    
 
     var res:Array<{
         time: number[];

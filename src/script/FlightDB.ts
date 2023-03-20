@@ -106,9 +106,6 @@ export class FlightDB{
     public addFlights(filename:string, content:string) : void
     {
         var flights = this.parseFile(filename, content);
-
-        console.log(flights);
-        
         
         for (var i = 0; i < flights.length; i++)
         {

@@ -88,11 +88,26 @@
 
   
 
-#clear-list-btn{
-    float: right;
-    height: 4vw;
+// #clear-list-btn{
+//     float: right;
+//     height: 4vw;
 
-    font-size: 2vw;
+//     font-size: 2vw;
+//     margin: 0;
+//     padding: 0 1vw;
+// }
+  
+#window-flight-list>h1>div{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-direction: row;
+    width: 25%;
+}
+#window-flight-list>h1>div>a{
+
+    height: 3vw;
+    font-size: 3vw !important;
+    padding: 0.5vw;
     margin: 0;
-    padding: 0 1vw;
 }

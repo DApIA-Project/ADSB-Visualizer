@@ -137,7 +137,6 @@ export class Flight
         this.end_time = a.end_time;
         this.type = computeAircraftType(this.callsign, this.icao24);
 
-        console.log(this);
         
     }
 
@@ -227,7 +226,6 @@ export class Flight
             }
             // if it's the case gather all data
             var coords:[number, number][] = [];
-            var rot:number[] = [];
             var i = 0;
             while (i < this.time.length && this.time[i] <= timestamp){
                 i++;
@@ -252,16 +250,19 @@ export class Flight
         }
         else
         {
-            if (timestamp > this.end_time || timestamp < this.start_time){
+            if (timestamp > this.end_time || end < this.start_time){
                 return {"type": AircraftType.UNKNOWN,"callsign": "NULL","icao24": "NULL","coords": [], "rotation":-1,"start_time": -1,"end_time": -1,};
             }
+            
 
-            if (timestamp < this.start_time){
-                timestamp = this.start_time;
-            }
-            if (end > this.end_time){
-                end = this.end_time;
-            }
+            // if (timestamp <= this.start_time){
+            //     timestamp = this.start_time;
+            // }
+            // if (end > this.end_time){
+            //     end = this.end_time;
+            // }
+
+            timestamp = end
 
             var coords:[number, number][] = [];
             var i = 0;
