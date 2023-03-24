@@ -1,7 +1,9 @@
 .cache/
 .parcel-cache/
 node_modules/
+
 dist/
+build/
 
 # personal experience to generate assets
 src/assets/exp 
