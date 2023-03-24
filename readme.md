@@ -1,5 +1,8 @@
 # DApIA project : ADS-B data visualization
 
+Open online version :
+[adsb-visualizer.web.app](https://adsb-visualizer.web.app/)
+
 ## Description
 
 This project is a web application that allows to visualize ADS-B data alterations in real time. The data is provided by the [OpenSky Network](https://opensky-network.org/).
