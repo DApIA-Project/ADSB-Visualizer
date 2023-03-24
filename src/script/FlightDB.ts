@@ -220,8 +220,22 @@ export class FlightDB{
             var i = e.target.getAttribute("flight-num");
             
             this.map.fitBounds(this.flights[i].getbounds());
-            this.timer.setTimestamp(this.flights[i].getStartTimestamp());
+
+            // if flight is not visible, set timer to flight start time
+            if (this.timer.getTimestamp() < this.flights[i].getStartTimestamp() 
+                || this.timer.getTimestamp() > this.flights[i].getEndTimestamp()){
+
+                this.timer.setTimestamp(this.flights[i].getStartTimestamp());
+            }
+
+            // if the user never used the timer (inital configuration -> paused timer), 
+            // play it automatically
+            if (this.timer.neverPlayed()){
+                this.timer.onPlayButton();
+            }
+
             this.flightInfoDisplayer.displayFlight(this.flights[i]);
+            this.flightInfoDisplayer.update(this.timer.getTimestamp());
         }.bind(this));
 
         html_flight.appendChild(html_search_btn);

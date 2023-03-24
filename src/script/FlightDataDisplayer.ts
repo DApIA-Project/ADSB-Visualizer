@@ -271,6 +271,7 @@ export class FlightInfoDisplayer{
 
     open(){
         this.html.style.display = 'flex';
+        
     }
 
     close(){

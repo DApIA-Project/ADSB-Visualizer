@@ -34,7 +34,7 @@ export class TimeManager{
 
     private time:number = 0.0;
     private time_speed:number = 1.0;
-    private playing:boolean = false;
+    private running:boolean = false;
     private today:Date = new Date();
     private allow_jump:boolean = true;
     private view_all:boolean = false;
@@ -42,6 +42,8 @@ export class TimeManager{
     // optimization
     private last_time:number = 0.0;
     private nb_aircraft:number = 0;
+
+    private never_played:boolean = true;
 
 
     constructor(){
@@ -88,6 +90,9 @@ export class TimeManager{
     public setTimestamp(timestamp:number){
         this.time = timestamp;
     }
+    public getTimestamp(){
+        return this.time;
+    }
 
     private update(){
         if (this.inputReader.isProcessing()){
@@ -96,8 +101,9 @@ export class TimeManager{
         var min_time = this.database.getMinTimestamp();
         var max_time = this.database.getMaxTimestamp();
 
-        if (this.playing){
+        if (this.running){
             this.time += this.time_speed/this.FRAME_RATE;
+            this.never_played = false;
         }
 
         if (this.time < min_time){
@@ -106,7 +112,7 @@ export class TimeManager{
 
         if (this.time > max_time){
             this.time = max_time;
-            this.playing = false;
+            this.running = false;
             this.html_play_button.innerHTML = 'play_arrow';
         }
         var ratio = (this.time - min_time)/(max_time - min_time);
@@ -147,9 +153,9 @@ export class TimeManager{
     }
 
     public onPlayButton(){
-        this.playing = !this.playing;
+        this.running = !this.running;
 
-        if (this.playing){
+        if (this.running){
             this.html_play_button.innerHTML = 'pause';
             this.view_all = false;
         }
@@ -201,7 +207,7 @@ export class TimeManager{
             this.time_speed = 1;
             this.html_speed_input.value = '1';
 
-            this.playing = false;
+            this.running = false;
             this.html_play_button.innerHTML = 'play_arrow';
         }
     }
@@ -237,17 +243,11 @@ export class TimeManager{
     private onViewAll(){
         this.view_all = !this.view_all;
 
-        console.log('view all: ' + this.view_all
-            + ' playing: ' + this.playing);
-        
 
-        if (this.view_all && this.playing){
-            console.log('stop playing');
-            
+        if (this.view_all && this.running){
             this.onPlayButton(); 
         }
-        else if (!this.view_all && !this.playing){
-            console.log('restart playing');
+        else if (!this.view_all && !this.running){
             this.onPlayButton();
         }
 
@@ -256,5 +256,12 @@ export class TimeManager{
             var max_time = this.database.getMaxTimestamp();
             this.map.update(min_time, max_time);
         }
+    }
+
+    public isRunning(){
+        return this.running;
+    }
+    public neverPlayed(){
+        return this.never_played;
     }
 }
