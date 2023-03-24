@@ -15,27 +15,19 @@
   
     transform: translate(-50%, calc(-100% - 5vw));
 
-    /** desctivate selection */
-    -webkit-touch-callout: none; /* iOS Safari */
-    -webkit-user-select: none; /* Safari */
-    -khtml-user-select: none; /* Konqueror HTML */
-    -moz-user-select: none; /* Firefox */
-    -ms-user-select: none; /* Internet Explorer/Edge */
-    user-select: none; /* Non-prefixed version, currently
-                          supported by Chrome and Opera */
-
-
     font-size: 3vw;
 }
-  
-  /* range bar */
-#time-bar{
-    width: 100%;
-    height: 100%;
+
+#play-btn, #rewind-btn, #forward-btn{
+    font-size: 4vw !important;
+    padding: 1vw;
 }
+
   
 #time-speed{
-    width: 20px;
+    width: 6vw;
+    font-size: 3vw;
+    padding: 0;
 }
 
 #time-display{
@@ -43,3 +35,32 @@
     text-align: center;
 }
   
+
+
+
+#time-bar {
+    overflow: hidden;
+    -webkit-appearance: none;
+    width: 100%;
+    background-color: transparent;
+    padding: 0;
+    margin: 2vw 0;
+}
+#time-bar:focus {
+    outline: none;
+}
+#time-bar::-webkit-slider-runnable-track {
+    width: 100%;
+    height: 1.5vw;
+    cursor: pointer;
+    background:  $base;
+}
+#time-bar::-webkit-slider-thumb {
+    
+    height: 0px;
+    width: 0px;
+    background: transparent;
+    box-shadow: -100vw 0 0 100vw $secondary;
+    cursor: ew-resize;
+    -webkit-appearance: none;
+}

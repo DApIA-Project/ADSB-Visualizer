@@ -3,12 +3,13 @@
 {
 	border-radius: 5px;
 	background-color: transparent;
-  height: 90%;
+  	height: 90%;
 }
 
 *::-webkit-scrollbar
 {
-	width: 5px;
+	width: 1.5vw;
+	max-width: 7px;
 	background-color: $backgound-1
 }
 

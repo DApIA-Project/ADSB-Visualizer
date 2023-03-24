@@ -1,0 +1,104 @@
+
+  
+  
+#window-flight-data{
+    top: 320px;
+
+    left: 100vw;
+    width: 360px;
+    height: 350px;
+
+    transform: translate(calc(-100% - 20px), 70px); 
+
+}
+  
+  
+#window-flight-data>h1>div{
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    flex-direction: row;
+    width: 20%;
+    height: 100%;
+}
+
+#window-flight-data>h1>div>a{
+    padding: 3px;
+    margin: 3px;
+}
+
+
+
+#flight-data{
+    width: calc(100% - 10px);
+    height: 100%;
+    /* overflow Y */
+    overflow-y: scroll;
+    overflow-x: hidden;
+  
+    margin: 0px 5px;   
+
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    flex-direction: column;
+}
+
+#flight-attributes{
+    width: 90%;
+    font-size: 14px;
+}
+
+
+.line{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    align-items: center;
+    width: 100%;
+}
+
+
+#flight-data>.line
+{
+    min-height: 40px; 
+}
+
+
+#flight-data-graph-container{
+    
+    width: 100%;
+    min-height: calc(100% - 40px);
+}
+
+
+#variable-selector{
+    width: 45%;
+}
+
+#window-length{
+    width: 40px;
+}
+
+
+#flight-attributes tr td:last-child {
+    width: 1%;
+    white-space: nowrap;
+}
+
+
+
+#flight-attributes td>span {
+    color: lighten($secondary, 35%);
+    font-weight: 600;
+}
+
+td>span{
+    display: inline-block;
+    text-align: right;
+    width: 30px;
+}
+td>span.large{
+    display: inline;
+    width: unset !important;
+}

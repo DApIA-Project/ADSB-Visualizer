@@ -6,6 +6,7 @@ import * as L from 'leaflet';
 import { TimeManager } from './TimeManager';
 import { loadFromCSV } from './parsers/parse_csv';
 import { loadFromSBS } from './parsers/parse_sbs';
+import { FlightInfoDisplayer } from './FlightDataDisplayer';
 
 
 var URL_helico = require('/src/assets/images/helico.gif')
@@ -31,6 +32,7 @@ export class FlightDB{
 
     private map:Map = undefined;
     private timer:TimeManager = undefined;
+    private flightInfoDisplayer:FlightInfoDisplayer = undefined;
 
     private flights: Array<Flight> = Array();
     private flights_filename: Array<string> = Array();
@@ -72,6 +74,10 @@ export class FlightDB{
     public setTimer(timer:TimeManager) : void
     {
         this.timer = timer;
+    }
+    public setFlightInfoDisplayer(flightInfoDisplayer:FlightInfoDisplayer) : void
+    {
+        this.flightInfoDisplayer = flightInfoDisplayer;
     }
 
     private parseFile(filename:string, content:string) : Array<Flight>
@@ -215,6 +221,7 @@ export class FlightDB{
             
             this.map.fitBounds(this.flights[i].getbounds());
             this.timer.setTimestamp(this.flights[i].getStartTimestamp());
+            this.flightInfoDisplayer.displayFlight(this.flights[i]);
         }.bind(this));
 
         html_flight.appendChild(html_search_btn);

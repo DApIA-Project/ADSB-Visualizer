@@ -1,0 +1,49 @@
+<div id="window-flight-data"  class="window">
+    <h1> 
+        Flight Info :  
+        <div>
+            <a class="btn-cancel material-icons-outlined" id="close-flight-data-btn">close</a> 
+        </div>
+    </h1>
+    <div id="flight-data">
+        <div class="line">
+            <select id="variable-selector">
+                <option value="velocity">Velocity (m/s)</option>
+                <option value="baro_altitude">Baro altitude (m)</option>
+                <option value="geo_altitude">Geo altitude (m)</option>
+                <option value="vertical_rate">Vertical rate (m/s)</option>
+                <option value="heading">Heading (°N)</option>
+            </select>
+            <div>
+                Lenght : <input type="text" id="window-length" value="10"> min
+            </div>
+        </div>
+        <div id="flight-data-graph-container">
+            <canvas id="flight-data-graph"></canvas>
+        </div>
+        <span style="font-weight: bold;"> Live aircraft attributes : </span>
+        <table id="flight-attributes">
+            <tr>
+                <td>Callsign : <span id="data-callsign" class="large">CALLSIGN</span></td>
+                <td>ICAO 24 : <span id="data-icao24" class="large">FFFFFF</span></td>
+            </tr>
+            <tr>
+                <td>velocity : <span id="data-velocity">0</span> m/s</td>
+                <td>heading : <span id="data-heading">0</span>°</td>
+            </tr>
+            <tr>
+                <td>altitude : <span id="data-altitude" class="large">0</span> m</td>
+                <td>vertical rate : <span id="data-vertical-rate">0</span> m/s</td>
+            </tr>
+            <tr>
+                <td><span id="data-on-ground" class="large">on ground</span></td>
+                <td>squawk : <span id="data-squawk">7777</span></td>
+            </tr>
+            <tr>
+                <td><span id="data-alert" class="large">no alert</span></td>
+                <td><span id="data-spi" class="large">no spi</span></td>
+            </tr>
+        </table>
+        <br>
+    </div>
+</div>

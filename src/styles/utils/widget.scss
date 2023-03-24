@@ -17,8 +17,8 @@ input:focus {
     text-decoration: none;
     cursor: pointer;
   
-    padding: 5px;
-    border-radius: 5px;
+    padding: min(2%, 5px);
+    border-radius: 20%;
   
     transition: all 0.1s ease-in-out;
   
@@ -80,6 +80,11 @@ input:focus {
 input[type="text"]{
     color: $base;
     background-color: $backgound-3;
-    border: 1px solid $backgound-2;
+    border: 1px solid $backgound-1;
 }
   
+select{
+    color: $base;
+    background-color: $backgound-3;
+    border: 1px solid $backgound-1;
+}

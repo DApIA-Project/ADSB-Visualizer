@@ -9,15 +9,6 @@
   
     transform: translate(calc(-100% - 20px), 70px); 
 
-    /** desctivate selection */
-    -webkit-touch-callout: none; /* iOS Safari */
-    -webkit-user-select: none; /* Safari */
-    -khtml-user-select: none; /* Konqueror HTML */
-    -moz-user-select: none; /* Firefox */
-    -ms-user-select: none; /* Internet Explorer/Edge */
-    user-select: none; /* Non-prefixed version, currently
-                          supported by Chrome and Opera */
-
     
 }
   
@@ -76,8 +67,13 @@
   
 #window-flight-list>h1>div{
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-end;
     align-items: center;
     flex-direction: row;
     width: 20%;
+    height: 100%;
+}
+#window-flight-list>h1>div>a{
+    padding: 3px;
+    margin: 3px;
 }

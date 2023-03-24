@@ -1,13 +1,16 @@
 { 
   "compilerOptions": 
   {
-    "target": "es2016", // modern browsers
+    "target": "es2021", // modern browsers
     "experimentalDecorators": true,
     "jsxImportSource": "preact",
     "isolatedModules": true,
-    "types": ["node"]
+    "allowSyntheticDefaultImports": true,
+    "types": ["node"],
+    "typeRoots": [ "../node_modules/@types" ]
+
   },
-  "include": ["**/*.ts", "**/*.tsx"],
-  "exclude": ["node_modules"],
+  "include": ["src/**/*"],
+  "exclude": ["node_modules"]
 
 }

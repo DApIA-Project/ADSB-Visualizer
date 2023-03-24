@@ -1,4 +1,5 @@
 import { FlightDB } from "./FlightDB";
+import { FlightInfoDisplayer } from "./FlightDataDisplayer";
 import { InputReader } from "./InputReader";
 import { Map } from "./Map";
 import * as U from './Utils';
@@ -12,8 +13,6 @@ import * as U from './Utils';
 // - time display
 // - gather flight at a given time
 //      + ask the map to display the aircrafts
-
-
 
 export class TimeManager{
 
@@ -31,7 +30,7 @@ export class TimeManager{
     private database:FlightDB
     private map:Map
     private inputReader:InputReader
-
+    private flightInfoDisplayer:FlightInfoDisplayer
 
     private time:number = 0.0;
     private time_speed:number = 1.0;
@@ -65,8 +64,7 @@ export class TimeManager{
 
 
         this.today = new Date();
-        this.today.setHours(12,0,0,0);
-        
+        this.today.setHours(12,0,0,0);   
     }
 
     public setFlightDB(database:FlightDB){
@@ -77,6 +75,9 @@ export class TimeManager{
     }
     public setInputReader(inputReader:InputReader){
         this.inputReader = inputReader;
+    }
+    public setFlightInfoDisplayer(flightInfoDisplayer:FlightInfoDisplayer){
+        this.flightInfoDisplayer = flightInfoDisplayer;
     }
 
 
@@ -121,9 +122,10 @@ export class TimeManager{
         this.html_time_display.innerHTML = U.timestamp_to_date_hour(timestamp);
 
 
-        // update the map display
+        // update the map display and the flight info displayer
         if (this.time != this.last_time){
             this.nb_aircraft = this.map.update(this.time, this.time);
+            this.flightInfoDisplayer.update(this.time);
             this.last_time = this.time;
         }
 
@@ -205,25 +207,29 @@ export class TimeManager{
     }
 
     public onKeyDown(event:KeyboardEvent){
-        event.preventDefault();
         if (event.key == 'ArrowRight'){
             this.onForwardButton();
+            event.preventDefault();
         }
         else if (event.key == 'ArrowLeft'){
             this.onRewindButton();
+            event.preventDefault();
         }
         else if (event.key == ' '){
             this.onPlayButton();
+            event.preventDefault();
         }
         else if (event.key == 'ArrowUp'){
             this.time_speed *= 2;
             this.html_speed_input.value = this.time_speed.toString();
+            event.preventDefault();
         }
         else if (event.key == 'ArrowDown'){
             this.time_speed /= 2;
             if (this.time_speed < 1)
                 this.time_speed = 1;
             this.html_speed_input.value = this.time_speed.toString();
+            event.preventDefault();
         }
     }
 

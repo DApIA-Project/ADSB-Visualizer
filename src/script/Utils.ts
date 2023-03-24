@@ -43,3 +43,8 @@ export function num_to_hex(num:number):string{
         hex = '0' + hex;
     return hex;
 }
+
+export function float_to_string(value:number, precision:number):string{
+    var str = value.toFixed(precision);
+    return str;
+}

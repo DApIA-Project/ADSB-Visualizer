@@ -283,9 +283,87 @@ export class Flight
     }
 
 
+    public getDataToDisplay(timestamp)
+    {
+        if (timestamp > this.end_time){
+            timestamp = this.end_time;
+        }
+        if (timestamp < this.start_time){
+            timestamp = this.start_time;
+        }
+
+        var i = 0;
+        while (i < this.time.length && this.time[i] < timestamp){
+            i++;
+        }
+
+        return {
+            "callsign": this.callsign,
+            "icao24": this.icao24,
+            "velocity": this.velocity[i],
+            "heading": this.heading[i],
+            "altitude": (this.baro_altitude[i] + this.geo_altitude[i])/2.0,
+            "vertical_rate": this.vertical_rate[i],
+            "on_ground": this.on_ground[i],
+            "squawk": this.squawk[i],
+            "alert": this.alert[i],
+            "spi": this.spi[i],
+        }
+    }
+
+    public getAttributeProfile(attribute:string, timestamp:number, min_timestamp_history:number) : {timestamps:number[], values:number[]}
+    {
+        if (timestamp > this.end_time){
+            timestamp = this.end_time;
+        }
+        if (timestamp < this.start_time){
+            return {timestamps:[], values:[]};
+        }
+
+        var ts_i = 0;
+        var ts_i_min = 0;
+        while (ts_i < this.time.length && this.time[ts_i] < timestamp){
+            ts_i++;
+        }
+        while (ts_i_min < this.time.length && this.time[ts_i_min] < timestamp - min_timestamp_history){
+            ts_i_min++;
+        }
+
+        var profile:{timestamps:number[], values:number[]} = {timestamps:[], values:[]};
+
+        for (var i = ts_i_min; i < ts_i; i++){
+            profile.timestamps.push(this.time[i]);
+            profile.values.push(this[attribute][i]);
+        }
+
+        return profile;
+    }
+
+
     public getType() : AircraftType
     {
         return this.type;
+    }
+
+    // overlead the [] operator
+    public get(attribute:string) : any
+    {
+        if (attribute=="time") return this.time;
+        if (attribute=="icao24") return this.icao24;
+        if (attribute=="lat") return this.lat;
+        if (attribute=="lon") return this.lon;
+        if (attribute=="velocity") return this.velocity;
+        if (attribute=="heading") return this.heading;
+        if (attribute=="vertical_rate") return this.vertical_rate;
+        if (attribute=="callsign") return this.callsign;
+        if (attribute=="on_ground") return this.on_ground;
+        if (attribute=="alert") return this.alert;
+        if (attribute=="spi") return this.spi;
+        if (attribute=="squawk") return this.squawk;
+        if (attribute=="baro_altitude") return this.baro_altitude;
+        if (attribute=="geo_altitude") return this.geo_altitude;
+        return undefined;        
+
     }
 }
 

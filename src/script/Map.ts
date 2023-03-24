@@ -9,24 +9,24 @@ import "leaflet/dist/leaflet.css";
 // - display the aircraft icons using markers
 
 
-declare module 'leaflet' {
-    interface MarkerOptions {
-        rotationAngle?: number | undefined; // Rotation angle, in degrees, clockwise. (Default = 0)
-        rotationOrigin?: string | undefined; // The rotation center, as a transform-origin CSS rule. (Default = 'bottom center')
-    }
+// declare module 'leaflet' {
+//     interface MarkerOptions {
+//         rotationAngle?: number | undefined; // Rotation angle, in degrees, clockwise. (Default = 0)
+//         rotationOrigin?: string | undefined; // The rotation center, as a transform-origin CSS rule. (Default = 'bottom center')
+//     }
 
-    interface Marker {
-        /*
-        * Sets the rotation angle value.
-        */
-        setRotationAngle(newAngle: number): this;
+//     interface Marker {
+//         /*
+//         * Sets the rotation angle value.
+//         */
+//         setRotationAngle(newAngle: number): this;
 
-        /**
-         * Sets the rotation origin value.
-         */
-        setRotationOrigin(newOrigin: string): this;
-    }
-}
+//         /**
+//          * Sets the rotation origin value.
+//          */
+//         setRotationOrigin(newOrigin: string): this;
+//     }
+// }
 
 import { Flight, AircraftType } from './Flight';
 import { FlightDB } from './FlightDB';
@@ -159,6 +159,7 @@ export class Map {
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: 'Map data © <a href="https://openstreetmap.org">OpenStreetMap</a> contributors'
         }).addTo(this.map);
+
     }
 
     public setFlightDB(db:FlightDB) : void{

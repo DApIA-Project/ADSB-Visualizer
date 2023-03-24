@@ -4,6 +4,8 @@ import {Map} from './Map';
 import {FlightDB} from './FlightDB';
 import {InputReader} from './InputReader';
 import { TimeManager } from './TimeManager';
+import { FlightInfoDisplayer } from './FlightDataDisplayer';
+
 
 
 // initalize everything when the page is loaded
@@ -24,11 +26,14 @@ function onPageLoad() {
     // manage the time bar
     var timeManager = new TimeManager();
 
+    var flightInforDisplayer = new FlightInfoDisplayer();
+
 
     map.setFlightDB(flight_db);
 
     flight_db.setMap(map);
     flight_db.setTimer(timeManager);
+    flight_db.setFlightInfoDisplayer(flightInforDisplayer);
 
     inpurReader.setFlightDB(flight_db);
     inpurReader.setMap(map);
@@ -36,6 +41,7 @@ function onPageLoad() {
     timeManager.setFlightDB(flight_db);
     timeManager.setMap(map);
     timeManager.setInputReader(inpurReader);
+    timeManager.setFlightInfoDisplayer(flightInforDisplayer);
     timeManager.start();
 
 

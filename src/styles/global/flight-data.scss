@@ -1,4 +1,4 @@
-#window-flight-list{
+#window-flight-data{
     background-color: rgba($backgound-1, 0.8);
 
     /** desctivate selection */
@@ -11,17 +11,12 @@
                           supported by Chrome and Opera */
 }
 
-#window-flight-list>h1{
+#window-flight-data>h1{
     background-color: rgba($backgound-2, 0.8);
 }
 
-.flight{
-    background-color: $backgound-3;
-    border : 1px solid transparent;
+
+
+#flight-attributes td {
+    color: $base;
 }
-
-.flight[visible="true"]{
-    border : 1px solid $secondary;
-}
-
-
