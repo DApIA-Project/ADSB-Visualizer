@@ -155,7 +155,10 @@ export class FlightInfoDisplayer{
 
     displayFlight(flight:Flight){
         this.flight = flight;
-        this.open();
+        if (this.flight != undefined)
+            this.open();
+        else
+            this.close();
     }
 
     update(timestamp:number){

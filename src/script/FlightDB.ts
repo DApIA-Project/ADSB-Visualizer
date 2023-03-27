@@ -40,6 +40,7 @@ export class FlightDB{
 
     // to update the flight list display
     private html_flight_list: HTMLElement;
+    private html_empty_flight_list: HTMLElement;
     private html_flights: Array<HTMLElement> = Array();
     private html_flights_visible: Array<boolean> = Array();
 
@@ -52,6 +53,8 @@ export class FlightDB{
     private next_scroll_is_autoscroll = false;
     private autoscroll_timeout:NodeJS.Timeout = undefined
 
+    private example_mode:boolean = false;
+
 
 
 
@@ -62,9 +65,13 @@ export class FlightDB{
             this.onScroll();
         });
 
+        this.html_empty_flight_list = document.getElementById('empty-flight-list');
+
         document.getElementById('clear-list-btn').addEventListener('click', (e) => {
             this.clear();
         });
+
+        
     }
 
     public setMap(map:Map) : void
@@ -109,8 +116,21 @@ export class FlightDB{
 
   
 
-    public addFlights(filename:string, content:string) : void
+    public addFlights(filename:string, content:string, example_mode=false) : void
     {
+        // code header (example mode) //
+        var example_mode_changed = false;
+        if (this.example_mode != example_mode)
+        {
+            example_mode_changed = true;
+            // we change the mode, clear the db
+            this.clear();
+            // if we are in example mode -> start the timer example mode
+            
+        }
+        this.example_mode = example_mode;
+
+        // code begining // 
         var flights = this.parseFile(filename, content);
         
         for (var i = 0; i < flights.length; i++)
@@ -139,11 +159,16 @@ export class FlightDB{
             this.html_flights.splice(t, 0, html_flight);
             this.html_flights_visible.splice(t, 0, false);
 
-            this.html_flight_list.insertBefore(html_flight, this.html_flight_list.childNodes[t]);
+            if (!this.example_mode)
+                this.html_flight_list.insertBefore(html_flight, this.html_flight_list.childNodes[t]);
         }
         // re-calculate flight indexing
     
         this.recalculate_db();
+
+        if (example_mode_changed){
+            this.timer.setExempleMode(example_mode);
+        }
     }
 
     public removeFlight(index:number) : void
@@ -163,6 +188,14 @@ export class FlightDB{
         this.html_flights[index].remove();
         this.html_flights.splice(index, 1);
         this.html_flights_visible.splice(index, 1);
+
+        if (this.flightInfoDisplayer.flight != undefined &&
+            this.flightInfoDisplayer.flight == flight)
+        {
+            this.flightInfoDisplayer.close();
+            this.flightInfoDisplayer.displayFlight(undefined);
+        }
+
 
         this.recalculate_db();
     }
@@ -263,6 +296,14 @@ export class FlightDB{
                 this.max_timestamp = this.flights[i].getEndTimestamp();
             }
         }
+
+
+        if (this.flights.length == 0 || this.example_mode){
+            this.html_empty_flight_list.style.display = 'flex';
+        }
+        else{
+            this.html_empty_flight_list.style.display = 'none';
+        }
     }
 
     public fileExists(filename:string) : boolean
@@ -322,6 +363,10 @@ export class FlightDB{
             alllatlngs.push([flight_min_lat, flight_min_lon]);
             alllatlngs.push([flight_max_lat, flight_max_lon]);
         }
+
+        if (alllatlngs.length == 0)
+            // whole world center 0, 0, zoom 2
+            return undefined;
 
         var bounds = L.latLngBounds(alllatlngs);
 
@@ -391,5 +436,8 @@ export class FlightDB{
 
         this.min_timestamp = -1;
         this.max_timestamp = -1;
+
+        this.recalculate_db();
+        this.flightInfoDisplayer.close();
     }
 }

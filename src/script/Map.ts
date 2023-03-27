@@ -168,6 +168,7 @@ export class Map {
 
     public fitBounds(box:L.LatLngBounds)
     {
+        if (box == undefined) return;
         this.map.fitBounds(box);
     }
 

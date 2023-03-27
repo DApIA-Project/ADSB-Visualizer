@@ -44,13 +44,10 @@ function onPageLoad() {
     timeManager.setFlightInfoDisplayer(flightInforDisplayer);
     timeManager.start();
 
+    inpurReader.loadDefaultExample();
 
 
 
-    window.addEventListener('dragover', (e) => {inpurReader.onDragOver(e); });
-    window.addEventListener('drop', (e) => { inpurReader.onDrop(e); });
-    window.addEventListener('dragenter', (e) => { inpurReader.onDragEnter(e); });
-    window.addEventListener('dragleave', (e) => { inpurReader.onDragLeave(e); });
 }
 
 

@@ -24,15 +24,19 @@
 
 #window-flight-list>h1>div{
     display: flex;
-    justify-content: space-evenly;
+    justify-content: flex-end;
     align-items: center;
     flex-direction: row;
-    width: 25%;
+    width: 40%;
+    font-size: 3vw;
 }
-  
+#window-flight-list>h1>div>*{
+    padding: 0.3vw;
+    margin: 0.2vw;
+}
 
   
-#window-flight-list>.list{
+#flight-list, #empty-flight-list{
     width: calc(100% - 2vw);
     height: 100%;
     /* overflow Y */
@@ -40,6 +44,14 @@
     overflow-x: hidden;
   
     margin: 0px 2vw;
+}
+#empty-flight-list{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    font-size: 3vw;
 }
 
   

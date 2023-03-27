@@ -2,6 +2,7 @@
   "compilerOptions": 
   {
     "target": "es2021", // modern browsers
+    "module": "es2022", // modern browsers
     "experimentalDecorators": true,
     "jsxImportSource": "preact",
     "isolatedModules": true,

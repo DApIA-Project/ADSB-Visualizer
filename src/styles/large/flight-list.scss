@@ -13,8 +13,22 @@
 }
   
 
+
+#window-flight-list>h1>div{
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    flex-direction: row;
+    width: 20%;
+    height: 100%;
+}
+#window-flight-list>h1>div>*{
+    padding: 3px;
+    margin: 3px;
+}
+
   
-#window-flight-list>.list{
+#flight-list, #empty-flight-list{
     width: calc(100% - 10px);
     height: 100%;
     /* overflow Y */
@@ -22,7 +36,13 @@
     overflow-x: hidden;
   
     margin: 0px 5px;
-    
+}
+
+#empty-flight-list{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 
 }
   
@@ -65,15 +85,3 @@
 }
   
   
-#window-flight-list>h1>div{
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    flex-direction: row;
-    width: 20%;
-    height: 100%;
-}
-#window-flight-list>h1>div>a{
-    padding: 3px;
-    margin: 3px;
-}

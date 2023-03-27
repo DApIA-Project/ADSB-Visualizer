@@ -3,7 +3,7 @@
 node_modules/
 
 dist/
-build/
+public/
 
 # personal experience to generate assets
 src/assets/exp 
@@ -14,4 +14,12 @@ dump24h.sbs
 .vscode/
 .idea/
 *.iml
+
+
+# firebase
+firebase.json
+.firebaserc
+.firebase/
+
+
 

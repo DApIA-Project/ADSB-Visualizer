@@ -9,6 +9,9 @@ import * as M from './Map';
 // - ask the database to add the flight
 // - manage nice loading screen
 
+var filename_ext = "sbs";
+var default_example = require("url:/example/sbs/record_AFR.sbs")
+
 
 export class InputReader{
 
@@ -41,7 +44,24 @@ export class InputReader{
         for (var i = 0; i < images.length; i++){
             this.html_loading_screen_icons.push(images[i]);
         }
+
+
+        // file reader
+        document.getElementById('add-flight-btn').addEventListener('change', (e) => {
+            this.onDrop(e);
+        });
+        document.getElementById('add-flight-btn-in-list').addEventListener('change', (e) => {
+            this.onDrop(e);
+        });
         
+
+        // drag and drop events
+        window.addEventListener('dragover', (e) => {this.onDragOver(e); });
+        window.addEventListener('drop', (e) => { this.onDrop(e); });
+        window.addEventListener('dragenter', (e) => { this.onDragEnter(e); });
+        window.addEventListener('dragleave', (e) => { this.onDragLeave(e); });
+        
+
         
     }
 
@@ -53,12 +73,24 @@ export class InputReader{
     public setMap(map: M.Map) : void{
         this.map = map;
     }
-    private ondrop(filename: string, content: string) : void {
+    private ondrop(filename: string, content: string, example_mode=false) : void {
         // do the parsing and add the flights of the file to the database
-        this.flight_db.addFlights(filename, content);
+        this.flight_db.addFlights(filename, content, example_mode);
     }
     ///////////////////////////
 
+
+    public loadDefaultExample() : void {
+        this.openLoadingScreen();
+        var filename = 'example.'+filename_ext;
+        
+        fetch(default_example).then(response => response.text()).then(text => {
+            var content = text;
+            this.ondrop(filename, content, true); // hidden list, example mode
+            this.moveBoundingBox()
+            this.closeLoadingScreen();
+        });
+    }
 
 
 
@@ -84,14 +116,22 @@ export class InputReader{
         event.preventDefault();
     }
     public onDrop(event) {
-        event.preventDefault();
-        // event.stopPropagation();
+        if (event.type == 'drop'){
+            event.preventDefault();
+        }
 
         this.hover_counter = 0; // file dropped, nothing is in the drop zone anymore
         this.html_drop_zone.style.display = 'none';
-        
 
-        for (const file of event.dataTransfer.files) {
+        var files = Array();
+        if (event.type == 'drop'){
+            files = event.dataTransfer.files;
+        }
+        else if (event.type == 'change'){
+            files = event.target.files;
+        }
+        
+        for (const file of files) {
             if (!this.flight_db.fileExists(file.name)){
                 const reader = new FileReader();
                 this.files_in_progress.set(reader, file)

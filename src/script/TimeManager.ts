@@ -35,6 +35,7 @@ export class TimeManager{
     private time:number = 0.0;
     private time_speed:number = 1.0;
     private running:boolean = false;
+    private looping = false;
     private today:Date = new Date();
     private allow_jump:boolean = true;
     private view_all:boolean = false;
@@ -67,6 +68,29 @@ export class TimeManager{
 
         this.today = new Date();
         this.today.setHours(12,0,0,0);   
+    }
+
+    public setExempleMode(mode:boolean){
+        if (mode){
+            this.time = (3 * this.database.getMinTimestamp() + 1 * this.database.getMaxTimestamp()) / (3 + 1);
+            this.time_speed = 32;
+            this.html_speed_input.value = this.time_speed.toString();
+            this.looping = true;
+            if (!this.running){
+                this.onPlayButton();
+            }
+        }
+        else{
+
+            this.time = 0;
+            this.time_speed = 1;
+            this.html_speed_input.value = this.time_speed.toString();
+            this.looping = false;
+            if (this.running){
+                this.onPlayButton();
+            }
+            this.never_played = true; // reset the never played flag (to startup play on the first flight watch)
+        }
     }
 
     public setFlightDB(database:FlightDB){
@@ -111,9 +135,14 @@ export class TimeManager{
         }
 
         if (this.time > max_time){
-            this.time = max_time;
-            this.running = false;
-            this.html_play_button.innerHTML = 'play_arrow';
+            if (this.looping){
+                this.time = min_time;
+            }
+            else{ // stop the timer
+                this.time = max_time;
+                this.running = false;
+                this.html_play_button.innerHTML = 'play_arrow';
+            }
         }
         var ratio = (this.time - min_time)/(max_time - min_time);
         this.html_time_range.value = ratio.toString();
