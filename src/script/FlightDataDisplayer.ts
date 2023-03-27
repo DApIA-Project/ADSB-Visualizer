@@ -12,6 +12,8 @@ export class FlightInfoDisplayer{
     time_unit:string = 's';
     flight:Flight = undefined;
 
+    lasttimestamp:number = undefined;
+
 
     html:HTMLElement;
 
@@ -52,6 +54,7 @@ export class FlightInfoDisplayer{
         this.spi_html = document.getElementById('data-spi');
 
         this.variable_selecor_html = document.getElementById('variable-selector') as HTMLInputElement;
+        this.variable_selecor_html.addEventListener('change', () => {this.update(this.lasttimestamp);});
         this.window_lenght_html = document.getElementById('window-length') as HTMLInputElement;
         this.window_lenght_html.addEventListener('change', () => {this.changeSpeed();});
 
@@ -162,6 +165,7 @@ export class FlightInfoDisplayer{
     }
 
     update(timestamp:number){
+        this.lasttimestamp = timestamp;
         if (this.flight == undefined){
             return;
         }
@@ -213,20 +217,20 @@ export class FlightInfoDisplayer{
 
 
 
-        var max_pts = 128;
-        // if (ts.length > max_pts), downsample the data
-        if (ts.length > max_pts){
-            var step = Math.floor(ts.length / max_pts);
-            // var delta = ts.length%step;
-            var new_ts = [];
-            var new_values = [];
-            for (var i = 0; i < ts.length; i += step){
-                new_ts.push(ts[i]);
-                new_values.push(profile.values[i]);
-            }
-            ts = new_ts;
-            profile.values = new_values;
-        }
+        // var max_pts = 128;
+        // // if (ts.length > max_pts), downsample the data
+        // if (ts.length > max_pts){
+        //     var step = Math.floor(ts.length / max_pts);
+        //     // var delta = ts.length%step;
+        //     var new_ts = [];
+        //     var new_values = [];
+        //     for (var i = 0; i < ts.length; i += step){
+        //         new_ts.push(ts[i]);
+        //         new_values.push(profile.values[i]);
+        //     }
+        //     ts = new_ts;
+        //     profile.values = new_values;
+        // }
 
         ts[ts.length - 1] = 0;
 

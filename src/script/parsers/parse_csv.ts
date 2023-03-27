@@ -2,6 +2,22 @@ import Flight, { AircraftType } from "../Flight";
 import * as U from "../Utils";
 
 
+function auto_date_parse(value:string){
+    
+    if (value.match(/^[0-9]+$/))
+    {
+        return parseInt(value);
+    }
+    if (value.match(/^[0-9]*\.[0-9]*$/))
+    {
+        return parseFloat(value);
+    }
+
+    var date = new Date(value);
+    return date.getTime() / 1000.0;
+}
+
+
 export function loadFromCSV(filename:string, file_content:string)
 {
 
@@ -42,10 +58,13 @@ export function loadFromCSV(filename:string, file_content:string)
     // loop through the header and assign the data to the correct array
     for (var c = 0; c < header.length; c++) {
         var column = header[c];
-        if (column == "time" || column == "7_8"){
+        if (column == "time" || column=="timestamp" || column == "7_8"){
             for (var i = 0; i < data.length; i++) {
-                time.push(parseInt(data[i][c]));
+                time.push(auto_date_parse(data[i][c]));
+                
+                
             }
+            console.log(time);
         }
         if(column == "icao24"){
             icao24 = data[0][c];
@@ -53,27 +72,27 @@ export function loadFromCSV(filename:string, file_content:string)
         if(column == "4"){
             icao24 = U.num_to_hex(parseInt(data[0][c]));
         }
-        if(column == "lat" || column == "15"){
+        if(column == "lat" || column == "15" || column == "latitude"){
             for (var i = 0; i < data.length; i++) {
                 lat.push(parseFloat(data[i][c]));
             }
         }
-        if(column == "lon" || column == "16"){
+        if(column == "lon" || column == "16" || column == "longitude"){
             for (var i = 0; i < data.length; i++) {
                 lon.push(parseFloat(data[i][c]));
             }
         }
-        if (column == "velocity" || column == "13"){
+        if (column == "velocity" || column == "13"  || column == "groundspeed"){
             for (var i = 0; i < data.length; i++) {
                 velocity.push(parseFloat(data[i][c]));
             }
         }
-        if (column == "heading" || column == "14"){
+        if (column == "heading" || column == "14"|| column == "track"){
             for (var i = 0; i < data.length; i++) {
                 heading.push(parseFloat(data[i][c]));
             }
         }
-        if (column == "vertrate" || column == "17"){
+        if (column == "vertrate" || column == "17" || column == "vertical_rate"){
             for (var i = 0; i < data.length; i++) {
                 vertical_rate.push(parseFloat(data[i][c]));
             }
@@ -120,7 +139,7 @@ export function loadFromCSV(filename:string, file_content:string)
                 squawk.push(parseInt(data[i][c]));
             }
         }
-        if (column == "baroaltitude" || column == "12"){
+        if (column == "baroaltitude" || column == "12" || column == "altitude"){
             for (var i = 0; i < data.length; i++) {
                 baro_altitude.push(parseFloat(data[i][c]));
             }
@@ -130,23 +149,45 @@ export function loadFromCSV(filename:string, file_content:string)
                 geo_altitude.push(parseFloat(data[i][c]));
             }
         }
-        if (column == "lastposupdate"){
+        if (column == "lastposupdate" || column == "last_position"){
             for (var i = 0; i < data.length; i++) {
-                last_pos_update.push(parseFloat(data[i][c]));
+                last_pos_update.push(auto_date_parse(data[i][c]));
             }
         }
         if (column == "lastcontact"){
             for (var i = 0; i < data.length; i++) {
-                last_contact.push(parseFloat(data[i][c]));
+                last_contact.push(auto_date_parse(data[i][c]));
 
             }
         }
         if (column == "hour"){
             for (var i = 0; i < data.length; i++) {
-                hour.push(parseInt(data[i][c]));
+                hour.push(auto_date_parse(data[i][c]));
             }
         }
     }
+
+    console.log({
+        time : time,
+        icao24 : icao24,
+        lat : lat,
+        lon : lon,
+        velocity : velocity,
+        heading : heading,
+        vertical_rate : vertical_rate,
+        callsign : callsign,
+        on_ground : on_ground,
+        alert : alert,
+        spi : spi,
+        squawk : squawk,
+        baro_altitude : baro_altitude,
+        geo_altitude : geo_altitude,
+        last_pos_update : last_pos_update,
+        last_contact : last_contact,
+        hour : hour,
+        start_time : start_time,
+        end_time : end_time,
+    });
 
     // check required columns
     if (icao24 == "" && callsign.length == 0){
@@ -186,6 +227,9 @@ export function loadFromCSV(filename:string, file_content:string)
     if (filename_callsign[0] == "callsign"){
         callsign = filename_callsign[1];
     }
+
+    
+    
 
     return [{
         time : time,
