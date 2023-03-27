@@ -83,6 +83,7 @@ export class InputReader{
     public loadDefaultExample() : void {
         this.openLoadingScreen();
         var filename = 'example.'+filename_ext;
+        this.html_loading_bar.style.width = '70%';
         
         fetch(default_example).then(response => response.text()).then(text => {
             var content = text;

@@ -20,6 +20,6 @@ dump24h.sbs
 firebase.json
 .firebaserc
 .firebase/
-
+firebase_debug.log
 
 

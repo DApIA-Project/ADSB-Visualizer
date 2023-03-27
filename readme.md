@@ -7,6 +7,15 @@ Open online version :
 
 This project is a web application that allows to visualize ADS-B data alterations in real time. The data is provided by the [OpenSky Network](https://opensky-network.org/).
 
+## Keyboard bindings
+
+<!-- display keybord actions -->
+* `Space` : play/pause the visualization
+* `Left Arrow` : go back in time
+* `Right Arrow` : go forward in time
+* `Up Arrow` : double the visualization speed
+* `Down Arrow` : half the visualization speed
+
 ## Installation
 
 <!-- display the npm command to init and install the project -->
