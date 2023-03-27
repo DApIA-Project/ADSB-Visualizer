@@ -80,7 +80,7 @@ The project is organized as follow :
 
 ## Example files
 
-The folder `example` contains some flight in sbs and csv format.
+The folder `example` contains some flight in `.sbs` and `.csv` format.
 
 You can use these files to test the application by dropping the files you want into it.
 
