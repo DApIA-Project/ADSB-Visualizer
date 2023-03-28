@@ -252,23 +252,7 @@ export class FlightDB{
         html_search_btn.addEventListener('click', function(e){
             var i = e.target.getAttribute("flight-num");
             
-            this.map.fitBounds(this.flights[i].getbounds());
-
-            // if flight is not visible, set timer to flight start time
-            if (this.timer.getTimestamp() < this.flights[i].getStartTimestamp() 
-                || this.timer.getTimestamp() > this.flights[i].getEndTimestamp()){
-
-                this.timer.setTimestamp(this.flights[i].getStartTimestamp());
-            }
-
-            // if the user never used the timer (inital configuration -> paused timer), 
-            // play it automatically
-            if (this.timer.neverPlayed()){
-                this.timer.onPlayButton();
-            }
-
-            this.flightInfoDisplayer.displayFlight(this.flights[i]);
-            this.flightInfoDisplayer.update(this.timer.getTimestamp());
+            this.watchFlight(this.flights[i]);
         }.bind(this));
 
         html_flight.appendChild(html_search_btn);
@@ -276,6 +260,27 @@ export class FlightDB{
 
         return html_flight;
     }   
+
+    public watchFlight(flight:Flight) : void
+    {
+        this.map.fitBounds(flight.getbounds());
+
+        // if flight is not visible, set timer to flight start time
+        if (this.timer.getTimestamp() < flight.getStartTimestamp() 
+            || this.timer.getTimestamp() > flight.getEndTimestamp()){
+
+            this.timer.setTimestamp(flight.getStartTimestamp());
+        }
+
+        // if the user never used the timer (inital configuration -> paused timer), 
+        // play it automatically
+        if (this.timer.neverPlayed()){
+            this.timer.onPlayButton();
+        }
+
+        this.flightInfoDisplayer.displayFlight(flight);
+        this.flightInfoDisplayer.update(this.timer.getTimestamp());
+    }
 
     public recalculate_db() : void
     {
@@ -313,13 +318,14 @@ export class FlightDB{
 
 
     public getMapData(timestamp:number = undefined, end:number = undefined) : 
-        Array<{type: AircraftType;callsign: string;icao24: string;coords: [number, number][];rotation:number;start_time: number;end_time: number;}>
+        Array<{type: AircraftType;callsign: string;icao24: string;coords: [number, number][];rotation:number;start_time: number;end_time: number; flight:Flight}>
     {
         var flights = Array();
         for (let i = 0; i < this.flights.length; i++) {
 
             var data = this.flights[i].getMapData(timestamp, end)
             if (data.coords.length > 0){
+                data["flight"] = this.flights[i];
                 flights.push(data);
 
                 // the map asked for this flight, so we make it visible

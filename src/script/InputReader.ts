@@ -34,6 +34,7 @@ export class InputReader{
     constructor(){
         this.html_drop_zone = document.getElementById('drop-zone');
         this.html_drop_zone.style.display = 'none';
+        this.html_drop_zone.hidden = false;
 
         this.html_loading_screen = document.getElementById('loading-screen');
         this.html_loading_bar = document.getElementById('loading-bar-progress');

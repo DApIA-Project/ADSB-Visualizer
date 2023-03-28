@@ -182,7 +182,9 @@ export class Map {
                 coords: [number, number][];
                 rotation:number;
                 start_time: number;
-                end_time: number;}> = []
+                end_time: number;
+                flight: Flight;
+            }> = []
             
         var show_range: boolean = false;
         if (minTimestamp == maxTimestamp){
@@ -216,7 +218,12 @@ export class Map {
                         {icon: flip_icon_map[data[i].type], 
                             rotationAngle:angle + 180}).addTo(this.map);
                 }
+                marker.on('click', (e) => {
+                    this.database.watchFlight(data[i].flight)
+                });
+
                 this.markers.push(marker);
+                
             }
             else
             {
@@ -238,6 +245,11 @@ export class Map {
                         this.markers[i].setIcon(flip_icon_map[data[i].type]);
                     this.markers[i].setRotationAngle(angle + 180);
                 }
+
+                this.markers[i].off()
+                this.markers[i].on('click', (e) => {
+                    this.database.watchFlight(data[i].flight)
+                });
             }
         }
 
