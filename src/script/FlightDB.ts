@@ -14,7 +14,7 @@ var URL_plane = require('/src/assets/images/plane.gif')
 var URL_glider = require('/src/assets/images/glider.png')
 var URL_lightplane = require('/src/assets/images/light-plane.png')
 var URL_goundvehicle = require('/src/assets/images/gound-vehicle.png')
-var URL_unknown = require('/src/assets/images/unknown-plane.png')
+var URL_unknown = require('/src/assets/images/unknown.png')
 
 // manage the flight database
 // - load the flights from files

@@ -33,8 +33,8 @@ import { FlightDB } from './FlightDB';
 
 var URL_helico = require('/src/assets/images/helico.gif')
 var URL_helico_flip = require('/src/assets/images/helico_flip.gif')
-var URL_plane = require('/src/assets/images/plane.gif')
-var URL_plane_flip = require('/src/assets/images/plane_flip.gif')
+var URL_plane = require('/src/assets/images/plane.png')
+var URL_plane_flip = require('/src/assets/images/plane_flip.png')
 var URL_glider = require('/src/assets/images/glider.png')
 var URL_glider_flip = require('/src/assets/images/glider_flip.png')
 var URL_lightplane = require('/src/assets/images/light-plane.png')
@@ -194,11 +194,17 @@ export class Map {
             data = this.database.getMapData(minTimestamp, maxTimestamp);
             show_range = true;
         }
+
+        var lineWeight = 2;
+        var color = '#184296';
+        var opacity = 1;
+
+        if (show_range){lineWeight = 1; opacity=0.5 }
         
         for (let i = 0; i < data.length; i++) {
 
             if (i >= this.polylines.length){
-                var poly = L.polyline(data[i].coords, {color: 'blue'}).addTo(this.map);
+                var poly = L.polyline(data[i].coords, {color: color, weight: lineWeight, opacity: opacity}).addTo(this.map);
                 this.polylines.push(poly);
 
                 var last = data[i].coords[data[i].coords.length-1];
@@ -228,6 +234,7 @@ export class Map {
             else
             {
                 this.polylines[i].setLatLngs(data[i].coords);
+                this.polylines[i].setStyle({color: color, weight: lineWeight, opacity: opacity});
 
 
                 var last = data[i].coords[data[i].coords.length-1];

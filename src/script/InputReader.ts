@@ -1,7 +1,12 @@
+
+
 // read incoming files
 import { Flight } from './Flight';
 import {FlightDB} from './FlightDB';
 import * as M from './Map';
+import anime from 'animejs';
+
+
 
 // manage the drop zone
 // - display the drop zone when a file is dragged over the window
@@ -61,9 +66,7 @@ export class InputReader{
         window.addEventListener('drop', (e) => { this.onDrop(e); });
         window.addEventListener('dragenter', (e) => { this.onDragEnter(e); });
         window.addEventListener('dragleave', (e) => { this.onDragLeave(e); });
-        
-
-        
+            
     }
 
 

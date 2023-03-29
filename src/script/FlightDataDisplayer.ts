@@ -5,6 +5,7 @@
 import Chart from 'chart.js/auto';
 import Flight from './Flight';
 import { float_to_string } from './Utils';
+import anime from 'animejs'
 
 
 export class FlightInfoDisplayer{
@@ -278,11 +279,28 @@ export class FlightInfoDisplayer{
 
     open(){
         this.html.style.display = 'flex';
+        this.html.style.opacity = 0;
+        anime({
+            targets: this.html,
+            opacity: 1,
+            duration: 200,
+            easing: 'linear'
+        });
+
         
     }
 
     close(){
-        this.html.style.display = 'none';
+        anime({
+            targets: this.html,
+            opacity: 0,
+            duration: 200,
+            easing: 'linear',
+            complete: function(anim){
+                this.html.style.display = 'none';
+                this.html.style.opacity = 1;
+            }.bind(this)
+        });
     }
 
 
@@ -307,5 +325,6 @@ export class FlightInfoDisplayer{
             // set value to ∞
             this.window_lenght_html.value = "∞";
         }
+        this.update(this.lasttimestamp);
     }
 }
