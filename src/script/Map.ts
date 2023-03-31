@@ -3,6 +3,8 @@ import * as L from 'leaflet';
 import "leaflet-rotatedmarker";
 import "leaflet/dist/leaflet.css";
 
+import * as URL from './Url'
+
 // manage the display of the map
 // - display the map
 // - display the flight path using polylines
@@ -31,89 +33,76 @@ import "leaflet/dist/leaflet.css";
 import { Flight, AircraftType } from './Flight';
 import { FlightDB } from './FlightDB';
 
-var URL_helico = require('/src/assets/images/helico.gif')
-var URL_helico_flip = require('/src/assets/images/helico_flip.gif')
-var URL_plane = require('/src/assets/images/plane.png')
-var URL_plane_flip = require('/src/assets/images/plane_flip.png')
-var URL_glider = require('/src/assets/images/glider.png')
-var URL_glider_flip = require('/src/assets/images/glider_flip.png')
-var URL_lightplane = require('/src/assets/images/light-plane.png')
-var URL_lightplane_flip = require('/src/assets/images/light-plane_flip.png')
-var URL_goundvehicle = require('/src/assets/images/gound-vehicle.png')
-var URL_goundvehicle_flip = require('/src/assets/images/gound-vehicle_flip.png')
-var URL_unknown = require('/src/assets/images/unknown-plane.png')
-var URL_unknown_flip = require('/src/assets/images/unknown-plane_flip.png')
-
 
 
 var helico_img = L.icon({
-    iconUrl: URL_helico,
+    iconUrl: URL.helico,
     iconSize: [30, 30],
     iconAnchor: [15, 15],
     popupAnchor: [0, -15]
 });
 var helico_img_flip = L.icon({
-    iconUrl: URL_helico_flip,
+    iconUrl: URL.helico_flip,
     iconSize: [30, 30],
     iconAnchor: [15, 15],
     popupAnchor: [0, -15]
 });
 var plane_img = L.icon({
-    iconUrl: URL_plane,
+    iconUrl: URL.plane,
     iconSize: [30, 30],
     iconAnchor: [15, 15],
     popupAnchor: [0, -15]
 });
 var plane_img_flip = L.icon({
-    iconUrl: URL_plane_flip,
+    iconUrl: URL.plane_flip,
     iconSize: [30, 30],
     iconAnchor: [15, 15],
     popupAnchor: [0, -15]
 });
 var glider_img = L.icon({
-    iconUrl: URL_glider,
+    iconUrl: URL.glider,
     iconSize: [30, 30],
     iconAnchor: [15, 15],
     popupAnchor: [0, -15]
 });
 var glider_img_flip = L.icon({
-    iconUrl: URL_glider_flip,
+    iconUrl: URL.glider_flip,
     iconSize: [30, 30],
     iconAnchor: [15, 15],
     popupAnchor: [0, -15]
 });
 var lightplane_img = L.icon({
-    iconUrl: URL_lightplane,
+    iconUrl: URL.lightplane,
     iconSize: [30, 30],
     iconAnchor: [15, 15],
     popupAnchor: [0, -15]
 });
 var lightplane_img_flip = L.icon({
-    iconUrl: URL_lightplane_flip,
+    iconUrl: URL.lightplane_flip,
     iconSize: [30, 30],
     iconAnchor: [15, 15],
     popupAnchor: [0, -15]
 });
 var goundvehicle_img = L.icon({
-    iconUrl: URL_goundvehicle,
+    iconUrl: URL.goundvehicle,
     iconSize: [30, 30],
     iconAnchor: [15, 15],
     popupAnchor: [0, -15]
 });
 var goundvehicle_img_flip = L.icon({
-    iconUrl: URL_goundvehicle_flip,
+    iconUrl: URL.goundvehicle_flip,
     iconSize: [30, 30],
     iconAnchor: [15, 15],
     popupAnchor: [0, -15]
 });
 var unknown_img = L.icon({
-    iconUrl: URL_unknown,
+    iconUrl: URL.unknown,
     iconSize: [30, 30],
     iconAnchor: [15, 15],
     popupAnchor: [0, -15]
 });
 var unknown_img_flip = L.icon({
-    iconUrl: URL_unknown_flip,
+    iconUrl: URL.unknown_flip,
     iconSize: [30, 30],
     iconAnchor: [15, 15],
     popupAnchor: [0, -15]

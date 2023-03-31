@@ -9,12 +9,8 @@ import { loadFromSBS } from './parsers/parse_sbs';
 import { FlightInfoDisplayer } from './FlightDataDisplayer';
 
 
-var URL_helico = require('/src/assets/images/helico.gif')
-var URL_plane = require('/src/assets/images/plane.gif')
-var URL_glider = require('/src/assets/images/glider.png')
-var URL_lightplane = require('/src/assets/images/light-plane.png')
-var URL_goundvehicle = require('/src/assets/images/gound-vehicle.png')
-var URL_unknown = require('/src/assets/images/unknown.png')
+import * as URL from './Url'
+
 
 // manage the flight database
 // - load the flights from files
@@ -44,6 +40,10 @@ export class FlightDB{
     private html_flights: Array<HTMLElement> = Array();
     private html_flights_visible: Array<boolean> = Array();
 
+    private html_research: HTMLElement;
+    private html_filter_type:{[key: number]:HTMLElement} = {}
+    private html_filter_string: HTMLInputElement;
+
 
     // stats about the database
     private min_timestamp:number = -1;
@@ -54,6 +54,9 @@ export class FlightDB{
     private autoscroll_timeout:NodeJS.Timeout = undefined
 
     private example_mode:boolean = false;
+
+    private filter_type:{[key: number]:boolean} = {}
+    private filter_string:string = "";
 
 
 
@@ -72,6 +75,67 @@ export class FlightDB{
         });
 
         
+        this.html_research = U.createElementFromHTML(
+            `<div id="filter-input">
+                <span>
+                    <img src="${URL.plane}" alt="airplane" id="filter-img-type-${AircraftType.PLANE.toString()}">
+                    <img src="${URL.helico}" alt="helico" id="filter-img-type-${AircraftType.HELICOPTER.toString()}">
+                    <img src="${URL.lightplane}" alt="lightplane" id="filter-img-type-${AircraftType.LIGHT_PLANE.toString()}">
+                    <img src="${URL.glider}" alt="glider" id="filter-img-type-${AircraftType.GLIDER.toString()}">
+                    <img src="${URL.goundvehicle}" alt="ground" id="filter-img-type-${AircraftType.GROUND_VEHICLE.toString()}">
+                    <img src="${URL.drone}" alt="drone" id="filter-img-type-${AircraftType.DRONE.toString()}">
+                </span>
+                <input type="text" id="reseach-bar" placeholder="Search by Icao, Callsign">
+            </div>`)
+
+
+        
+        var img = this.html_research.getElementsByTagName('img');
+        this.html_filter_type[AircraftType.PLANE] = img[0];
+        this.html_filter_type[AircraftType.HELICOPTER] = img[1];
+        this.html_filter_type[AircraftType.LIGHT_PLANE] = img[2];
+        this.html_filter_type[AircraftType.GLIDER] = img[3];
+        this.html_filter_type[AircraftType.GROUND_VEHICLE] = img[4];
+        this.html_filter_type[AircraftType.DRONE] = img[5];
+
+        // setup listeners
+        this.html_filter_type[AircraftType.PLANE].addEventListener('click', (e) => {
+            this.filterByType(AircraftType.PLANE);
+        });
+        this.html_filter_type[AircraftType.HELICOPTER].addEventListener('click', (e) => {
+            this.filterByType(AircraftType.HELICOPTER);
+        });
+        this.html_filter_type[AircraftType.LIGHT_PLANE].addEventListener('click', (e) => {
+            this.filterByType(AircraftType.LIGHT_PLANE);
+        });
+        this.html_filter_type[AircraftType.GLIDER].addEventListener('click', (e) => {
+            this.filterByType(AircraftType.GLIDER);
+        });
+        this.html_filter_type[AircraftType.GROUND_VEHICLE].addEventListener('click', (e) => {
+            this.filterByType(AircraftType.GROUND_VEHICLE);
+        });
+        this.html_filter_type[AircraftType.DRONE].addEventListener('click', (e) => {
+            this.filterByType(AircraftType.DRONE);
+        });
+
+        // for each AircraftType set visualized to true
+        this.filter_type[AircraftType.PLANE] = true;
+        this.filter_type[AircraftType.HELICOPTER] = true;
+        this.filter_type[AircraftType.LIGHT_PLANE] = true;
+        this.filter_type[AircraftType.GLIDER] = true;
+        this.filter_type[AircraftType.GROUND_VEHICLE] = true;
+        this.filter_type[AircraftType.DRONE] = true;
+        this.filter_type[AircraftType.UNKNOWN] = true;
+
+        // setup the search bar
+        this.html_filter_string = this.html_research.getElementsByTagName('input')[0];
+        this.html_filter_string.addEventListener('input', (e) => {
+            this.filterByString(this.html_filter_string.value);
+        });
+
+
+        
+
     }
 
     public setMap(map:Map) : void
@@ -130,6 +194,22 @@ export class FlightDB{
         }
         this.example_mode = example_mode;
 
+
+        if (this.flights.length == 0){
+            // if it's the first data we load, we desactivate the autoscroll
+            // desactivate autoscroll for 10 seconds
+            this.allow_list_autoscroll = false;
+            if (this.autoscroll_timeout != undefined)
+                clearTimeout(this.autoscroll_timeout);
+            
+            // desactivate autoscroll for the next 3 second
+            this.autoscroll_timeout = setTimeout(function(){
+                this.allow_list_autoscroll = true;
+                this.autoscroll_timeout = undefined;
+                
+            }.bind(this), 10 * 1000);
+        }
+
         // code begining // 
         var flights = this.parseFile(filename, content);
         
@@ -153,6 +233,11 @@ export class FlightDB{
             if (flight.getEndTimestamp() > this.max_timestamp || this.max_timestamp == -1){
                 this.max_timestamp = flight.getEndTimestamp();
             }
+
+            // if it's the first flight
+            if (this.flights.length == 1 && !this.example_mode){
+                this.html_flight_list.appendChild(this.html_research);
+            }
             
             // gen html
             var html_flight = this.generateFlightHTML(flight);
@@ -160,7 +245,7 @@ export class FlightDB{
             this.html_flights_visible.splice(t, 0, false);
 
             if (!this.example_mode)
-                this.html_flight_list.insertBefore(html_flight, this.html_flight_list.childNodes[t]);
+                this.html_flight_list.insertBefore(html_flight, this.html_flight_list.childNodes[t + 1]);
         }
         // re-calculate flight indexing
     
@@ -205,17 +290,17 @@ export class FlightDB{
     {
         switch(type){
             case AircraftType.PLANE:
-                return URL_plane;
+                return URL.plane;
             case AircraftType.HELICOPTER:
-                return URL_helico;
+                return URL.helico;
             case AircraftType.GROUND_VEHICLE:
-                return URL_goundvehicle;
+                return URL.goundvehicle;
             case AircraftType.LIGHT_PLANE:
-                return URL_lightplane;
+                return URL.lightplane;
             case AircraftType.GLIDER:
-                return URL_glider;
+                return URL.glider;
             default:
-                return URL_unknown;
+                return URL.unknown;
         }
     }
 
@@ -310,6 +395,18 @@ export class FlightDB{
             this.html_empty_flight_list.style.display = 'none';
         }
     }
+    public recalculate_display() : void{
+        for (let i = 0; i < this.flights.length; i++) {
+            if (this.filter_type[this.flights[i].getType()]
+             && this.match_filter_string(this.flights[i].icao24, this.flights[i].callsign))
+            {
+                this.html_flights[i].style.display = 'flex';
+            }
+            else{
+                this.html_flights[i].style.display = 'none';
+            }
+        }
+    }
 
     public fileExists(filename:string) : boolean
     {
@@ -331,7 +428,7 @@ export class FlightDB{
                 // the map asked for this flight, so we make it visible
                 this.html_flights[i].setAttribute("visible", "true");
                 if (!this.html_flights_visible[i]){
-                    this.autoscroll(i)
+                    this.autoscroll(i);
                 }
                 this.html_flights_visible[i] = true;
             }
@@ -425,12 +522,12 @@ export class FlightDB{
             clearTimeout(this.autoscroll_timeout);
         
 
-        // desactivate autoscroll for the next 10 second
+        // desactivate autoscroll for the next 40 second
         this.autoscroll_timeout = setTimeout(function(){
             this.allow_list_autoscroll = true;
             this.autoscroll_timeout = undefined;
             
-        }.bind(this), 10 * 1000);
+        }.bind(this), 40 * 1000);
     }
 
     private clear(){
@@ -445,5 +542,49 @@ export class FlightDB{
 
         this.recalculate_db();
         this.flightInfoDisplayer.close();
+    }
+
+    private filterByType(type: AircraftType){
+        this.filter_type[type] = !this.filter_type[type];
+        if (this.filter_type[type])
+            this.html_filter_type[type].style.borderColor = "white";
+        else
+            this.html_filter_type[type].style.borderColor = "transparent";
+
+        // if all filter_type are false, we put UNKNOWN to true else false
+        var all_false = true;
+        for (let k in this.filter_type) {
+            if (this.filter_type[k]){
+                all_false = false;
+                break;
+            }
+        }
+        this.filter_type[AircraftType.UNKNOWN] = all_false;
+
+
+        this.recalculate_display();
+    }
+
+    private filterByString(string: string){
+        this.filter_string = string.trim().toLocaleLowerCase();
+
+        this.recalculate_display();
+    }
+
+    private match_filter_string(icao24: string, callsign: string) : boolean
+    {
+        icao24 = icao24.toLocaleLowerCase().trim();
+        callsign = callsign.toLocaleLowerCase().trim();
+
+        if (this.filter_string == "")
+            return true;
+
+        if (icao24.startsWith(this.filter_string))
+            return true;
+
+        if (callsign.startsWith(this.filter_string))
+            return true;
+
+        return false;
     }
 }

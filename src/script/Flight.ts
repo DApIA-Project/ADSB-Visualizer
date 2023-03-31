@@ -37,6 +37,7 @@ export enum AircraftType {
     GLIDER,
     LIGHT_PLANE,
     GROUND_VEHICLE,
+    DRONE,
     UNKNOWN
 }
 
@@ -56,6 +57,9 @@ function numberToType(number:number) : AircraftType
     }
     else if (number == 7){
         return AircraftType.GROUND_VEHICLE;
+    }
+    else if (number == 10){
+        return AircraftType.DRONE;
     }
     else{
         return AircraftType.UNKNOWN;

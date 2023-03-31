@@ -4,6 +4,10 @@ header{
     display: flex;
     justify-content: space-between;
     align-items: center;
+
+    overflow: hidden;
+    background-color: #333;
+    font-family: Arial;
 }
 header>*{
     padding: 0 10px;

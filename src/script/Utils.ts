@@ -48,3 +48,12 @@ export function float_to_string(value:number, precision:number):string{
     var str = value.toFixed(precision);
     return str;
 }
+
+
+export function createElementFromHTML(htmlString:string):HTMLElement {
+    var div:HTMLElement = document.createElement('div');
+    div.innerHTML = htmlString.trim();
+  
+    // Change this to div.childNodes to support multiple top-level nodes.
+    return div.firstChild as HTMLElement;
+  }
