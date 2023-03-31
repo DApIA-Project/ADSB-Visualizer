@@ -285,9 +285,7 @@ export class FlightInfoDisplayer{
             opacity: 1,
             duration: 200,
             easing: 'linear'
-        });
-
-        
+        });        
     }
 
     close(){

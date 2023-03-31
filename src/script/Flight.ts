@@ -12,7 +12,7 @@ import { loadFromSBS } from './parsers/parse_sbs';
 // array of 3 numbers
 var aircraft_types : [string, string, number][] = []
 // load local file at "/src/assets/data/aircraft.txt"
-var aircraft_file = require('url:/src/assets/data/aircraft_database.txt');
+var aircraft_file = require('url:/src/assets/data/aircraft.txt');
 // split the file content into lines
 fetch(aircraft_file).then(response => response.text()).then(text => {
 

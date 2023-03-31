@@ -22,4 +22,5 @@ firebase.json
 .firebase/
 firebase_debug.log
 
+*.png~*
 
