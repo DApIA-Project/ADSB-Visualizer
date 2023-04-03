@@ -139,3 +139,21 @@
     height: 4vh;
     font-size: 2vh;
 }
+
+
+  
+
+
+#go-up-btn{
+    position: fixed;
+    top: 100%;
+    left: 0%;
+    font-size: 3vh !important;
+    transform: translate(1vh, calc(-100% - 1vh));
+    opacity: 0.7;
+    transition: all 0.5s ease-in-out;
+}
+#go-up-btn:hover{
+    opacity: 1;
+    transition: all 0.5s ease-in-out;
+}

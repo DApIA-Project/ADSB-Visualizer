@@ -113,5 +113,19 @@
 }
 #reseach-bar{
     width: 50%;
-    height: 30px;
+    height: 25px;
+}
+
+
+#go-up-btn{
+    position: fixed;
+    top: 100%;
+    left: 0%;
+    transform: translate(calc(10px), calc(-100% - 10px));
+    opacity: 0.7;
+    transition: all 0.5s ease-in-out;
+}
+#go-up-btn:hover{
+    opacity: 1;
+    transition: all 0.5s ease-in-out;
 }

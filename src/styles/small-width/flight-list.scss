@@ -147,3 +147,18 @@
 //     padding: 0 1vw;
 // }
   
+
+
+#go-up-btn{
+    position: fixed;
+    top: 100%;
+    left: 0%;
+    font-size: 3vw !important;
+    transform: translate(1vw, calc(-100% - 1vw));
+    opacity: 0.7;
+    transition: all 0.5s ease-in-out;
+}
+#go-up-btn:hover{
+    opacity: 1;
+    transition: all 0.5s ease-in-out;
+}

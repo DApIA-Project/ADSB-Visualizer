@@ -11,7 +11,7 @@ input:focus {
     justify-content: center;
     width: fit-content;
   
-    background-color: #2f2f2f;
+    background-color: $backgound-1;
     border: none;
     color: #d6d6d6;
     text-decoration: none;
@@ -44,7 +44,7 @@ input:focus {
     background-color: #43688c;
 }
 .btn:hover{
-    background-color: #434343;
+    background-color: $backgound-1;
   
     transform: scale(1.05);
     transition: all 0.1s ease-in-out;

@@ -39,6 +39,7 @@ export class FlightDB{
     private html_empty_flight_list: HTMLElement;
     private html_flights: Array<HTMLElement> = Array();
     private html_flights_visible: Array<boolean> = Array();
+    private html_go_up_btn: HTMLElement;
 
     private html_research: HTMLElement;
     private html_filter_type:{[key: number]:HTMLElement} = {}
@@ -74,6 +75,11 @@ export class FlightDB{
             this.clear();
         });
 
+        this.html_go_up_btn = document.getElementById('go-up-btn');
+        this.html_go_up_btn.addEventListener('click', (e) => {
+            this.html_flight_list.scrollTop = 0;
+        });
+        this.html_go_up_btn.style.display = 'none';
         
         this.html_research = U.createElementFromHTML(
             `<div id="filter-input">
@@ -390,9 +396,11 @@ export class FlightDB{
 
         if (this.flights.length == 0 || this.example_mode){
             this.html_empty_flight_list.style.display = 'flex';
+            this.html_go_up_btn.style.display = 'none';
         }
         else{
             this.html_empty_flight_list.style.display = 'none';
+            this.html_go_up_btn.style.display = 'block';
         }
     }
     public recalculate_display() : void{
