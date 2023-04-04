@@ -35,15 +35,18 @@ export enum AircraftType {
     PLANE,
     HELICOPTER,
     GLIDER,
+    MEDIUM_PLANE,
     LIGHT_PLANE,
+    ULTRA_LIGHT_PLANE,
     GROUND_VEHICLE,
     DRONE,
+    MILITARY,
     UNKNOWN
 }
 
 function numberToType(number:number) : AircraftType
 {
-    if (number == 1){
+    if (number == 1 || number == 9 || number == 8){
         return AircraftType.PLANE;
     }
     else if (number == 5){
@@ -52,11 +55,20 @@ function numberToType(number:number) : AircraftType
     else if (number == 4){
         return AircraftType.GLIDER;
     }
-    else if (number == 2 || number == 3){
+    else if (number == 3 || number == 2 || number == 6){
         return AircraftType.LIGHT_PLANE;
+    }
+    else if (number == 2 ){
+        return AircraftType.MEDIUM_PLANE;
+    }
+    else if (number == 6){
+        return AircraftType.ULTRA_LIGHT_PLANE;
     }
     else if (number == 7){
         return AircraftType.GROUND_VEHICLE;
+    }
+    else if (number == 8){
+        return AircraftType.MILITARY;
     }
     else if (number == 10){
         return AircraftType.DRONE;
@@ -111,6 +123,7 @@ export class Flight
     private start_time:number =  0;
     private end_time:number =  0;
     private type:AircraftType =  AircraftType.UNKNOWN;
+    private interpolated:Array<boolean> =  Array();
 
 
     constructor()
@@ -141,6 +154,14 @@ export class Flight
         this.end_time = a.end_time;
         this.type = computeAircraftType(this.callsign, this.icao24);
 
+        if (a.interpolated != undefined)
+            this.interpolated = a.interpolated;
+        else
+        {
+            for (let i = 0; i < this.time.length; i++) {
+                this.interpolated.push(false);
+            }
+        }
         
     }
 

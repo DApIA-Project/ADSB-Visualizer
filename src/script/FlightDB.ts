@@ -94,44 +94,37 @@ export class FlightDB{
                 <input type="text" id="reseach-bar" placeholder="Search by Icao, Callsign">
             </div>`)
 
+            // <img src="${URL.military}" alt="ground" id="filter-img-type-${AircraftType.MILITARY.toString()}">
+            // <img src="${URL.medium_plane}" alt="lightplane" id="filter-img-type-${AircraftType.MEDIUM_PLANE.toString()}">
+            // <img src="${URL.ultra_lightplane}" alt="lightplane" id="filter-img-type-${AircraftType.ULTRA_LIGHT_PLANE.toString()}">
+
 
         
-        var img = this.html_research.getElementsByTagName('img');
-        this.html_filter_type[AircraftType.PLANE] = img[0];
-        this.html_filter_type[AircraftType.HELICOPTER] = img[1];
-        this.html_filter_type[AircraftType.LIGHT_PLANE] = img[2];
-        this.html_filter_type[AircraftType.GLIDER] = img[3];
-        this.html_filter_type[AircraftType.GROUND_VEHICLE] = img[4];
-        this.html_filter_type[AircraftType.DRONE] = img[5];
 
+        var aircraft_types = [
+            AircraftType.PLANE,
+            AircraftType.HELICOPTER,
+            AircraftType.LIGHT_PLANE,
+            AircraftType.GLIDER,
+            AircraftType.GROUND_VEHICLE,
+            AircraftType.DRONE,
+        ]
+        
         // setup listeners
-        this.html_filter_type[AircraftType.PLANE].addEventListener('click', (e) => {
-            this.filterByType(AircraftType.PLANE);
-        });
-        this.html_filter_type[AircraftType.HELICOPTER].addEventListener('click', (e) => {
-            this.filterByType(AircraftType.HELICOPTER);
-        });
-        this.html_filter_type[AircraftType.LIGHT_PLANE].addEventListener('click', (e) => {
-            this.filterByType(AircraftType.LIGHT_PLANE);
-        });
-        this.html_filter_type[AircraftType.GLIDER].addEventListener('click', (e) => {
-            this.filterByType(AircraftType.GLIDER);
-        });
-        this.html_filter_type[AircraftType.GROUND_VEHICLE].addEventListener('click', (e) => {
-            this.filterByType(AircraftType.GROUND_VEHICLE);
-        });
-        this.html_filter_type[AircraftType.DRONE].addEventListener('click', (e) => {
-            this.filterByType(AircraftType.DRONE);
-        });
+        for (let i = 0; i < aircraft_types.length; i++) {
+            const key = aircraft_types[i];
 
-        // for each AircraftType set visualized to true
-        this.filter_type[AircraftType.PLANE] = true;
-        this.filter_type[AircraftType.HELICOPTER] = true;
-        this.filter_type[AircraftType.LIGHT_PLANE] = true;
-        this.filter_type[AircraftType.GLIDER] = true;
-        this.filter_type[AircraftType.GROUND_VEHICLE] = true;
-        this.filter_type[AircraftType.DRONE] = true;
-        this.filter_type[AircraftType.UNKNOWN] = true;
+            this.html_filter_type[key] = this.html_research.querySelector(`#filter-img-type-${key}`);
+            console.log(key, this.html_filter_type[key]);
+            
+            if (this.html_filter_type[key] != undefined){
+                this.html_filter_type[key].addEventListener('click', (e) => {
+                    this.filterByType(key);
+                });
+                this.filter_type[key] = true;
+            }
+        }
+
 
         // setup the search bar
         this.html_filter_string = this.html_research.getElementsByTagName('input')[0];
@@ -168,7 +161,6 @@ export class FlightDB{
                 flight.setAttribute(attributes[0]);
                 flights.push(flight);
             }
-
         }
         else if (filename.endsWith(".sbs"))
         {
@@ -303,10 +295,16 @@ export class FlightDB{
                 return URL.goundvehicle;
             case AircraftType.LIGHT_PLANE:
                 return URL.lightplane;
+            case AircraftType.ULTRA_LIGHT_PLANE:
+                return URL.ultra_lightplane;
+            case AircraftType.MEDIUM_PLANE:
+                return URL.medium_plane;
             case AircraftType.GLIDER:
                 return URL.glider;
+            case AircraftType.MILITARY:
+                return URL.military;
             default:
-                return URL.unknown;
+                return URL.question_mark;
         }
     }
 

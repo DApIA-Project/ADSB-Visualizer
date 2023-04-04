@@ -172,8 +172,10 @@ export class FlightInfoDisplayer{
         }
         // update the variable displayed
         var variables = this.flight.getDataToDisplay(timestamp);
-        this.callsign_html.innerHTML = variables.callsign;
-        this.icao24_html.innerHTML = variables.icao24;
+        if (variables.callsign != this.callsign_html.innerHTML)
+            this.callsign_html.innerHTML = variables.callsign;
+        if (variables.icao24 != this.icao24_html.innerHTML)
+            this.icao24_html.innerHTML = variables.icao24;
         this.velocity_html.innerHTML = float_to_string(variables.velocity, 0);
         this.heading_html.innerHTML = float_to_string(variables.heading, 0);
         this.altitude_html.innerHTML = float_to_string(variables.altitude, 0);   

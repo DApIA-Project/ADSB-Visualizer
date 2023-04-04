@@ -71,6 +71,18 @@ var glider_img_flip = L.icon({
     iconAnchor: [15, 15],
     popupAnchor: [0, -15]
 });
+var medium_plane_img = L.icon({
+    iconUrl: URL.medium_plane,
+    iconSize: [30, 30],
+    iconAnchor: [15, 15],
+    popupAnchor: [0, -15]
+});
+var medium_plane_img_flip = L.icon({
+    iconUrl: URL.medium_plane_flip,
+    iconSize: [30, 30],
+    iconAnchor: [15, 15],
+    popupAnchor: [0, -15]
+});
 var lightplane_img = L.icon({
     iconUrl: URL.lightplane,
     iconSize: [30, 30],
@@ -83,6 +95,19 @@ var lightplane_img_flip = L.icon({
     iconAnchor: [15, 15],
     popupAnchor: [0, -15]
 });
+var ultra_lightplane_img = L.icon({
+    iconUrl: URL.ultra_lightplane,
+    iconSize: [30, 30],
+    iconAnchor: [15, 15],
+    popupAnchor: [0, -15]
+});
+var ultra_lightplane_img_flip = L.icon({
+    iconUrl: URL.ultra_lightplane_flip,
+    iconSize: [30, 30],
+    iconAnchor: [15, 15],
+    popupAnchor: [0, -15]
+});
+
 var goundvehicle_img = L.icon({
     iconUrl: URL.goundvehicle,
     iconSize: [30, 30],
@@ -91,6 +116,18 @@ var goundvehicle_img = L.icon({
 });
 var goundvehicle_img_flip = L.icon({
     iconUrl: URL.goundvehicle_flip,
+    iconSize: [30, 30],
+    iconAnchor: [15, 15],
+    popupAnchor: [0, -15]
+});
+var military_img = L.icon({
+    iconUrl: URL.military,
+    iconSize: [30, 30],
+    iconAnchor: [15, 15],
+    popupAnchor: [0, -15]
+});
+var military_img_flip = L.icon({
+    iconUrl: URL.military_flip,
     iconSize: [30, 30],
     iconAnchor: [15, 15],
     popupAnchor: [0, -15]
@@ -113,16 +150,23 @@ var icon_map = {
     [AircraftType.HELICOPTER]: helico_img,
     [AircraftType.PLANE]: plane_img,
     [AircraftType.GLIDER]: glider_img,
+    [AircraftType.MEDIUM_PLANE]: medium_plane_img,
     [AircraftType.LIGHT_PLANE]: lightplane_img,
+    [AircraftType.ULTRA_LIGHT_PLANE]: ultra_lightplane_img,
     [AircraftType.GROUND_VEHICLE]: goundvehicle_img,
+    [AircraftType.MILITARY]: military_img,
     [AircraftType.UNKNOWN]: unknown_img,
 }
+
 var flip_icon_map = {
     [AircraftType.HELICOPTER]: helico_img_flip,
     [AircraftType.PLANE]: plane_img_flip,
     [AircraftType.GLIDER]: glider_img_flip,
+    [AircraftType.MEDIUM_PLANE]: medium_plane_img_flip,
     [AircraftType.LIGHT_PLANE]: lightplane_img_flip,
+    [AircraftType.ULTRA_LIGHT_PLANE]: ultra_lightplane_img_flip,
     [AircraftType.GROUND_VEHICLE]: goundvehicle_img_flip,
+    [AircraftType.MILITARY]: military_img_flip, 
     [AircraftType.UNKNOWN]: unknown_img_flip,
 }
 

@@ -40,6 +40,7 @@ export function loadFromCSV(filename:string, file_content:string)
     var hour:Array<number> =  Array();
     var start_time:number =  0;
     var end_time:number =  0;
+    var interpolated:Array<boolean> =  Array();
 
 
     // split the file content into lines
@@ -165,29 +166,19 @@ export function loadFromCSV(filename:string, file_content:string)
                 hour.push(auto_date_parse(data[i][c]));
             }
         }
+        if (column == "interpolated"){
+            for (var i = 0; i < data.length; i++) {
+                // convert to boolean
+                if (data[i][c] == "True"){
+                    interpolated.push(true);
+                }
+                else{
+                    interpolated.push(false);
+                }
+            }
+        }
     }
 
-    console.log({
-        time : time,
-        icao24 : icao24,
-        lat : lat,
-        lon : lon,
-        velocity : velocity,
-        heading : heading,
-        vertical_rate : vertical_rate,
-        callsign : callsign,
-        on_ground : on_ground,
-        alert : alert,
-        spi : spi,
-        squawk : squawk,
-        baro_altitude : baro_altitude,
-        geo_altitude : geo_altitude,
-        last_pos_update : last_pos_update,
-        last_contact : last_contact,
-        hour : hour,
-        start_time : start_time,
-        end_time : end_time,
-    });
 
     // check required columns
     if (icao24 == "" && callsign.length == 0){
@@ -251,5 +242,6 @@ export function loadFromCSV(filename:string, file_content:string)
         hour : hour,
         start_time : start_time,
         end_time : end_time,
+        interpolated : interpolated
     }];
 }
