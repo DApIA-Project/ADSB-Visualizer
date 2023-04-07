@@ -104,6 +104,7 @@ export class FlightDB{
         var aircraft_types = [
             AircraftType.PLANE,
             AircraftType.HELICOPTER,
+            AircraftType.HELICOPTER,
             AircraftType.LIGHT_PLANE,
             AircraftType.GLIDER,
             AircraftType.GROUND_VEHICLE,

@@ -5,6 +5,8 @@ import { Flight } from './Flight';
 import {FlightDB} from './FlightDB';
 import * as M from './Map';
 import anime from 'animejs';
+var zlib = require('zlib');
+var Buffer = require('buffer').Buffer;
 
 
 
@@ -81,6 +83,24 @@ export class InputReader{
     }
     private ondrop(filename: string, content: string, example_mode=false) : void {
         // do the parsing and add the flights of the file to the database
+
+        // cehck if content is gzip compressed
+        // log content by showing caracter codes with \...
+        // 1f ef should be the 1f 8b of the gzip header
+        var buffer = Buffer.from(content, 'ucs2');
+        console.log(buffer);
+        
+        if (buffer[0] == 0x1f && buffer[1] == 0x8b){
+            // gzip compressed
+            zlib.gunzip(buffer, function(err, dezipped) {
+                if (!err) {
+                    this.flight_db.addFlights(filename, dezipped.toString(), example_mode);
+                }
+                else{
+                    console.log(err);
+                }
+            }.bind(this));
+        }
         this.flight_db.addFlights(filename, content, example_mode);
     }
     ///////////////////////////

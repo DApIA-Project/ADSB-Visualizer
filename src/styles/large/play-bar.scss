@@ -19,11 +19,12 @@
     width: 50%;
     background-color: transparent;
     padding: 0px 0;
+    height: 6px;
 }
 #time-bar:focus {
     outline: none;
 }
-#time-bar::-webkit-slider-runnable-track {
+#time-bar::-webkit-slider-runnable-track{
     width: 100%;
     height: 6px;
     cursor: pointer;
@@ -38,7 +39,19 @@
     cursor: ew-resize;
     -webkit-appearance: none;
 }
-
+#time-bar::-moz-range-track {
+    width: 100%;
+    height: 6px;
+    cursor: pointer;
+    background:  $base;
+}
+#time-bar::-moz-range-thumb {
+    height: 0px;
+    width: 0px;
+    background: transparent;
+    box-shadow: -100vw 0 0 100vw $secondary;
+    cursor: ew-resize;
+}
   
 #time-speed{
     width: 20px;
