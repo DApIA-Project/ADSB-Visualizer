@@ -24,3 +24,6 @@ firebase_debug.log
 
 *.png~*
 
+
+src/assets/exp/
+todo.txt
