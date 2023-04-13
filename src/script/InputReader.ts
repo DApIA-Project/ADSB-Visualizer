@@ -87,21 +87,11 @@ export class InputReader{
         // cehck if content is gzip compressed
         // log content by showing caracter codes with \...
         // 1f ef should be the 1f 8b of the gzip header
-        var buffer = Buffer.from(content, 'ucs2');
-        console.log(buffer);
         
-        if (buffer[0] == 0x1f && buffer[1] == 0x8b){
-            // gzip compressed
-            zlib.gunzip(buffer, function(err, dezipped) {
-                if (!err) {
-                    this.flight_db.addFlights(filename, dezipped.toString(), example_mode);
-                }
-                else{
-                    console.log(err);
-                }
-            }.bind(this));
-        }
         this.flight_db.addFlights(filename, content, example_mode);
+    }
+    public addFile(filename: string, content: string, example_mode=false) : void {
+        this.ondrop(filename, content, example_mode);
     }
     ///////////////////////////
 
@@ -136,8 +126,6 @@ export class InputReader{
 
 
 
-
-
     // event listeners callbacks
     public onDragOver(event) {
         event.preventDefault();
@@ -159,28 +147,27 @@ export class InputReader{
         }
         
         for (const file of files) {
-            if (!this.flight_db.fileExists(file.name)){
-                const reader = new FileReader();
-                this.files_in_progress.set(reader, file)
-                
-                reader.addEventListener('load', function (e) {
-                    const file = this.files_in_progress.get(e.target);
-                    this.ondrop(file.name, e.target.result);
-                    this.files_in_progress.delete(e.target)
+            const reader = new FileReader();
+            this.files_in_progress.set(reader, file)
+            
+            reader.addEventListener('load', function (e) {
+                const file = this.files_in_progress.get(e.target);
+                this.ondrop(file.name, e.target.result);
+                this.files_in_progress.delete(e.target)
 
-                    // update avencement bar
-                    this.updateLoadingScreen();
+                // update avencement bar
+                this.updateLoadingScreen();
 
-                    if (this.files_in_progress.size <= 0){
-                        this.total_files_count = 0;
-                        this.closeLoadingScreen();
-                        this.moveBoundingBox()
-                    }
-                }.bind(this));
+                if (this.files_in_progress.size <= 0){
+                    this.total_files_count = 0;
+                    this.closeLoadingScreen();
+                    this.moveBoundingBox()
+                }
+            }.bind(this));
 
-                this.total_files_count++;
-                reader.readAsText(file);
-            }
+            this.total_files_count++;
+            reader.readAsText(file);
+            
         }
 
         // show loading screen after drop

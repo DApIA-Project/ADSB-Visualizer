@@ -47,8 +47,9 @@ function onPageLoad() {
     inpurReader.loadDefaultExample();
 
 
+    window.addEventListener("message", (e) => {
+        inpurReader.addFile(e.data.filename, e.data.content );
+    });
 
 }
-
-
 

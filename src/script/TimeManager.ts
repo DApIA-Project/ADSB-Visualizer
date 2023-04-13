@@ -286,6 +286,14 @@ export class TimeManager{
             this.map.update(min_time, max_time);
         }
     }
+    public updateViewAllFilter(){
+        if (this.view_all){
+            var min_time = this.database.getMinTimestamp();
+            var max_time = this.database.getMaxTimestamp();
+            this.map.update(min_time, max_time);
+        }
+    }
+
 
     public isRunning(){
         return this.running;

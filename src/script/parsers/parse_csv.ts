@@ -65,7 +65,6 @@ export function loadFromCSV(filename:string, file_content:string)
                 
                 
             }
-            console.log(time);
         }
         if(column == "icao24"){
             icao24 = data[0][c];

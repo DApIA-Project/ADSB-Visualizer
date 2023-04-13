@@ -1,7 +1,7 @@
 import { AircraftType, Flight } from './Flight';
 import * as U from './Utils';
 
-import {Map} from './Map';
+import * as M from './Map';
 import * as L from 'leaflet';
 import { TimeManager } from './TimeManager';
 import { loadFromCSV } from './parsers/parse_csv';
@@ -26,12 +26,11 @@ import * as URL from './Url'
 
 export class FlightDB{
 
-    private map:Map = undefined;
+    private map:M.Map = undefined;
     private timer:TimeManager = undefined;
     private flightInfoDisplayer:FlightInfoDisplayer = undefined;
 
     private flights: Array<Flight> = Array();
-    private flights_filename: Array<string> = Array();
 
 
     // to update the flight list display
@@ -56,7 +55,7 @@ export class FlightDB{
 
     private example_mode:boolean = false;
 
-    private filter_type:{[key: number]:boolean} = {}
+    private filter_type:Map<AircraftType, boolean> = new Map();
     private filter_string:string = "";
 
 
@@ -104,7 +103,6 @@ export class FlightDB{
         var aircraft_types = [
             AircraftType.PLANE,
             AircraftType.HELICOPTER,
-            AircraftType.HELICOPTER,
             AircraftType.LIGHT_PLANE,
             AircraftType.GLIDER,
             AircraftType.GROUND_VEHICLE,
@@ -116,16 +114,17 @@ export class FlightDB{
             const key = aircraft_types[i];
 
             this.html_filter_type[key] = this.html_research.querySelector(`#filter-img-type-${key}`);
-            console.log(key, this.html_filter_type[key]);
             
             if (this.html_filter_type[key] != undefined){
                 this.html_filter_type[key].addEventListener('click', (e) => {
                     this.filterByType(key);
+                    
                 });
-                this.filter_type[key] = true;
+                this.filter_type.set(key, true);
             }
         }
-
+        this.filter_type.set(AircraftType.UNKNOWN, true);
+        
 
         // setup the search bar
         this.html_filter_string = this.html_research.getElementsByTagName('input')[0];
@@ -138,7 +137,7 @@ export class FlightDB{
 
     }
 
-    public setMap(map:Map) : void
+    public setMap(map:M.Map) : void
     {
         this.map = map;
     }
@@ -187,7 +186,7 @@ export class FlightDB{
         {
             example_mode_changed = true;
             // we change the mode, clear the db
-            this.clear();
+            this.clear(false);
             // if we are in example mode -> start the timer example mode
             
         }
@@ -215,40 +214,45 @@ export class FlightDB{
         for (var i = 0; i < flights.length; i++)
         {
             var flight = flights[i];
-            
-            // add flight object
-            // sorted by start time
-            var t = 0;
-            while (t < this.flights.length && this.flights[t].getStartTimestamp() < flight.getStartTimestamp()){
-                t++;
-            }
-            
-            this.flights.splice(t, 0, flight);
-            this.flights_filename.splice(t, 0, filename);
 
-            if (flight.getStartTimestamp() < this.min_timestamp || this.min_timestamp == -1){
-                this.min_timestamp = flight.getStartTimestamp();
-            }
-            if (flight.getEndTimestamp() > this.max_timestamp || this.max_timestamp == -1){
-                this.max_timestamp = flight.getEndTimestamp();
-            }
+            if (!this.exist(flight))
+            {
 
-            // if it's the first flight
-            if (this.flights.length == 1 && !this.example_mode){
-                this.html_flight_list.appendChild(this.html_research);
-            }
-            
-            // gen html
-            var html_flight = this.generateFlightHTML(flight);
-            this.html_flights.splice(t, 0, html_flight);
-            this.html_flights_visible.splice(t, 0, false);
+                
+                // add flight object
+                // sorted by start time
+                var t = 0;
+                while (t < this.flights.length && this.flights[t].getStartTimestamp() < flight.getStartTimestamp()){
+                    t++;
+                }
+                
+                this.flights.splice(t, 0, flight);
 
-            if (!this.example_mode)
-                this.html_flight_list.insertBefore(html_flight, this.html_flight_list.childNodes[t + 1]);
+                if (flight.getStartTimestamp() < this.min_timestamp || this.min_timestamp == -1){
+                    this.min_timestamp = flight.getStartTimestamp();
+                }
+                if (flight.getEndTimestamp() > this.max_timestamp || this.max_timestamp == -1){
+                    this.max_timestamp = flight.getEndTimestamp();
+                }
+
+                // if it's the first flight
+                if (this.flights.length == 1 && !this.example_mode){
+                    this.html_flight_list.appendChild(this.html_research);
+                }
+                
+                // gen html
+                var html_flight = this.generateFlightHTML(flight);
+                this.html_flights.splice(t, 0, html_flight);
+                this.html_flights_visible.splice(t, 0, false);
+
+                if (!this.example_mode)
+                    this.html_flight_list.insertBefore(html_flight, this.html_flight_list.childNodes[t + 1]);
+            }
         }
         // re-calculate flight indexing
     
         this.recalculate_db();
+        this.recalculate_display();
 
         if (example_mode_changed){
             this.timer.setExempleMode(example_mode);
@@ -267,7 +271,6 @@ export class FlightDB{
         }
 
         this.flights.splice(index, 1);
-        this.flights_filename.splice(index, 1);
 
         this.html_flights[index].remove();
         this.html_flights.splice(index, 1);
@@ -392,19 +395,23 @@ export class FlightDB{
             }
         }
 
-
         if (this.flights.length == 0 || this.example_mode){
             this.html_empty_flight_list.style.display = 'flex';
             this.html_go_up_btn.style.display = 'none';
+            this.html_flight_list.innerHTML = "";
+            
         }
         else{
             this.html_empty_flight_list.style.display = 'none';
             this.html_go_up_btn.style.display = 'block';
         }
+
+
+        this.timer.updateViewAllFilter();
     }
     public recalculate_display() : void{
         for (let i = 0; i < this.flights.length; i++) {
-            if (this.filter_type[this.flights[i].getType()]
+            if (this.filter_type.get(this.flights[i].getType())
              && this.match_filter_string(this.flights[i].icao24, this.flights[i].callsign))
             {
                 this.html_flights[i].style.display = 'flex';
@@ -413,11 +420,8 @@ export class FlightDB{
                 this.html_flights[i].style.display = 'none';
             }
         }
-    }
 
-    public fileExists(filename:string) : boolean
-    {
-        return this.flights_filename.includes(filename);
+        this.timer.updateViewAllFilter();
     }
 
 
@@ -427,21 +431,26 @@ export class FlightDB{
         var flights = Array();
         for (let i = 0; i < this.flights.length; i++) {
 
-            var data = this.flights[i].getMapData(timestamp, end)
-            if (data.coords.length > 0){
-                data["flight"] = this.flights[i];
-                flights.push(data);
+            if (end == undefined || 
+                (this.filter_type.get(this.flights[i].getType()) && this.match_filter_string(this.flights[i].icao24, this.flights[i].callsign))){
 
-                // the map asked for this flight, so we make it visible
-                this.html_flights[i].setAttribute("visible", "true");
-                if (!this.html_flights_visible[i]){
-                    this.autoscroll(i);
+
+                var data = this.flights[i].getMapData(timestamp, end)
+                if (data.coords.length > 0){
+                    data["flight"] = this.flights[i];
+                    flights.push(data);
+
+                    // the map asked for this flight, so we make it visible
+                    this.html_flights[i].setAttribute("visible", "true");
+                    if (!this.html_flights_visible[i]){
+                        this.autoscroll(i);
+                    }
+                    this.html_flights_visible[i] = true;
                 }
-                this.html_flights_visible[i] = true;
-            }
-            else{
-                this.html_flights[i].setAttribute("visible", "false");
-                this.html_flights_visible[i] = false;
+                else{
+                    this.html_flights[i].setAttribute("visible", "false");
+                    this.html_flights_visible[i] = false;
+                }
             }
         }
         return flights;
@@ -537,37 +546,69 @@ export class FlightDB{
         }.bind(this), 40 * 1000);
     }
 
-    private clear(){
-        this.flights = Array();
-        this.flights_filename = Array();
-        this.html_flight_list.innerHTML = "";
-        this.html_flights = Array();
-        this.html_flights_visible = Array();
+    private clear(useFilter:boolean = true){
+        if (useFilter){
+            var match_filter:Array<number> = Array(0)
+            for (let i = 0; i < this.flights.length; i++) {
+                if (this.filter_type.get(this.flights[i].getType())
+                    && this.match_filter_string(this.flights[i].icao24, this.flights[i].callsign)){
 
-        this.min_timestamp = -1;
-        this.max_timestamp = -1;
+                    match_filter.push(i);
+                }
+            }
 
+            for (let i = match_filter.length-1; i >= 0 ; i--) {
+                var j = match_filter[i];
+                this.html_flight_list.removeChild(this.html_flights[j]);
+                this.html_flights.splice(j, 1);
+                this.html_flights_visible.splice(j, 1);
+                this.flights.splice(j, 1);
+
+                if (this.flightInfoDisplayer.flight == undefined &&
+                    this.flightInfoDisplayer.flight == this.flights[j]){
+                    this.flightInfoDisplayer.close();
+                    this.flightInfoDisplayer.displayFlight(undefined);
+                }
+            }
+        }
+        else{
+            this.flights = Array();
+            this.html_flights = Array();
+            this.html_flights_visible = Array();
+
+            this.min_timestamp = -1;
+            this.max_timestamp = -1;
+
+            this.flightInfoDisplayer.close();
+        }
         this.recalculate_db();
-        this.flightInfoDisplayer.close();
     }
 
     private filterByType(type: AircraftType){
-        this.filter_type[type] = !this.filter_type[type];
-        if (this.filter_type[type])
+        this.filter_type.set(type, !this.filter_type.get(type));
+        if (this.filter_type.get(type))
             this.html_filter_type[type].style.borderColor = "white";
         else
             this.html_filter_type[type].style.borderColor = "transparent";
 
         // if all filter_type are false, we put UNKNOWN to true else false
         var all_false = true;
-        for (let k in this.filter_type) {
-            if (this.filter_type[k]){
-                all_false = false;
-                break;
-            }
-        }
-        this.filter_type[AircraftType.UNKNOWN] = all_false;
+        var all_true = true;
+        for (let k of this.filter_type.keys()) {
 
+            if (k == AircraftType.UNKNOWN)
+                continue;
+            if (this.filter_type.get(k)){
+                all_false = false;
+            }
+            else{
+                all_true = false;
+            }
+
+        }
+        
+        this.filter_type.set(AircraftType.UNKNOWN, all_false || all_true);
+        
 
         this.recalculate_display();
     }
@@ -592,6 +633,15 @@ export class FlightDB{
         if (callsign.startsWith(this.filter_string))
             return true;
 
+        return false;
+    }
+
+    public exist(flight: Flight) : boolean
+    {
+        for (let i = 0; i < this.flights.length; i++) {
+            if (this.flights[i].icao24 == flight.icao24 && this.flights[i].callsign == flight.callsign && this.flights[i].getStartTimestamp() == flight.getStartTimestamp())
+                return true;
+        }
         return false;
     }
 }
