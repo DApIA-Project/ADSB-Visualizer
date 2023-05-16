@@ -1,6 +1,6 @@
 
 
-import {Map} from './Map';
+import {FlightMap} from './FlightMap';
 import {FlightDB} from './FlightDB';
 import {InputReader} from './InputReader';
 import { TimeManager } from './TimeManager';
@@ -18,7 +18,7 @@ window.addEventListener('load', onPageLoad);
 // create function
 function onPageLoad() {
     // create new map
-    var map = new Map();
+    var map = new FlightMap();
     // manage the flight list
     var flight_db = new FlightDB();
     // manage the incoming input data (drag-drop)

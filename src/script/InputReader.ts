@@ -3,7 +3,7 @@
 // read incoming files
 import { Flight } from './Flight';
 import {FlightDB} from './FlightDB';
-import * as M from './Map';
+import * as M from './FlightMap';
 import anime from 'animejs';
 var zlib = require('zlib');
 var Buffer = require('buffer').Buffer;
@@ -38,7 +38,7 @@ export class InputReader{
     private files_in_progress: Map<FileReader, File> = new Map();
 
     private flight_db: FlightDB = undefined;
-    private map: M.Map = undefined;
+    private map: M.FlightMap = undefined;
 
     constructor(){
         this.html_drop_zone = document.getElementById('drop-zone');
@@ -78,7 +78,7 @@ export class InputReader{
     public setFlightDB(flight_db: FlightDB) : void{
         this.flight_db = flight_db;
     }
-    public setMap(map: M.Map) : void{
+    public setMap(map: M.FlightMap) : void{
         this.map = map;
     }
     private ondrop(filename: string, content: string, example_mode=false) : void {

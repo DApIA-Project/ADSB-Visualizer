@@ -41,6 +41,7 @@ export function loadFromCSV(filename:string, file_content:string)
     var start_time:number =  0;
     var end_time:number =  0;
     var interpolated:Array<boolean> =  Array();
+    var prediction:Array<boolean> =  Array();
 
 
     // split the file content into lines
@@ -66,44 +67,44 @@ export function loadFromCSV(filename:string, file_content:string)
                 
             }
         }
-        if(column == "icao24"){
+        else if(column == "icao24"){
             icao24 = data[0][c];
         }
-        if(column == "4"){
+        else if(column == "4"){
             icao24 = U.num_to_hex(parseInt(data[0][c]));
         }
-        if(column == "lat" || column == "15" || column == "latitude"){
+        else if(column == "lat" || column == "15" || column == "latitude"){
             for (var i = 0; i < data.length; i++) {
                 lat.push(parseFloat(data[i][c]));
             }
         }
-        if(column == "lon" || column == "16" || column == "longitude"){
+        else  if(column == "lon" || column == "16" || column == "longitude"){
             for (var i = 0; i < data.length; i++) {
                 lon.push(parseFloat(data[i][c]));
             }
         }
-        if (column == "velocity" || column == "13"  || column == "groundspeed"){
+        else if (column == "velocity" || column == "13"  || column == "groundspeed"){
             for (var i = 0; i < data.length; i++) {
                 velocity.push(parseFloat(data[i][c]));
             }
         }
-        if (column == "heading" || column == "14"|| column == "track"){
+        else if (column == "heading" || column == "14"|| column == "track"){
             for (var i = 0; i < data.length; i++) {
                 heading.push(parseFloat(data[i][c]));
             }
         }
-        if (column == "vertrate" || column == "17" || column == "vertical_rate"){
+        else if (column == "vertrate" || column == "17" || column == "vertical_rate"){
             for (var i = 0; i < data.length; i++) {
                 vertical_rate.push(parseFloat(data[i][c]));
             }
         }
-        if (column == "callsign"){
+        else if (column == "callsign"){
             callsign = data[0][c];
         }
-        if (column == "onground"){
+        else if (column == "onground"){
             for (var i = 0; i < data.length; i++) {
                 // convert to boolean
-                if (data[i][c] == "true"){
+                if (data[i][c] == "true" || data[i][c] == "True"){
                     on_ground.push(true);
                 }
                 else{
@@ -112,10 +113,10 @@ export function loadFromCSV(filename:string, file_content:string)
                 
             }
         }
-        if (column == "alert"){
+        else if (column == "alert"){
             for (var i = 0; i < data.length; i++) {
                 // convert to boolean
-                if (data[i][c] == "true"){
+                if (data[i][c] == "true" || data[i][c] == "True"){
                     alert.push(true);
                 }
                 else{
@@ -123,10 +124,10 @@ export function loadFromCSV(filename:string, file_content:string)
                 }
             }
         }
-        if (column == "spi"){
+        else if (column == "spi"){
             for (var i = 0; i < data.length; i++) {
                 // convert to boolean
-                if (data[i][c] == "true"){
+                if (data[i][c] == "true" || data[i][c] == "True"){
                     spi.push(true);
                 }
                 else{
@@ -134,45 +135,56 @@ export function loadFromCSV(filename:string, file_content:string)
                 }
             }
         }
-        if (column == "squawk"){
+        else if (column == "squawk"){
             for (var i = 0; i < data.length; i++) {
                 squawk.push(parseInt(data[i][c]));
             }
         }
-        if (column == "baroaltitude" || column == "12" || column == "altitude"){
+        else if (column == "baroaltitude" || column == "12" || column == "altitude"){
             for (var i = 0; i < data.length; i++) {
                 baro_altitude.push(parseFloat(data[i][c]));
             }
         }
-        if (column == "geoaltitude"  || column == "12"){
+        else if (column == "geoaltitude"  || column == "12"){
             for (var i = 0; i < data.length; i++) {
                 geo_altitude.push(parseFloat(data[i][c]));
             }
         }
-        if (column == "lastposupdate" || column == "last_position"){
+        else if (column == "lastposupdate" || column == "last_position"){
             for (var i = 0; i < data.length; i++) {
                 last_pos_update.push(auto_date_parse(data[i][c]));
             }
         }
-        if (column == "lastcontact"){
+        else if (column == "lastcontact"){
             for (var i = 0; i < data.length; i++) {
                 last_contact.push(auto_date_parse(data[i][c]));
 
             }
         }
-        if (column == "hour"){
+        else if (column == "hour"){
             for (var i = 0; i < data.length; i++) {
                 hour.push(auto_date_parse(data[i][c]));
             }
         }
-        if (column == "interpolated"){
+        else if (column == "interpolated"){
             for (var i = 0; i < data.length; i++) {
                 // convert to boolean
-                if (data[i][c] == "True"){
+                if (data[i][c] == "true" || data[i][c] == "True"){
                     interpolated.push(true);
                 }
                 else{
                     interpolated.push(false);
+                }
+            }
+        }
+        else if (column == "prediction"){
+            for (var i = 0; i < data.length; i++) {
+                // convert to boolean
+                if (data[i][c] == "true" || data[i][c] == "True" || data[i][c] == ""){
+                    prediction.push(true);
+                }
+                else{
+                    prediction.push(false);
                 }
             }
         }
@@ -241,6 +253,7 @@ export function loadFromCSV(filename:string, file_content:string)
         hour : hour,
         start_time : start_time,
         end_time : end_time,
-        interpolated : interpolated
+        interpolated : interpolated,
+        prediction : prediction
     }];
 }

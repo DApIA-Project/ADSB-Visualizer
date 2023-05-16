@@ -3,6 +3,8 @@ import * as L from 'leaflet';
 import "leaflet-rotatedmarker";
 import "leaflet/dist/leaflet.css";
 
+import { MultiColorPolyLine } from './MultiColorPolyLine';
+
 import * as URL from './Url'
 
 // manage the display of the map
@@ -173,14 +175,14 @@ var flip_icon_map = {
 
 
 
-export class Map {
+export class FlightMap {
 
     private map: L.Map;
     private database:FlightDB;
 
 
-    private polylines: Array<L.Polyline> = Array();
-    private markers: Array<L.Marker> = Array();
+    private polylines: Map<number, MultiColorPolyLine> = new Map();
+    private markers: Map<number, L.Marker> = new Map();
 
     constructor() {
         this.map = L.map('map', {
@@ -217,6 +219,7 @@ export class Map {
                 start_time: number;
                 end_time: number;
                 flight: Flight;
+                display_opt: {[key:string]:any[]};
             }> = []
             
         var show_range: boolean = false;
@@ -228,17 +231,20 @@ export class Map {
             show_range = true;
         }
 
-        var lineWeight = 2;
-        var color = '#184296';
         var opacity = 1;
 
-        if (show_range){lineWeight = 1; opacity=0.5 }
+
+        var shown_flight = new Map<number, boolean>();
+        for (let key of this.polylines.keys()) {
+            shown_flight.set(key, false);
+        }
         
         for (let i = 0; i < data.length; i++) {
-
-            if (i >= this.polylines.length){
-                var poly = L.polyline(data[i].coords, {color: color, weight: lineWeight, opacity: opacity}).addTo(this.map);
-                this.polylines.push(poly);
+            var flight_id = data[i].flight.getHash();
+            shown_flight.set(flight_id, true);
+            if (!this.polylines.has(flight_id)){
+                var poly = new MultiColorPolyLine(data[i].coords, data[i].display_opt, opacity).addTo(this.map);
+                this.polylines.set(flight_id, poly);
 
                 var last = data[i].coords[data[i].coords.length-1];
                 var angle = data[i].rotation + 90;
@@ -261,58 +267,52 @@ export class Map {
                     this.database.watchFlight(data[i].flight)
                 });
 
-                this.markers.push(marker);
-                
+                this.markers.set(flight_id, marker);
             }
             else
             {
-                this.polylines[i].setLatLngs(data[i].coords);
-                this.polylines[i].setStyle({color: color, weight: lineWeight, opacity: opacity});
+                this.polylines.get(flight_id).setLatLngs(data[i].coords, data[i].display_opt);
+                this.polylines.get(flight_id).setStyle({opacity: opacity});
 
 
                 var last = data[i].coords[data[i].coords.length-1];
                 
                 var angle = data[i].rotation + 90;
-                this.markers[i].setLatLng({lat: last[0], lng: last[1]});
-                
+                var marker = this.markers.get(flight_id);
+                marker.setLatLng({lat: last[0], lng: last[1]});
                 if (angle < 90 || angle > 270){
-                    if (this.markers[i].options.icon != icon_map[data[i].type])
-                        this.markers[i].setIcon(icon_map[data[i].type]);
-                    this.markers[i].setRotationAngle(angle);
+                    if (marker.options.icon != icon_map[data[i].type])
+                        marker.setIcon(icon_map[data[i].type]);
+                    marker.setRotationAngle(angle);
                 }
                 else{
-                    if (this.markers[i].options.icon != flip_icon_map[data[i].type])
-                        this.markers[i].setIcon(flip_icon_map[data[i].type]);
-                    this.markers[i].setRotationAngle(angle + 180);
+                    if (marker.options.icon != flip_icon_map[data[i].type])
+                        marker.setIcon(flip_icon_map[data[i].type]);
+                    marker.setRotationAngle(angle + 180);
                 }
-
-                this.markers[i].off()
-                this.markers[i].on('click', (e) => {
-                    this.database.watchFlight(data[i].flight)
-                });
             }
         }
 
-        for (let i = data.length; i < this.polylines.length; i++) {
-            this.map.removeLayer(this.polylines[i]);
-            this.map.removeLayer(this.markers[i]);
-        }
-        var nb_to_remove = this.polylines.length - data.length;
-
-        if (nb_to_remove > 0){
-            this.polylines.splice(data.length, nb_to_remove);
-            this.markers.splice(data.length, nb_to_remove);
+        // hide unused polylines
+        for (let [key, value] of shown_flight.entries()) {
+            if (!value){
+                this.polylines.get(key).removeLayer();
+                this.map.removeLayer(this.markers.get(key));
+                this.polylines.delete(key);
+                this.markers.delete(key);
+            }
+            
         }
 
         // if show range hide all markers
         if (show_range){
-            for (let i = 0; i < this.markers.length; i++) {
-                this.markers[i].setOpacity(0);
+            for (let marker of this.markers.values()) {
+                marker.setOpacity(0);
             }
         }
         else{
-            for (let i = 0; i < this.markers.length; i++) {
-                this.markers[i].setOpacity(1);
+            for (let marker of this.markers.values()) {
+                marker.setOpacity(1);
             }
         }
 

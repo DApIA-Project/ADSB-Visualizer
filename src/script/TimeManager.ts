@@ -1,7 +1,7 @@
 import { FlightDB } from "./FlightDB";
 import { FlightInfoDisplayer } from "./FlightDataDisplayer";
 import { InputReader } from "./InputReader";
-import { Map } from "./Map";
+import { FlightMap } from "./FlightMap";
 import * as U from './Utils';
 
 
@@ -28,7 +28,7 @@ export class TimeManager{
     private html_view_all_button: HTMLElement;
 
     private database:FlightDB
-    private map:Map
+    private map:FlightMap
     private inputReader:InputReader
     private flightInfoDisplayer:FlightInfoDisplayer
 
@@ -96,7 +96,7 @@ export class TimeManager{
     public setFlightDB(database:FlightDB){
         this.database = database;
     }
-    public setMap(map:Map){
+    public setMap(map:FlightMap){
         this.map = map;
     }
     public setInputReader(inputReader:InputReader){

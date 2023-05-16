@@ -10,7 +10,7 @@ import { loadFromSBS } from './parsers/parse_sbs';
 
 
 // array of 3 numbers
-var aircraft_types : [string, string, number][] = []
+var aircraft_types : [string, number][] = []
 // load local file at "/src/assets/data/aircraft.txt"
 var aircraft_file = require('url:/src/assets/data/aircraft.txt');
 // split the file content into lines
@@ -20,7 +20,7 @@ fetch(aircraft_file).then(response => response.text()).then(text => {
 
     for (var i = 0; i < lines.length; i++) {
         var line = lines[i].split(',');
-        aircraft_types.push([line[0], line[1], parseInt(line[2])]);
+        aircraft_types.push([line[1], parseInt(line[2])]);
     }
 
     setTimeout(() => {
@@ -79,6 +79,8 @@ function numberToType(number:number) : AircraftType
 }
 
 
+
+
 function computeAircraftType(callsign:string, icao24:string) : AircraftType
 {
     if (callsign.includes("SAMU"))
@@ -87,9 +89,9 @@ function computeAircraftType(callsign:string, icao24:string) : AircraftType
         return AircraftType.PLANE;
     
     for (let i = 0; i < aircraft_types.length; i++) {
-        if (aircraft_types[i][1] == icao24)
+        if (aircraft_types[i][0] == icao24)
         {
-            return numberToType(aircraft_types[i][2]);
+            return numberToType(aircraft_types[i][1]);
         }
     }
 
@@ -124,6 +126,8 @@ export class Flight
     private end_time:number =  0;
     private type:AircraftType =  AircraftType.UNKNOWN;
     private interpolated:Array<boolean> =  Array();
+    private prediction:Array<boolean> =  Array();
+    private hash:number =  0;
 
 
     constructor()
@@ -153,17 +157,45 @@ export class Flight
         this.start_time = a.start_time;
         this.end_time = a.end_time;
         this.type = computeAircraftType(this.callsign, this.icao24);
+        this.hash = this.computeHash();
 
         if (a.interpolated != undefined)
             this.interpolated = a.interpolated;
-        else
-        {
-            for (let i = 0; i < this.time.length; i++) {
+        else for (let i = 0; i < this.time.length; i++) 
                 this.interpolated.push(false);
-            }
-        }
+
+        if (a.prediction != undefined)
+            this.prediction = a.prediction;
+        else for (let i = 0; i < this.time.length; i++)
+                this.prediction.push(false);
         
     }
+
+    computeHash() : number
+    {
+        var hash = 0;
+        for (let c = 0; c < this.callsign.length; c++) {
+            hash += this.callsign.charCodeAt(c) * c;
+        }
+        hash %= 1000000;
+        for (let c = 0; c < this.icao24.length; c++) {
+            hash += this.icao24.charCodeAt(c) * c;
+        }
+        hash %= 1000000;
+
+        hash += this.start_time;
+        hash += this.end_time;
+        hash %= 1000000;
+
+        return hash;
+    }
+
+    getHash() : number
+    {
+        return this.hash;
+    }
+
+
 
     
     getLatLngs() : [number,number][]
@@ -236,8 +268,10 @@ export class Flight
 
 
     getMapData(timestamp:number=undefined, end:number=undefined):
-        {type: AircraftType;callsign: string;icao24: string;coords: [number, number][];rotation:number;start_time: number;end_time: number;}
+        {type: AircraftType;callsign: string;icao24: string;coords: [number, number][];rotation:number;start_time: number;end_time: number;display_opt: {[key:string]:any[]}}
     {
+        const BASE_COLOR = "#184296";
+        const NOT_COLOR = "#e84118";
 
         const MAX_LENGTH = 10000;
         if (timestamp == undefined){
@@ -247,10 +281,11 @@ export class Flight
             // check if timestamp is in range
             
             if (timestamp > this.end_time || timestamp < this.start_time){
-                return {"type": AircraftType.UNKNOWN,"callsign": "NULL","icao24": "NULL","coords": [], "rotation":-1,"start_time": -1,"end_time": -1,};
+                return {"type": AircraftType.UNKNOWN,"callsign": "NULL","icao24": "NULL","coords": [], "rotation":-1,"start_time": -1,"end_time": -1,"display_opt": {}};
             }
             // if it's the case gather all data
             var coords:[number, number][] = [];
+            var display_opt:{[key:string]:any[]} = {"color": [], "weight": []};
             var i = 0;
             while (i < this.time.length && this.time[i] <= timestamp){
                 i++;
@@ -258,10 +293,17 @@ export class Flight
             i = Math.max(0, i - MAX_LENGTH);
             while (i < this.time.length && this.time[i] <= timestamp){
                 coords.push([this.lat[i], this.lon[i]]);
+
+                if (this.prediction[i]){
+                    display_opt["color"].push(BASE_COLOR);
+                    display_opt["weight"].push(2);
+                }else{
+                    display_opt["color"].push(NOT_COLOR);
+                    display_opt["weight"].push(3);
+                }
                 
                 i++;
             }
-            
             
             return {
                 "type": this.type,
@@ -271,12 +313,13 @@ export class Flight
                 "rotation":  this.heading[i - 1],
                 "start_time": this.start_time,
                 "end_time": this.end_time,
+                "display_opt": display_opt,
             };
         }
         else
         {
             if (timestamp > this.end_time || end < this.start_time){
-                return {"type": AircraftType.UNKNOWN,"callsign": "NULL","icao24": "NULL","coords": [], "rotation":-1,"start_time": -1,"end_time": -1,};
+                return {"type": AircraftType.UNKNOWN,"callsign": "NULL","icao24": "NULL","coords": [], "rotation":-1,"start_time": -1,"end_time": -1, "display_opt": {}};
             }
             
 
@@ -290,9 +333,17 @@ export class Flight
             timestamp = end
 
             var coords:[number, number][] = [];
+            var display_opt:{[key:string]:any[]} = {"color": [], "weight": []};
+
             var i = 0;
             while (this.time[i] < timestamp){
                 coords.push([this.lat[i], this.lon[i]]);
+
+                // when we display in a time range do multiple flight are displayed at once
+                // so no need to display multi colored line
+                display_opt["color"].push(BASE_COLOR);
+                display_opt["weight"].push(1);
+
                 i++;
             }
             return {
@@ -303,6 +354,7 @@ export class Flight
                 "rotation": this.heading[i - 1],
                 "start_time": this.start_time,
                 "end_time": this.end_time,
+                "display_opt": display_opt,
             };
         }
     }

@@ -1,7 +1,7 @@
 import { AircraftType, Flight } from './Flight';
 import * as U from './Utils';
 
-import * as M from './Map';
+import * as M from './FlightMap';
 import * as L from 'leaflet';
 import { TimeManager } from './TimeManager';
 import { loadFromCSV } from './parsers/parse_csv';
@@ -26,7 +26,7 @@ import * as URL from './Url'
 
 export class FlightDB{
 
-    private map:M.Map = undefined;
+    private map:M.FlightMap = undefined;
     private timer:TimeManager = undefined;
     private flightInfoDisplayer:FlightInfoDisplayer = undefined;
 
@@ -137,7 +137,7 @@ export class FlightDB{
 
     }
 
-    public setMap(map:M.Map) : void
+    public setMap(map:M.FlightMap) : void
     {
         this.map = map;
     }
@@ -283,7 +283,6 @@ export class FlightDB{
             this.flightInfoDisplayer.displayFlight(undefined);
         }
 
-
         this.recalculate_db();
     }
 
@@ -426,7 +425,7 @@ export class FlightDB{
 
 
     public getMapData(timestamp:number = undefined, end:number = undefined) : 
-        Array<{type: AircraftType;callsign: string;icao24: string;coords: [number, number][];rotation:number;start_time: number;end_time: number; flight:Flight}>
+        Array<{type: AircraftType;callsign: string;icao24: string;coords: [number, number][];rotation:number;start_time: number;end_time: number; flight:Flight, display_opt: {[key:string]:any[]}}>
     {
         var flights = Array();
         for (let i = 0; i < this.flights.length; i++) {
