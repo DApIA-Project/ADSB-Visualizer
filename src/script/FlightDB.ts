@@ -153,26 +153,23 @@ export class FlightDB{
     private parseFile(filename:string, content:string) : Array<Flight>
     {
         var flights:Array<Flight> = Array();
+        var attributes:any = undefined
+        
         if (filename.endsWith(".csv")){
-            var attributes = loadFromCSV(filename, content);
-            if (attributes.length == 1)
-            {
-                var flight = new Flight();
-                flight.setAttribute(attributes[0]);
-                flights.push(flight);
-            }
+            attributes = loadFromCSV(filename, content);
         }
         else if (filename.endsWith(".sbs"))
         {
-            var attributes = loadFromSBS(filename, content);
-            
-            for (var i = 0; i < attributes.length; i++)
-            {
-                var flight = new Flight();
-                flight.setAttribute(attributes[i]);
-                flights.push(flight);
-            }
+            attributes = loadFromSBS(filename, content);
         }
+
+        for (var i = 0; i < attributes.length; i++)
+        {
+            var flight = new Flight();
+            flight.setAttribute(attributes[i]);
+            flights.push(flight);
+        }
+
         return flights;
     }
 

@@ -11,7 +11,7 @@ export function loadFromSBS(filename:string, file_content:string)
     file_content = file_content.trim();
     var lines = file_content.split('\n');
     
-    var data:{msg: string;icao24: string;date: string;time: string;callsign: string;altitude: string;ground_speed: string;track: string;lat: string;lon: string;vertrate: string;squawk: string;alert: string;emergency: string;spi: string;onground: string;}[] = [];
+    var data:{msg: string;icao24: string;date: string;time: string;callsign: string;altitude: string;ground_speed: string;track: string;lat: string;lon: string;vertrate: string;squawk: string;alert: string;emergency: string;spi: string;onground: string; interpolated:boolean, anomaly: boolean}[] = [];
     for (var i = 0; i < lines.length; i++) {
         var line = lines[i].trim().split(',');
 
@@ -36,6 +36,8 @@ export function loadFromSBS(filename:string, file_content:string)
             emergency:line[20], // Emergency
             spi:line[21], // SPI
             onground:line[22], // Is on ground
+            interpolated:false,
+            anomaly:undefined
         }
 
         data.push(row);
@@ -76,8 +78,8 @@ export function loadFromSBS(filename:string, file_content:string)
     return res;
 }
 
-function split_on_icao24(data: {msg: string;icao24: string;date: string;time: string;callsign: string;altitude: string;ground_speed: string;track: string;lat: string;lon: string;vertrate: string;squawk: string;alert: string;emergency: string;spi: string;onground: string;}[]) : 
-    {msg: string;icao24: string;date: string;time: string;callsign: string;altitude: string;ground_speed: string;track: string;lat: string;lon: string;vertrate: string;squawk: string;alert: string;emergency: string;spi: string;onground: string;}[][]{
+function split_on_icao24(data: {msg: string;icao24: string;date: string;time: string;callsign: string;altitude: string;ground_speed: string;track: string;lat: string;lon: string;vertrate: string;squawk: string;alert: string;emergency: string;spi: string;onground: string; interpolated:boolean, anomaly: boolean}[]) : 
+{msg: string;icao24: string;date: string;time: string;callsign: string;altitude: string;ground_speed: string;track: string;lat: string;lon: string;vertrate: string;squawk: string;alert: string;emergency: string;spi: string;onground: string; interpolated:boolean, anomaly: boolean}[][]{
     var icao24 = {};
     for (var i = 0; i < data.length; i++) {
         var row = data[i];
@@ -98,7 +100,7 @@ function split_on_icao24(data: {msg: string;icao24: string;date: string;time: st
 }
 
 
-function getFlightAttrbutes(data: {msg: string;icao24: string;date: string;time: string;callsign: string;altitude: string;ground_speed: string;track: string;lat: string;lon: string;vertrate: string;squawk: string;alert: string;emergency: string;spi: string;onground: string;}[])
+function getFlightAttrbutes(data: {msg: string;icao24: string;date: string;time: string;callsign: string;altitude: string;ground_speed: string;track: string;lat: string;lon: string;vertrate: string;squawk: string;alert: string;emergency: string;spi: string;onground: string; interpolated:boolean, anomaly: boolean}[])
 {
     var time:Array<number> = Array();
     var icao24:string =  "";
