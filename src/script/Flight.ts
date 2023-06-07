@@ -126,7 +126,7 @@ export class Flight
     private end_time:number =  0;
     private type:AircraftType =  AircraftType.UNKNOWN;
     private interpolated:Array<boolean> =  Array();
-    private prediction:Array<boolean> =  Array();
+    private anomaly:Array<boolean> =  Array();
     private hash:number =  0;
 
 
@@ -164,10 +164,10 @@ export class Flight
         else for (let i = 0; i < this.time.length; i++) 
                 this.interpolated.push(false);
 
-        if (a.prediction != undefined)
-            this.prediction = a.prediction;
+        if (a.anomaly != undefined)
+            this.anomaly = a.anomaly;
         else for (let i = 0; i < this.time.length; i++)
-                this.prediction.push(false);
+                this.anomaly.push(undefined);
         
     }
 
@@ -271,7 +271,8 @@ export class Flight
         {type: AircraftType;callsign: string;icao24: string;coords: [number, number][];rotation:number;start_time: number;end_time: number;display_opt: {[key:string]:any[]}}
     {
         const BASE_COLOR = "#184296";
-        const NOT_COLOR = "#e84118";
+        const NOT_COLOR = "#44bd32";
+        const TRUE_COLOR = "#e84118";
 
         const MAX_LENGTH = 10000;
         if (timestamp == undefined){
@@ -294,10 +295,15 @@ export class Flight
             while (i < this.time.length && this.time[i] <= timestamp){
                 coords.push([this.lat[i], this.lon[i]]);
 
-                if (this.prediction[i]){
+                if (this.anomaly[i] == undefined){
                     display_opt["color"].push(BASE_COLOR);
                     display_opt["weight"].push(2);
-                }else{
+                }
+                else if (this.anomaly[i]){
+                    display_opt["color"].push(TRUE_COLOR);
+                    display_opt["weight"].push(3);
+                }
+                else{
                     display_opt["color"].push(NOT_COLOR);
                     display_opt["weight"].push(3);
                 }

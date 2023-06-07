@@ -63,7 +63,7 @@ export function loadFromSBS(filename:string, file_content:string)
         start_time: number;
         end_time: number;
         interpolated: boolean[];
-        prediction: boolean[];
+        anomaly: boolean[];
     }> = [] 
 
     for (var flight = 0; flight < data_splited.length; flight++) {
@@ -274,7 +274,7 @@ function getFlightAttrbutes(data: {msg: string;icao24: string;date: string;time:
         start_time : start_time,
         end_time : end_time,
         interpolated : undefined,
-        prediction : undefined,
+        anomaly : undefined,
     };
 }
 

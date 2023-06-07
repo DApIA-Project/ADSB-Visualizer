@@ -41,7 +41,7 @@ export function loadFromCSV(filename:string, file_content:string)
     var start_time:number =  0;
     var end_time:number =  0;
     var interpolated:Array<boolean> =  Array();
-    var prediction:Array<boolean> =  Array();
+    var anomaly:Array<boolean> =  Array();
 
 
     // split the file content into lines
@@ -177,14 +177,25 @@ export function loadFromCSV(filename:string, file_content:string)
                 }
             }
         }
-        else if (column == "prediction"){
+        else if (column == "prediction" || column == "predicted" || column == "anomaly"){
             for (var i = 0; i < data.length; i++) {
+                data[i][c] = data[i][c].toLowerCase();
                 // convert to boolean
-                if (data[i][c] == "true" || data[i][c] == "True" || data[i][c] == ""){
-                    prediction.push(true);
+                if (data[i][c] == "true"){
+                    anomaly.push(true);
+                }
+                else if (data[i][c] == "" || data[i][c] == "none" || data[i][c] == "nan" || data[i][c] == "undefined"){
+                    anomaly.push(undefined);
                 }
                 else{
-                    prediction.push(false);
+                    anomaly.push(false);
+                }
+            }
+
+            if (column != "anomaly"){
+                // invert anomaly
+                for (var i = 0; i < anomaly.length; i++) {
+                    anomaly[i] = !anomaly[i];
                 }
             }
         }
@@ -254,6 +265,6 @@ export function loadFromCSV(filename:string, file_content:string)
         start_time : start_time,
         end_time : end_time,
         interpolated : interpolated,
-        prediction : prediction
+        anomaly : anomaly
     }];
 }
