@@ -179,7 +179,7 @@ export class FlightInfoDisplayer{
         this.velocity_html.innerHTML = float_to_string(variables.velocity, 0);
         this.heading_html.innerHTML = float_to_string(variables.heading, 0);
         this.altitude_html.innerHTML = float_to_string(variables.altitude, 0);   
-        this.vertical_rate_html.innerHTML = float_to_string(variables.vertical_rate, 1);
+        this.vertical_rate_html.innerHTML = float_to_string(variables.vertical_rate, 0);
         this.on_ground_html.innerHTML = variables.on_ground ? "on ground" : "in flight";
         this.squawk_html.innerHTML = variables.squawk != undefined ? variables.squawk.toString() : "None";
         this.alert_html.innerHTML = variables.alert ? "ALERT" : "NAD.";
