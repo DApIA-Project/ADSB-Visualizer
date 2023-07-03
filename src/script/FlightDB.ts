@@ -553,9 +553,15 @@ export class FlightDB{
                 }
             }
 
+            console.log("clearing " + match_filter.length + " flights");
+            console.log(match_filter);
+            
+            
+
             for (let i = match_filter.length-1; i >= 0 ; i--) {
                 var j = match_filter[i];
-                this.html_flight_list.removeChild(this.html_flights[j]);
+                if (!this.example_mode)
+                    this.html_flight_list.removeChild(this.html_flights[j]);
                 this.html_flights.splice(j, 1);
                 this.html_flights_visible.splice(j, 1);
                 this.flights.splice(j, 1);
