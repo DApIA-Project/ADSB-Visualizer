@@ -83,28 +83,37 @@ export class FlightDB{
         this.html_research = U.createElementFromHTML(
             `<div id="filter-input">
                 <span>
-                    <img src="${URL.plane}" alt="airplane" id="filter-img-type-${AircraftType.PLANE.toString()}">
-                    <img src="${URL.helico}" alt="helico" id="filter-img-type-${AircraftType.HELICOPTER.toString()}">
-                    <img src="${URL.lightplane}" alt="lightplane" id="filter-img-type-${AircraftType.LIGHT_PLANE.toString()}">
+                    <img src="${URL.cargo}" alt="cargo" id="filter-img-type-${AircraftType.CARGO.toString()}">
+                    <img src="${URL.plane}" alt="plane" id="filter-img-type-${AircraftType.PLANE.toString()}">
+                    <img src="${URL.jet}" alt="jet" id="filter-img-type-${AircraftType.JET.toString()}">
+                    <img src="${URL.turboprop}" alt="turboprop" id="filter-img-type-${AircraftType.TURBOPROP.toString()}">
+                    <img src="${URL.medium}" alt="medium" id="filter-img-type-${AircraftType.MEDIUM.toString()}">
+                    <img src="${URL.light}" alt="light" id="filter-img-type-${AircraftType.LIGHT.toString()}">
+                    <img src="${URL.super_light}" alt="super_light" id="filter-img-type-${AircraftType.SUPER_LIGHT.toString()}">
                     <img src="${URL.glider}" alt="glider" id="filter-img-type-${AircraftType.GLIDER.toString()}">
-                    <img src="${URL.goundvehicle}" alt="ground" id="filter-img-type-${AircraftType.GROUND_VEHICLE.toString()}">
+                    <img src="${URL.helicopter}" alt="helicopter" id="filter-img-type-${AircraftType.HELICOPTER.toString()}">
+                    <img src="${URL.ulm}" alt="ulm" id="filter-img-type-${AircraftType.ULM.toString()}">
+                    <img src="${URL.military}" alt="military" id="filter-img-type-${AircraftType.MILITARY.toString()}">
+                    <img src="${URL.samu}" alt="samu" id="filter-img-type-${AircraftType.SAMU.toString()}">
+                    <img src="${URL.ground_vehicle}" alt="ground_vehicle" id="filter-img-type-${AircraftType.GROUND_VEHICLE.toString()}">
                     <img src="${URL.drone}" alt="drone" id="filter-img-type-${AircraftType.DRONE.toString()}">
                 </span>
                 <input type="text" id="reseach-bar" placeholder="Search by Icao, Callsign">
             </div>`)
 
-            // <img src="${URL.military}" alt="ground" id="filter-img-type-${AircraftType.MILITARY.toString()}">
-            // <img src="${URL.medium_plane}" alt="lightplane" id="filter-img-type-${AircraftType.MEDIUM_PLANE.toString()}">
-            // <img src="${URL.ultra_lightplane}" alt="lightplane" id="filter-img-type-${AircraftType.ULTRA_LIGHT_PLANE.toString()}">
-
-
-        
-
         var aircraft_types = [
+            AircraftType.CARGO,
             AircraftType.PLANE,
-            AircraftType.HELICOPTER,
-            AircraftType.LIGHT_PLANE,
+            AircraftType.JET,
+            AircraftType.TURBOPROP,
+            AircraftType.MEDIUM,
+            AircraftType.LIGHT,
+            AircraftType.SUPER_LIGHT,
             AircraftType.GLIDER,
+            AircraftType.HELICOPTER,
+            AircraftType.ULM,
+            AircraftType.MILITARY,
+            AircraftType.SAMU,
             AircraftType.GROUND_VEHICLE,
             AircraftType.DRONE,
         ]
@@ -284,25 +293,40 @@ export class FlightDB{
     }
 
 
+
+
+
     private getImgURL(type:AircraftType) : string
     {
         switch(type){
+            case AircraftType.CARGO:
+                return URL.cargo;
             case AircraftType.PLANE:
                 return URL.plane;
-            case AircraftType.HELICOPTER:
-                return URL.helico;
-            case AircraftType.GROUND_VEHICLE:
-                return URL.goundvehicle;
-            case AircraftType.LIGHT_PLANE:
-                return URL.lightplane;
-            case AircraftType.ULTRA_LIGHT_PLANE:
-                return URL.ultra_lightplane;
-            case AircraftType.MEDIUM_PLANE:
-                return URL.medium_plane;
+            case AircraftType.JET:
+                return URL.jet;
+            case AircraftType.TURBOPROP:
+                return URL.turboprop;
+            case AircraftType.MEDIUM:
+                return URL.medium;
+            case AircraftType.LIGHT:
+                return URL.light;
+            case AircraftType.SUPER_LIGHT:
+                return URL.super_light;
             case AircraftType.GLIDER:
                 return URL.glider;
+            case AircraftType.HELICOPTER:
+                return URL.helicopter;
+            case AircraftType.ULM:
+                return URL.ulm;
             case AircraftType.MILITARY:
                 return URL.military;
+            case AircraftType.SAMU:
+                return URL.samu;
+            case AircraftType.GROUND_VEHICLE:
+                return URL.ground_vehicle;
+            case AircraftType.DRONE:
+                return URL.drone;
             default:
                 return URL.question_mark;
         }
@@ -553,9 +577,6 @@ export class FlightDB{
                 }
             }
 
-            console.log("clearing " + match_filter.length + " flights");
-            console.log(match_filter);
-            
             
 
             for (let i = match_filter.length-1; i >= 0 ; i--) {

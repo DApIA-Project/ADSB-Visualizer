@@ -16,7 +16,7 @@ function auto_date_parse(value:string){
     var date = new Date(value);
     return date.getTime() / 1000.0;
 }
-export function loadACSV(content:string[][], header:string[]){
+export function loadACSV(content:string[][], header:string[], filename:string = ""){
     var time:Array<number> = Array();
     var icao24:string =  "";
     var lat:Array<number> =  Array();
@@ -39,11 +39,23 @@ export function loadACSV(content:string[][], header:string[]){
     var interpolated:Array<boolean> =  Array();
     var anomaly:Array<boolean> =  Array();
 
+    if (content.length == 0){
+        console.log("empty file : ", filename);
+        return;
+    }
+        
+
     // loop through the header and assign the data to the correct array
     for (var c = 0; c < header.length; c++) {
         var column = header[c];
         if (column == "time" || column=="timestamp" || column == "7_8"){
             for (var i = 0; i < content.length; i++) {
+                if (content[i][c] == undefined){
+                    console.log(filename);
+                    
+                    console.log(content);
+                }
+                    
                 time.push(auto_date_parse(content[i][c]));
             }
         }
@@ -130,22 +142,22 @@ export function loadACSV(content:string[][], header:string[]){
                 geo_altitude.push(parseFloat(content[i][c]));
             }
         }
-        else if (column == "lastposupdate" || column == "last_position"){
-            for (var i = 0; i < content.length; i++) {
-                last_pos_update.push(auto_date_parse(content[i][c]));
-            }
-        }
-        else if (column == "lastcontact"){
-            for (var i = 0; i < content.length; i++) {
-                last_contact.push(auto_date_parse(content[i][c]));
+        // else if (column == "lastposupdate" || column == "last_position"){
+        //     for (var i = 0; i < content.length; i++) {
+        //         last_pos_update.push(auto_date_parse(content[i][c]));
+        //     }
+        // }
+        // else if (column == "lastcontact"){
+        //     for (var i = 0; i < content.length; i++) {
+        //         last_contact.push(auto_date_parse(content[i][c]));
 
-            }
-        }
-        else if (column == "hour"){
-            for (var i = 0; i < content.length; i++) {
-                hour.push(auto_date_parse(content[i][c]));
-            }
-        }
+        //     }
+        // }
+        // else if (column == "hour"){
+        //     for (var i = 0; i < content.length; i++) {
+        //         hour.push(auto_date_parse(content[i][c]));
+        //     }
+        // }
         else if (column == "interpolated"){
             for (var i = 0; i < content.length; i++) {
                 // convert to boolean
@@ -220,6 +232,12 @@ export function loadACSV(content:string[][], header:string[]){
     // if (filename_callsign[0] == "callsign"){
     //     callsign = filename_callsign[1];
     // }
+
+    if (callsign == undefined){
+        console.log("callsign undefined", filename);
+        console.log(content);
+        console.log(header);
+    }
 
     return {
         time : time,
@@ -303,7 +321,7 @@ export function loadFromCSV(filename:string, file_content:string)
         anomaly: boolean[]}[] = [];
 
     for (var i = 0; i < contents.length; i++) {
-        var c = loadACSV(contents[i], header);
+        var c = loadACSV(contents[i], header, filename);
         if (c != undefined){
             res.push(c);
         }

@@ -12,7 +12,7 @@ import { loadFromSBS } from './parsers/parse_sbs';
 // array of 3 numbers
 var aircraft_types : [string, number][] = []
 // load local file at "/src/assets/data/aircraft.txt"
-var aircraft_file = require('url:/src/assets/data/aircraft.txt');
+var aircraft_file = require('url:/src/assets/data/database.txt');
 // split the file content into lines
 fetch(aircraft_file).then(response => response.text()).then(text => {
 
@@ -20,7 +20,7 @@ fetch(aircraft_file).then(response => response.text()).then(text => {
 
     for (var i = 0; i < lines.length; i++) {
         var line = lines[i].split(',');
-        aircraft_types.push([line[1], parseInt(line[2])]);
+        aircraft_types.push([line[0], parseInt(line[1])]);
     }
 
     setTimeout(() => {
@@ -32,49 +32,58 @@ fetch(aircraft_file).then(response => response.text()).then(text => {
 
 
 export enum AircraftType {
+    UNKNOWN = 0,
+    CARGO,
     PLANE,
-    HELICOPTER,
+    JET,
+    TURBOPROP,
+    MEDIUM,
+    LIGHT,
+    SUPER_LIGHT,
     GLIDER,
-    MEDIUM_PLANE,
-    LIGHT_PLANE,
-    ULTRA_LIGHT_PLANE,
+    HELICOPTER,
+    ULM,
+    MILITARY,
+    SAMU,
     GROUND_VEHICLE,
     DRONE,
-    MILITARY,
-    UNKNOWN
 }
 
 function numberToType(number:number) : AircraftType
 {
-    if (number == 1 || number == 9 || number == 8){
-        return AircraftType.PLANE;
-    }
-    else if (number == 5){
-        return AircraftType.HELICOPTER;
-    }
-    else if (number == 4){
-        return AircraftType.GLIDER;
-    }
-    else if (number == 3 || number == 2 || number == 6){
-        return AircraftType.LIGHT_PLANE;
-    }
-    else if (number == 2 ){
-        return AircraftType.MEDIUM_PLANE;
-    }
-    else if (number == 6){
-        return AircraftType.ULTRA_LIGHT_PLANE;
-    }
-    else if (number == 7){
-        return AircraftType.GROUND_VEHICLE;
-    }
-    else if (number == 8){
-        return AircraftType.MILITARY;
-    }
-    else if (number == 10){
-        return AircraftType.DRONE;
-    }
-    else{
-        return AircraftType.UNKNOWN;
+    switch (number) {
+        case 0:
+            return AircraftType.UNKNOWN;
+        case 1:
+            return AircraftType.CARGO;
+        case 2:
+            return AircraftType.PLANE;
+        case 3:
+            return AircraftType.JET;
+        case 4:
+            return AircraftType.TURBOPROP;
+        case 5:
+            return AircraftType.MEDIUM;
+        case 6:
+            return AircraftType.LIGHT;
+        case 7:
+            return AircraftType.SUPER_LIGHT;
+        case 8:
+            return AircraftType.GLIDER;
+        case 9:
+            return AircraftType.HELICOPTER;
+        case 10:
+            return AircraftType.ULM;
+        case 11:
+            return AircraftType.MILITARY;
+        case 12:
+            return AircraftType.SAMU;
+        case 13:
+            return AircraftType.GROUND_VEHICLE;
+        case 14:
+            return AircraftType.DRONE;
+        default:
+            return AircraftType.UNKNOWN;
     }
 }
 
@@ -84,10 +93,11 @@ function numberToType(number:number) : AircraftType
 function computeAircraftType(callsign:string, icao24:string) : AircraftType
 {
     if (callsign.includes("SAMU"))
-        return AircraftType.HELICOPTER;
+        return AircraftType.SAMU;
     if (callsign.includes("AFR"))
         return AircraftType.PLANE;
     
+
     for (let i = 0; i < aircraft_types.length; i++) {
         if (aircraft_types[i][0] == icao24)
         {
@@ -99,12 +109,8 @@ function computeAircraftType(callsign:string, icao24:string) : AircraftType
 }
 
 
-
-
-
 export class Flight
 {
-
     private time:Array<number> = Array();
     public icao24:string =  "";
     private lat:Array<number> =  Array();
