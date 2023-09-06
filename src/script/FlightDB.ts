@@ -171,6 +171,10 @@ export class FlightDB{
         {
             attributes = loadFromSBS(filename, content);
         }
+        else{
+            // unknown file format
+            return flights;
+        }
 
         for (var i = 0; i < attributes.length; i++)
         {
