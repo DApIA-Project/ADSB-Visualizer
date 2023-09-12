@@ -2,7 +2,7 @@
 
 
 export var cargo = require('url:/src/assets/images/cargo.png') //
-export var cargo_flip = require('url:/src/assets/images/cargo.png')//
+export var cargo_flip = require('url:/src/assets/images/cargo_flip.png')//
 
 export var plane = require('url:/src/assets/images/plane.png')
 export var plane_flip = require('url:/src/assets/images/plane_flip.png')
