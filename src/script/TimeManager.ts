@@ -3,6 +3,8 @@ import { FlightInfoDisplayer } from "./FlightDataDisplayer";
 import { InputReader } from "./InputReader";
 import { FlightMap } from "./FlightMap";
 import * as U from './Utils';
+import {AnomalyChecker} from "./AnomalyChecker";
+import {ApiResponse} from "@dapia-project/recording-streamer/dist/types";
 
 
 // manage the timing of the simulation
@@ -31,6 +33,8 @@ export class TimeManager{
     private map:FlightMap
     private inputReader:InputReader
     private flightInfoDisplayer:FlightInfoDisplayer
+    private anomalyChecker:AnomalyChecker
+    private timeAlreadyPassed : number[]
 
     private time:number = 0.0;
     private time_speed:number = 1.0;
@@ -65,6 +69,8 @@ export class TimeManager{
         document.addEventListener('keydown', this.onKeyDown.bind(this));
         this.html_view_all_button.addEventListener('click', this.onViewAll.bind(this));
 
+        this.anomalyChecker=new AnomalyChecker()
+        this.timeAlreadyPassed = []
 
         this.today = new Date();
         this.today.setHours(12,0,0,0);   
@@ -106,6 +112,10 @@ export class TimeManager{
         this.flightInfoDisplayer = flightInfoDisplayer;
     }
 
+    public setAnomalyChecker(anomalyChecker:AnomalyChecker){
+        this.anomalyChecker = anomalyChecker;
+    }
+
 
     public start(){
         setInterval(this.update.bind(this), 1000.0/this.FRAME_RATE);
@@ -118,67 +128,77 @@ export class TimeManager{
         return this.time;
     }
 
-    private update(){
-        if (this.inputReader.isProcessing()){
+    private async update() {
+        if (this.inputReader.isProcessing()) {
             return;
         }
         var min_time = this.database.getMinTimestamp();
         var max_time = this.database.getMaxTimestamp();
 
-        if (this.running){
-            this.time += this.time_speed/this.FRAME_RATE;
+        if (this.running) {
+            this.time += this.time_speed / this.FRAME_RATE;
             this.never_played = false;
         }
 
-        if (this.time < min_time){
+        if (this.time < min_time) {
             this.time = min_time;
         }
 
-        if (this.time > max_time){
-            if (this.looping){
+        if (this.time > max_time) {
+            if (this.looping) {
                 this.time = min_time;
-            }
-            else{ // stop the timer
+            } else { // stop the timer
                 this.time = max_time;
                 this.running = false;
                 this.html_play_button.innerHTML = 'play_arrow';
             }
         }
-        var ratio = (this.time - min_time)/(max_time - min_time);
+        var ratio = (this.time - min_time) / (max_time - min_time);
         this.html_time_range.value = ratio.toString();
-       
+
 
         // update the time display
         var timestamp = this.time;
         // if there is no time set, display the current time
-        if (this.time < 0){
+        if (this.time < 0) {
             timestamp = this.today.getTime() / 1000.0
         }
         this.html_time_display.innerHTML = U.timestamp_to_date_hour(timestamp);
 
 
-        // update the map display and the flight info displayer
-        if (this.time != this.last_time){
+        // update the map display and the flight info displayed
+        if (this.time != this.last_time) {
+            if (!this.timeAlreadyPassed.includes(Math.floor(this.time))) {
+                let result: ApiResponse = await this.anomalyChecker.checkAnomaly(this.database, Math.floor(this.time))
+                console.log(this.database)
+                if(result !== undefined && this.database.getFlights() !== undefined){
+                    let indice: number = this.database.getFlights()[0].get("time").indexOf(result.data.message[0].timestamp)
+                    this.database.getFlights()[0].setAnomaly(indice,!(result.data.prediction === result.data.truth))
+                }
+
+                this.timeAlreadyPassed.push(Math.floor(this.time))
+            }
+
             this.nb_aircraft = this.map.update(this.time, this.time);
             this.flightInfoDisplayer.update(this.time);
             this.last_time = this.time;
         }
 
         // do a jump is there is nothing to display or if the jump is activated
-        if (this.nb_aircraft == 0 && this.allow_jump){
+        if (this.nb_aircraft == 0 && this.allow_jump) {
             var next_flight_timing = this.database.nextFlight(this.time);
-            if (next_flight_timing != undefined){
+            if (next_flight_timing != undefined) {
                 // set the time to 1.5 seconds before the next flight
                 var jump_time = next_flight_timing.start - 1.5 * this.time_speed;
 
                 // verify that the jump time is not before the current time
-                if (jump_time > this.time){
+                if (jump_time > this.time) {
                     this.time = jump_time;
                 }
             }
         }
         // reset the jump flag
-        this.allow_jump = true; 
+        this.allow_jump = true;
     }
 
     public onPlayButton(){

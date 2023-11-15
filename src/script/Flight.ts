@@ -177,6 +177,10 @@ export class Flight
         
     }
 
+    setAnomaly(indice : number, value : boolean){
+        this.anomaly[indice] = value
+    }
+
     computeHash() : number
     {
         var hash = 0;

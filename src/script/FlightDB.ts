@@ -1,15 +1,16 @@
-import { AircraftType, Flight } from './Flight';
+import {AircraftType, Flight} from './Flight';
 import * as U from './Utils';
 
 import * as M from './FlightMap';
 import * as L from 'leaflet';
-import { TimeManager } from './TimeManager';
-import { loadFromCSV } from './parsers/parse_csv';
-import { loadFromSBS } from './parsers/parse_sbs';
-import { FlightInfoDisplayer } from './FlightDataDisplayer';
+import {TimeManager} from './TimeManager';
+import {loadFromCSV} from './parsers/parse_csv';
+import {loadFromSBS} from './parsers/parse_sbs';
+import {FlightInfoDisplayer} from './FlightDataDisplayer';
 
 
 import * as URL from './Url'
+import {Recording} from "@dapia-project/recording-streamer/dist/types";
 
 
 // manage the flight database
@@ -23,12 +24,11 @@ import * as URL from './Url'
 //      + update the html list scroll when the time change
 
 
+export class FlightDB {
 
-export class FlightDB{
-
-    private map:M.FlightMap = undefined;
-    private timer:TimeManager = undefined;
-    private flightInfoDisplayer:FlightInfoDisplayer = undefined;
+    private map: M.FlightMap = undefined;
+    private timer: TimeManager = undefined;
+    private flightInfoDisplayer: FlightInfoDisplayer = undefined;
 
     private flights: Array<Flight> = Array();
 
@@ -41,28 +41,25 @@ export class FlightDB{
     private html_go_up_btn: HTMLElement;
 
     private html_research: HTMLElement;
-    private html_filter_type:{[key: number]:HTMLElement} = {}
+    private html_filter_type: { [key: number]: HTMLElement } = {}
     private html_filter_string: HTMLInputElement;
 
 
     // stats about the database
-    private min_timestamp:number = -1;
-    private max_timestamp:number = -1;
+    private min_timestamp: number = -1;
+    private max_timestamp: number = -1;
 
-    private allow_list_autoscroll:boolean = true;
+    private allow_list_autoscroll: boolean = true;
     private next_scroll_is_autoscroll = false;
-    private autoscroll_timeout:NodeJS.Timeout = undefined
+    private autoscroll_timeout: NodeJS.Timeout = undefined
 
-    private example_mode:boolean = false;
+    private example_mode: boolean = false;
 
-    private filter_type:Map<AircraftType, boolean> = new Map();
-    private filter_string:string = "";
-
-
+    private filter_type: Map<AircraftType, boolean> = new Map();
+    private filter_string: string = "";
 
 
-    constructor()
-    {
+    constructor() {
         this.html_flight_list = document.getElementById('flight-list');
         this.html_flight_list.addEventListener('scroll', (e) => {
             this.onScroll();
@@ -79,7 +76,7 @@ export class FlightDB{
             this.html_flight_list.scrollTop = 0;
         });
         this.html_go_up_btn.style.display = 'none';
-        
+
         this.html_research = U.createElementFromHTML(
             `<div id="filter-input">
                 <span>
@@ -117,23 +114,23 @@ export class FlightDB{
             AircraftType.GROUND_VEHICLE,
             AircraftType.DRONE,
         ]
-        
+
         // setup listeners
         for (let i = 0; i < aircraft_types.length; i++) {
             const key = aircraft_types[i];
 
             this.html_filter_type[key] = this.html_research.querySelector(`#filter-img-type-${key}`);
-            
-            if (this.html_filter_type[key] != undefined){
+
+            if (this.html_filter_type[key] != undefined) {
                 this.html_filter_type[key].addEventListener('click', (e) => {
                     this.filterByType(key);
-                    
+
                 });
                 this.filter_type.set(key, true);
             }
         }
         this.filter_type.set(AircraftType.UNKNOWN, true);
-        
+
 
         // setup the search bar
         this.html_filter_string = this.html_research.getElementsByTagName('input')[0];
@@ -142,42 +139,34 @@ export class FlightDB{
         });
 
 
-        
-
     }
 
-    public setMap(map:M.FlightMap) : void
-    {
+    public setMap(map: M.FlightMap): void {
         this.map = map;
     }
-    public setTimer(timer:TimeManager) : void
-    {
+
+    public setTimer(timer: TimeManager): void {
         this.timer = timer;
     }
-    public setFlightInfoDisplayer(flightInfoDisplayer:FlightInfoDisplayer) : void
-    {
+
+    public setFlightInfoDisplayer(flightInfoDisplayer: FlightInfoDisplayer): void {
         this.flightInfoDisplayer = flightInfoDisplayer;
     }
 
-    private parseFile(filename:string, content:string) : Array<Flight>
-    {
-        var flights:Array<Flight> = Array();
-        var attributes:any = undefined
-        
-        if (filename.endsWith(".csv")){
+    private parseFile(filename: string, content: string): Array<Flight> {
+        var flights: Array<Flight> = Array();
+        var attributes: any = undefined
+
+        if (filename.endsWith(".csv")) {
             attributes = loadFromCSV(filename, content);
-        }
-        else if (filename.endsWith(".sbs"))
-        {
+        } else if (filename.endsWith(".sbs")) {
             attributes = loadFromSBS(filename, content);
-        }
-        else{
+        } else {
             // unknown file format
             return flights;
         }
 
-        for (var i = 0; i < attributes.length; i++)
-        {
+        for (var i = 0; i < attributes.length; i++) {
             var flight = new Flight();
             flight.setAttribute(attributes[i]);
             flights.push(flight);
@@ -186,70 +175,65 @@ export class FlightDB{
         return flights;
     }
 
-  
 
-    public addFlights(filename:string, content:string, example_mode=false) : void
-    {
+    public addFlights(filename: string, content: string, example_mode = false): void {
         // code header (example mode) //
         var example_mode_changed = false;
-        if (this.example_mode != example_mode)
-        {
+        if (this.example_mode != example_mode) {
             example_mode_changed = true;
             // we change the mode, clear the db
             this.clear(false);
             // if we are in example mode -> start the timer example mode
-            
+
         }
         this.example_mode = example_mode;
 
 
-        if (this.flights.length == 0){
+        if (this.flights.length == 0) {
             // if it's the first data we load, we desactivate the autoscroll
             // desactivate autoscroll for 10 seconds
             this.allow_list_autoscroll = false;
             if (this.autoscroll_timeout != undefined)
                 clearTimeout(this.autoscroll_timeout);
-            
+
             // desactivate autoscroll for the next 3 second
-            this.autoscroll_timeout = setTimeout(function(){
+            this.autoscroll_timeout = setTimeout(function () {
                 this.allow_list_autoscroll = true;
                 this.autoscroll_timeout = undefined;
-                
+
             }.bind(this), 10 * 1000);
         }
 
         // code begining // 
         var flights = this.parseFile(filename, content);
-        
-        for (var i = 0; i < flights.length; i++)
-        {
+
+        for (var i = 0; i < flights.length; i++) {
             var flight = flights[i];
 
-            if (!this.exist(flight))
-            {
+            if (!this.exist(flight)) {
 
-                
+
                 // add flight object
                 // sorted by start time
                 var t = 0;
-                while (t < this.flights.length && this.flights[t].getStartTimestamp() < flight.getStartTimestamp()){
+                while (t < this.flights.length && this.flights[t].getStartTimestamp() < flight.getStartTimestamp()) {
                     t++;
                 }
-                
+
                 this.flights.splice(t, 0, flight);
 
-                if (flight.getStartTimestamp() < this.min_timestamp || this.min_timestamp == -1){
+                if (flight.getStartTimestamp() < this.min_timestamp || this.min_timestamp == -1) {
                     this.min_timestamp = flight.getStartTimestamp();
                 }
-                if (flight.getEndTimestamp() > this.max_timestamp || this.max_timestamp == -1){
+                if (flight.getEndTimestamp() > this.max_timestamp || this.max_timestamp == -1) {
                     this.max_timestamp = flight.getEndTimestamp();
                 }
 
                 // if it's the first flight
-                if (this.flights.length == 1 && !this.example_mode){
+                if (this.flights.length == 1 && !this.example_mode) {
                     this.html_flight_list.appendChild(this.html_research);
                 }
-                
+
                 // gen html
                 var html_flight = this.generateFlightHTML(flight);
                 this.html_flights.splice(t, 0, html_flight);
@@ -260,23 +244,22 @@ export class FlightDB{
             }
         }
         // re-calculate flight indexing
-    
+
         this.recalculate_db();
         this.recalculate_display();
 
-        if (example_mode_changed){
+        if (example_mode_changed) {
             this.timer.setExempleMode(example_mode);
         }
     }
 
-    public removeFlight(index:number) : void
-    {
+    public removeFlight(index: number): void {
         var flight = this.flights[index];
 
-        if (flight.getStartTimestamp() == this.min_timestamp){
+        if (flight.getStartTimestamp() == this.min_timestamp) {
             this.min_timestamp = -1;
         }
-        if (flight.getEndTimestamp() == this.max_timestamp){
+        if (flight.getEndTimestamp() == this.max_timestamp) {
             this.max_timestamp = -1;
         }
 
@@ -287,8 +270,7 @@ export class FlightDB{
         this.html_flights_visible.splice(index, 1);
 
         if (this.flightInfoDisplayer.flight != undefined &&
-            this.flightInfoDisplayer.flight == flight)
-        {
+            this.flightInfoDisplayer.flight == flight) {
             this.flightInfoDisplayer.close();
             this.flightInfoDisplayer.displayFlight(undefined);
         }
@@ -297,12 +279,8 @@ export class FlightDB{
     }
 
 
-
-
-
-    private getImgURL(type:AircraftType) : string
-    {
-        switch(type){
+    private getImgURL(type: AircraftType): string {
+        switch (type) {
             case AircraftType.CARGO:
                 return URL.cargo;
             case AircraftType.PLANE:
@@ -337,8 +315,7 @@ export class FlightDB{
     }
 
 
-
-    private generateFlightHTML(flight: Flight) : HTMLElement{
+    private generateFlightHTML(flight: Flight): HTMLElement {
         var html_flight = document.createElement('div');
         html_flight.classList.add('flight');
         html_flight.innerHTML = `
@@ -362,13 +339,13 @@ export class FlightDB{
         html_delete_btn.classList.add('material-icons-outlined');
         html_delete_btn.innerHTML = 'delete';
 
-        html_delete_btn.addEventListener('click', function(e){
+        html_delete_btn.addEventListener('click', function (e) {
             this.removeFlight(e.target.getAttribute("flight-num"))
         }.bind(this));
 
-        html_search_btn.addEventListener('click', function(e){
+        html_search_btn.addEventListener('click', function (e) {
             var i = e.target.getAttribute("flight-num");
-            
+
             this.watchFlight(this.flights[i]);
         }.bind(this));
 
@@ -376,22 +353,21 @@ export class FlightDB{
         html_flight.appendChild(html_delete_btn);
 
         return html_flight;
-    }   
+    }
 
-    public watchFlight(flight:Flight) : void
-    {
+    public watchFlight(flight: Flight): void {
         this.map.fitBounds(flight.getbounds());
 
         // if flight is not visible, set timer to flight start time
-        if (this.timer.getTimestamp() < flight.getStartTimestamp() 
-            || this.timer.getTimestamp() > flight.getEndTimestamp()){
+        if (this.timer.getTimestamp() < flight.getStartTimestamp()
+            || this.timer.getTimestamp() > flight.getEndTimestamp()) {
 
             this.timer.setTimestamp(flight.getStartTimestamp());
         }
 
         // if the user never used the timer (inital configuration -> paused timer), 
         // play it automatically
-        if (this.timer.neverPlayed()){
+        if (this.timer.neverPlayed()) {
             this.timer.onPlayButton();
         }
 
@@ -399,8 +375,7 @@ export class FlightDB{
         this.flightInfoDisplayer.update(this.timer.getTimestamp());
     }
 
-    public recalculate_db() : void
-    {
+    public recalculate_db(): void {
         this.min_timestamp = -1;
         this.max_timestamp = -1;
 
@@ -410,22 +385,21 @@ export class FlightDB{
             this.html_flights[i].children[2].setAttribute("flight-num", i.toString());
 
 
-            if (this.flights[i].getStartTimestamp() < this.min_timestamp || this.min_timestamp == -1){
+            if (this.flights[i].getStartTimestamp() < this.min_timestamp || this.min_timestamp == -1) {
                 this.min_timestamp = this.flights[i].getStartTimestamp();
             }
 
-            if (this.flights[i].getEndTimestamp() > this.max_timestamp || this.max_timestamp == -1){
+            if (this.flights[i].getEndTimestamp() > this.max_timestamp || this.max_timestamp == -1) {
                 this.max_timestamp = this.flights[i].getEndTimestamp();
             }
         }
 
-        if (this.flights.length == 0 || this.example_mode){
+        if (this.flights.length == 0 || this.example_mode) {
             this.html_empty_flight_list.style.display = 'flex';
             this.html_go_up_btn.style.display = 'none';
             this.html_flight_list.innerHTML = "";
-            
-        }
-        else{
+
+        } else {
             this.html_empty_flight_list.style.display = 'none';
             this.html_go_up_btn.style.display = 'block';
         }
@@ -433,14 +407,13 @@ export class FlightDB{
 
         this.timer.updateViewAllFilter();
     }
-    public recalculate_display() : void{
+
+    public recalculate_display(): void {
         for (let i = 0; i < this.flights.length; i++) {
             if (this.filter_type.get(this.flights[i].getType())
-             && this.match_filter_string(this.flights[i].icao24, this.flights[i].callsign))
-            {
+                && this.match_filter_string(this.flights[i].icao24, this.flights[i].callsign)) {
                 this.html_flights[i].style.display = 'flex';
-            }
-            else{
+            } else {
                 this.html_flights[i].style.display = 'none';
             }
         }
@@ -449,29 +422,37 @@ export class FlightDB{
     }
 
 
-    public getMapData(timestamp:number = undefined, end:number = undefined) : 
-        Array<{type: AircraftType;callsign: string;icao24: string;coords: [number, number][];rotation:number;start_time: number;end_time: number; flight:Flight, display_opt: {[key:string]:any[]}}>
-    {
+    public getMapData(timestamp: number = undefined, end: number = undefined):
+        Array<{
+            type: AircraftType;
+            callsign: string;
+            icao24: string;
+            coords: [number, number][];
+            rotation: number;
+            start_time: number;
+            end_time: number;
+            flight: Flight,
+            display_opt: { [key: string]: any[] }
+        }> {
         var flights = Array();
         for (let i = 0; i < this.flights.length; i++) {
 
-            if (end == undefined || 
-                (this.filter_type.get(this.flights[i].getType()) && this.match_filter_string(this.flights[i].icao24, this.flights[i].callsign))){
+            if (end == undefined ||
+                (this.filter_type.get(this.flights[i].getType()) && this.match_filter_string(this.flights[i].icao24, this.flights[i].callsign))) {
 
 
                 var data = this.flights[i].getMapData(timestamp, end)
-                if (data.coords.length > 0){
+                if (data.coords.length > 0) {
                     data["flight"] = this.flights[i];
                     flights.push(data);
 
                     // the map asked for this flight, so we make it visible
                     this.html_flights[i].setAttribute("visible", "true");
-                    if (!this.html_flights_visible[i]){
+                    if (!this.html_flights_visible[i]) {
                         this.autoscroll(i);
                     }
                     this.html_flights_visible[i] = true;
-                }
-                else{
+                } else {
                     this.html_flights[i].setAttribute("visible", "false");
                     this.html_flights_visible[i] = false;
                 }
@@ -481,23 +462,20 @@ export class FlightDB{
     }
 
 
-    public getMinTimestamp() : number
-    {
+    public getMinTimestamp(): number {
         return this.min_timestamp;
     }
 
-    public getMaxTimestamp() : number
-    {
+    public getMaxTimestamp(): number {
         return this.max_timestamp;
     }
 
-    public computeBoundingBox() : L.LatLngBounds
-    {
+    public computeBoundingBox(): L.LatLngBounds {
         var alllatlngs = Array();
         for (let i = 0; i < this.flights.length; i++) {
-            
+
             var bounds = this.flights[i].getbounds();
-            
+
             var flight_min_lat = bounds.getSouth();
             var flight_max_lat = bounds.getNorth();
             var flight_min_lon = bounds.getWest();
@@ -516,74 +494,73 @@ export class FlightDB{
         return bounds
     }
 
-    public nextFlight(timestamp:number) : {start:number, end:number}
-    {
+    public nextFlight(timestamp: number): { start: number, end: number } {
         var i = 0;
-        while (i < this.flights.length && this.flights[i].getStartTimestamp() < timestamp){
+        while (i < this.flights.length && this.flights[i].getStartTimestamp() < timestamp) {
             i++;
         }
         if (i < this.flights.length)
-            return {start:this.flights[i].getStartTimestamp(), end:this.flights[i].getEndTimestamp()};
-        return undefined;
-    }
-    public previousFlight(timestamp:number) : {start:number, end:number}
-    {
-        var i = 0;
-        while (i < this.flights.length && this.flights[i].getStartTimestamp() < timestamp){
-            i++;
-        }
-        if (i > 0)
-            return {start:this.flights[i-1].getStartTimestamp(), end:this.flights[i-1].getEndTimestamp()};
+            return {start: this.flights[i].getStartTimestamp(), end: this.flights[i].getEndTimestamp()};
         return undefined;
     }
 
-    private autoscroll(aircraft_i:number){
+    public previousFlight(timestamp: number): { start: number, end: number } {
+        var i = 0;
+        while (i < this.flights.length && this.flights[i].getStartTimestamp() < timestamp) {
+            i++;
+        }
+        if (i > 0)
+            return {start: this.flights[i - 1].getStartTimestamp(), end: this.flights[i - 1].getEndTimestamp()};
+        return undefined;
+    }
+
+    private autoscroll(aircraft_i: number) {
         if (this.allow_list_autoscroll == false)
             return;
         // this flight has becomes visible : auto scroll to it if it's not visible
         // put it in the middle of the list
-        var i = aircraft_i; 
-        
+        var i = aircraft_i;
+
         if (this.html_flights[i].offsetTop > this.html_flight_list.scrollTop + this.html_flight_list.clientHeight ||
-            this.html_flights[i].offsetTop + this.html_flights[i].clientHeight < this.html_flight_list.scrollTop){
-            this.html_flight_list.scrollTop = this.html_flights[i].offsetTop - this.html_flight_list.clientHeight/2;
+            this.html_flights[i].offsetTop + this.html_flights[i].clientHeight < this.html_flight_list.scrollTop) {
+            this.html_flight_list.scrollTop = this.html_flights[i].offsetTop - this.html_flight_list.clientHeight / 2;
             this.next_scroll_is_autoscroll = true;
         }
     }
-    private onScroll(){
-        if (this.next_scroll_is_autoscroll){
+
+    private onScroll() {
+        if (this.next_scroll_is_autoscroll) {
             this.next_scroll_is_autoscroll = false;
             return;
         }
         this.allow_list_autoscroll = false;
 
-        
+
         if (this.autoscroll_timeout != undefined)
             clearTimeout(this.autoscroll_timeout);
-        
+
 
         // desactivate autoscroll for the next 40 second
-        this.autoscroll_timeout = setTimeout(function(){
+        this.autoscroll_timeout = setTimeout(function () {
             this.allow_list_autoscroll = true;
             this.autoscroll_timeout = undefined;
-            
+
         }.bind(this), 40 * 1000);
     }
 
-    private clear(useFilter:boolean = true){
-        if (useFilter){
-            var match_filter:Array<number> = Array(0)
+    private clear(useFilter: boolean = true) {
+        if (useFilter) {
+            var match_filter: Array<number> = Array(0)
             for (let i = 0; i < this.flights.length; i++) {
                 if (this.filter_type.get(this.flights[i].getType())
-                    && this.match_filter_string(this.flights[i].icao24, this.flights[i].callsign)){
+                    && this.match_filter_string(this.flights[i].icao24, this.flights[i].callsign)) {
 
                     match_filter.push(i);
                 }
             }
 
-            
 
-            for (let i = match_filter.length-1; i >= 0 ; i--) {
+            for (let i = match_filter.length - 1; i >= 0; i--) {
                 var j = match_filter[i];
                 if (!this.example_mode)
                     this.html_flight_list.removeChild(this.html_flights[j]);
@@ -592,13 +569,12 @@ export class FlightDB{
                 this.flights.splice(j, 1);
 
                 if (this.flightInfoDisplayer.flight == undefined &&
-                    this.flightInfoDisplayer.flight == this.flights[j]){
+                    this.flightInfoDisplayer.flight == this.flights[j]) {
                     this.flightInfoDisplayer.close();
                     this.flightInfoDisplayer.displayFlight(undefined);
                 }
             }
-        }
-        else{
+        } else {
             this.flights = Array();
             this.html_flights = Array();
             this.html_flights_visible = Array();
@@ -611,7 +587,7 @@ export class FlightDB{
         this.recalculate_db();
     }
 
-    private filterByType(type: AircraftType){
+    private filterByType(type: AircraftType) {
         this.filter_type.set(type, !this.filter_type.get(type));
         if (this.filter_type.get(type))
             this.html_filter_type[type].style.borderColor = "white";
@@ -625,29 +601,27 @@ export class FlightDB{
 
             if (k == AircraftType.UNKNOWN)
                 continue;
-            if (this.filter_type.get(k)){
+            if (this.filter_type.get(k)) {
                 all_false = false;
-            }
-            else{
+            } else {
                 all_true = false;
             }
 
         }
-        
+
         this.filter_type.set(AircraftType.UNKNOWN, all_false || all_true);
-        
+
 
         this.recalculate_display();
     }
 
-    private filterByString(string: string){
+    private filterByString(string: string) {
         this.filter_string = string.trim().toLocaleLowerCase();
 
         this.recalculate_display();
     }
 
-    private match_filter_string(icao24: string, callsign: string) : boolean
-    {
+    private match_filter_string(icao24: string, callsign: string): boolean {
         icao24 = icao24.toLocaleLowerCase().trim();
         callsign = callsign.toLocaleLowerCase().trim();
 
@@ -663,12 +637,47 @@ export class FlightDB{
         return false;
     }
 
-    public exist(flight: Flight) : boolean
-    {
+    public exist(flight: Flight): boolean {
         for (let i = 0; i < this.flights.length; i++) {
             if (this.flights[i].icao24 == flight.icao24 && this.flights[i].callsign == flight.callsign && this.flights[i].getStartTimestamp() == flight.getStartTimestamp())
                 return true;
         }
         return false;
     }
+
+    getFlights() : Flight[]{
+        return this.flights;
+    }
+
+    public getMessages(timestamp: number): Recording {
+        for (const flight of this.flights) {
+            let indice: number = flight.get("time").indexOf(timestamp)
+            if (indice != -1) {
+                return {
+                    name: "", messages: [{
+                        timestamp: timestamp,
+                        icao24: flight["icao24"],
+                        latitude: flight["lat"][indice],
+                        longitude: flight["lon"][indice],
+                        groundspeed: flight["velocity"][indice],
+                        track: flight["heading"][indice],
+                        vertical_rate: flight["vertical_rate"][indice],
+                        callsign: flight["callsign"],
+                        onground: flight["on_ground"][indice],
+                        alert: flight["alert"][indice],
+                        spi: flight["spi"][indice],
+                        squawk: flight["squawk"][indice],
+                        altitude: flight["baro_altitude"][indice],
+                        geoaltitude: flight["geo_altitude"][indice],
+                        last_position: flight["last_pos_update"][indice] === undefined ? '' : flight["last_pos_update"][indice],
+                        lastcontact: flight["last_contact"][indice] === undefined ? '' : flight["last_contact"][indice],
+                        hour: flight["hour"][indice] === undefined ? '' : flight["hour"][indice],
+                    }]
+                }
+            }
+
+        }
+        return {name: "", messages: null}
+    }
+
 }
