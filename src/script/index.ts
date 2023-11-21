@@ -43,6 +43,7 @@ function onPageLoad() {
     timeManager.setInputReader(inpurReader);
     timeManager.setFlightInfoDisplayer(flightInforDisplayer);
     timeManager.start();
+    timeManager.startAnomalyChecker();
 
     inpurReader.loadDefaultExample();
 

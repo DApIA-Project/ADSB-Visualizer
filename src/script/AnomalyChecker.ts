@@ -1,21 +1,16 @@
 import {FlightDB} from "./FlightDB";
 import axios from 'axios';
-import {AxiosCallback, ApiResponse, Recording} from "@dapia-project/recording-streamer/dist/types";
-import {streamFile} from "@dapia-project/recording-streamer/dist/streamFile";
-import {streamRecording} from "@dapia-project/recording-streamer/dist";
 
 export type JsonMessage = Record<string, string | boolean | number | undefined>
+export type ResultDetection = {timestamp : number, icao24 : string, prediction : string, truth : string}
+export type ApiResponse = {data : [{ icao24?: string; timestamp?: number; prediction?: string; truth?: string; messages?: JsonMessage[]; error?: string }]}
+export type AxiosCallback = (message: JsonMessage[]) => Promise<ApiResponse>
 export class AnomalyChecker {
-    private flight_db: FlightDB = undefined;
 
-    public setFlightDB(flight_db: FlightDB) : void{
-        this.flight_db = flight_db;
-    }
-    public async checkAnomaly(flight_db: FlightDB, timestamp: number) {
-        this.setFlightDB(flight_db)
-
-        let arrayMessage: JsonMessage[] = this.flight_db.getMessages(timestamp).messages
-        if(arrayMessage != null){
+    public async checkAnomaly(flight_db: FlightDB, timestamp: number, time_speed : number) : Promise<ResultDetection[]> {
+        let arrayMessage: JsonMessage[] = flight_db.getMessages(timestamp,time_speed).messages
+        let arrayResult : ResultDetection[] = []
+        if(arrayMessage != undefined){
             let callback: AxiosCallback
             callback = async (message): Promise<ApiResponse> => {
                 try {
@@ -24,12 +19,22 @@ export class AnomalyChecker {
                     console.log(e)
                 }
             }
+
             let result = await callback(arrayMessage)
             if(result !== undefined){
-                return result
+                for (const dataElement of result.data) {
+                    arrayResult.push({
+                        timestamp : Number(dataElement['timestamp']),
+                        icao24 : String(dataElement['icao24']),
+                        prediction : dataElement['prediction'],
+                        truth : dataElement['truth']
+                    })
+                }
+
             }
 
         }
+        return arrayResult
 
     }
 }

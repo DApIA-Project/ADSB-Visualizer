@@ -3,8 +3,8 @@ import { FlightInfoDisplayer } from "./FlightDataDisplayer";
 import { InputReader } from "./InputReader";
 import { FlightMap } from "./FlightMap";
 import * as U from './Utils';
-import {AnomalyChecker} from "./AnomalyChecker";
-import {ApiResponse} from "@dapia-project/recording-streamer/dist/types";
+import {AnomalyChecker, ResultDetection} from "./AnomalyChecker";
+import Flight from "./Flight";
 
 
 // manage the timing of the simulation
@@ -20,6 +20,7 @@ export class TimeManager{
 
 
     private FRAME_RATE = 20;
+
 
     private html_play_button: HTMLElement;
     private html_forward_button: HTMLElement;
@@ -49,6 +50,8 @@ export class TimeManager{
     private nb_aircraft:number = 0;
 
     private never_played:boolean = true;
+    private requestQueue: { timestamp: number; time_speed: number }[] = [];
+    private isProcessingQueue: boolean = false;
 
 
     constructor(){
@@ -121,11 +124,66 @@ export class TimeManager{
         setInterval(this.update.bind(this), 1000.0/this.FRAME_RATE);
     }
 
+    public startAnomalyChecker() {
+        setInterval(this.updateAnomaly.bind(this), 1000.0/this.FRAME_RATE);
+    }
+
     public setTimestamp(timestamp:number){
         this.time = timestamp;
     }
     public getTimestamp(){
         return this.time;
+    }
+
+    /** Toutes les secondes -> checkAnomaly et setAnomaly **/
+    private async  updateAnomaly(){
+        if (!this.timeAlreadyPassed.includes(Math.floor(this.time))) {
+            for(let i : number = 0; i<this.time_speed;i++){
+                this.timeAlreadyPassed.push(Math.floor(this.time+i))
+            }
+            // Ajouter la requête à la file d'attente
+            this.requestQueue.push({
+                timestamp: Math.floor(this.time),
+                time_speed: this.time_speed
+            });
+
+            // Si la file d'attente est vide et aucune requête n'est en cours de traitement, traiter la prochaine requête
+            if (this.requestQueue.length === 1 && !this.isProcessingQueue) {
+                this.processNextRequest();
+            }
+        }
+        this.nb_aircraft = this.map.update(this.time, this.time);
+        this.flightInfoDisplayer.update(this.time);
+        this.last_time = this.time;
+    }
+
+    private async processNextRequest() {
+        if (this.requestQueue.length === 0) {
+            this.isProcessingQueue = false;
+            return;
+        }
+
+        this.isProcessingQueue = true;
+        const request = this.requestQueue[0];
+
+        try {
+            let results: ResultDetection[] = await this.anomalyChecker.checkAnomaly(this.database, request.timestamp, request.time_speed);
+            if (results.length !== 0 && this.database.getFlights() !== undefined) {
+                for (const result of results) {
+                    let flight: Flight = this.database.getFlightWithICAO(result.icao24);
+                    let indice: number = flight.get("time").indexOf(result.timestamp);
+                    flight.setAnomaly(indice, !(result.prediction === result.truth));
+                }
+            }
+        } catch (error) {
+            console.error("An error occurred during anomaly checking:", error);
+        } finally {
+            this.requestQueue.shift();
+            this.isProcessingQueue = false;
+            if (this.requestQueue.length > 0) {
+                this.processNextRequest();
+            }
+        }
     }
 
     private async update() {
@@ -168,17 +226,6 @@ export class TimeManager{
 
         // update the map display and the flight info displayed
         if (this.time != this.last_time) {
-            if (!this.timeAlreadyPassed.includes(Math.floor(this.time))) {
-                let result: ApiResponse = await this.anomalyChecker.checkAnomaly(this.database, Math.floor(this.time))
-                console.log(this.database)
-                if(result !== undefined && this.database.getFlights() !== undefined){
-                    let indice: number = this.database.getFlights()[0].get("time").indexOf(result.data.message[0].timestamp)
-                    this.database.getFlights()[0].setAnomaly(indice,!(result.data.prediction === result.data.truth))
-                }
-
-                this.timeAlreadyPassed.push(Math.floor(this.time))
-            }
-
             this.nb_aircraft = this.map.update(this.time, this.time);
             this.flightInfoDisplayer.update(this.time);
             this.last_time = this.time;

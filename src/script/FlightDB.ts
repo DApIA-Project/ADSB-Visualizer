@@ -11,6 +11,7 @@ import {FlightInfoDisplayer} from './FlightDataDisplayer';
 
 import * as URL from './Url'
 import {Recording} from "@dapia-project/recording-streamer/dist/types";
+import {JsonMessage} from "./AnomalyChecker";
 
 
 // manage the flight database
@@ -649,35 +650,52 @@ export class FlightDB {
         return this.flights;
     }
 
-    public getMessages(timestamp: number): Recording {
+    public getMessages(timestamp: number, time_speed : number): Recording {
+        let messageArray : JsonMessage[] = [];
+        let timestamp_min = timestamp
+        let timestamp_max = timestamp+time_speed
         for (const flight of this.flights) {
-            let indice: number = flight.get("time").indexOf(timestamp)
-            if (indice != -1) {
-                return {
-                    name: "", messages: [{
-                        timestamp: timestamp,
-                        icao24: flight["icao24"],
-                        latitude: flight["lat"][indice],
-                        longitude: flight["lon"][indice],
-                        groundspeed: flight["velocity"][indice],
-                        track: flight["heading"][indice],
-                        vertical_rate: flight["vertical_rate"][indice],
-                        callsign: flight["callsign"],
-                        onground: flight["on_ground"][indice],
-                        alert: flight["alert"][indice],
-                        spi: flight["spi"][indice],
-                        squawk: flight["squawk"][indice],
-                        altitude: flight["baro_altitude"][indice],
-                        geoaltitude: flight["geo_altitude"][indice],
-                        last_position: flight["last_pos_update"][indice] === undefined ? '' : flight["last_pos_update"][indice],
-                        lastcontact: flight["last_contact"][indice] === undefined ? '' : flight["last_contact"][indice],
-                        hour: flight["hour"][indice] === undefined ? '' : flight["hour"][indice],
-                    }]
+
+            for (const time of flight.get("time")) {
+                if(time >= timestamp_min && time < timestamp_max){
+                    let indice: number = flight.get("time").indexOf(time)
+                    if (indice != -1) {
+                        messageArray.push({
+                            timestamp: time.toString(),
+                            icao24: flight["icao24"].toString(),
+                            latitude: flight["lat"][indice].toString(),
+                            longitude: flight["lon"][indice].toString(),
+                            groundspeed: flight["velocity"][indice].toString(),
+                            track: flight["heading"][indice].toString(),
+                            vertical_rate: flight["vertical_rate"][indice].toString(),
+                            callsign: flight["callsign"].toString(),
+                            onground: flight["on_ground"][indice].toString(),
+                            alert: flight["alert"][indice].toString(),
+                            spi: flight["spi"][indice].toString(),
+                            squawk: flight["squawk"][indice].toString(),
+                            altitude: flight["baro_altitude"][indice].toString(),
+                            geoaltitude: flight["geo_altitude"][indice].toString(),
+                            last_position: flight["last_pos_update"][indice] === undefined ? '' : flight["last_pos_update"][indice].toString(),
+                            lastcontact: flight["last_contact"][indice] === undefined ? '' : flight["last_contact"][indice].toString(),
+                            hour: flight["hour"][indice] === undefined ? '' : flight["hour"][indice].toString(),
+                        })
+                    }
                 }
             }
 
+
+
         }
-        return {name: "", messages: null}
+        return {name: "", messages: messageArray}
+    }
+
+
+    public getFlightWithICAO(icao : string) : Flight{
+        for (const flight of this.flights) {
+            if(flight.get("icao24") === icao){
+                return flight
+            }
+        }
     }
 
 }
