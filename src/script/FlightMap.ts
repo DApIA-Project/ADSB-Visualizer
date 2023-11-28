@@ -162,7 +162,6 @@ export class FlightMap {
         var data:
             Array<{
                 type: AircraftType;
-                callsign: string;
                 icao24: string;
                 coords: [number, number][];
                 rotation:number;

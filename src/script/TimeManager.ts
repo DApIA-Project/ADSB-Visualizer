@@ -3,6 +3,7 @@ import { FlightInfoDisplayer } from "./FlightDataDisplayer";
 import { InputReader } from "./InputReader";
 import { FlightMap } from "./FlightMap";
 import * as U from './Utils';
+import { FlightStatisticsDisplayer } from "./FlightStatisticsDisplayer";
 
 
 // manage the timing of the simulation
@@ -31,6 +32,7 @@ export class TimeManager{
     private map:FlightMap
     private inputReader:InputReader
     private flightInfoDisplayer:FlightInfoDisplayer
+    private flightStatisticsDisplayer:FlightStatisticsDisplayer
 
     private time:number = 0.0;
     private time_speed:number = 1.0;
@@ -105,6 +107,9 @@ export class TimeManager{
     public setFlightInfoDisplayer(flightInfoDisplayer:FlightInfoDisplayer){
         this.flightInfoDisplayer = flightInfoDisplayer;
     }
+    public setFlightStatisticsDisplayer(flightStatisticsDisplayer:FlightStatisticsDisplayer){
+        this.flightStatisticsDisplayer = flightStatisticsDisplayer;
+    }
 
 
     public start(){
@@ -161,6 +166,7 @@ export class TimeManager{
         if (this.time != this.last_time){
             this.nb_aircraft = this.map.update(this.time, this.time);
             this.flightInfoDisplayer.update(this.time);
+            this.flightStatisticsDisplayer.update(this.time);
             this.last_time = this.time;
         }
 

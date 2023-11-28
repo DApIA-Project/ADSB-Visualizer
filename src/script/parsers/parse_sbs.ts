@@ -11,7 +11,7 @@ export function loadFromSBS(filename:string, file_content:string)
     file_content = file_content.trim();
     var lines = file_content.split('\n');
     
-    var data:{msg: string;icao24: string;date: string;time: string;callsign: string;altitude: string;ground_speed: string;track: string;lat: string;lon: string;vertrate: string;squawk: string;alert: string;emergency: string;spi: string;onground: string; interpolated:boolean, anomaly: boolean}[] = [];
+    var data:{msg: string;icao24: string;date: string;time: string;callsign: string;altitude: string;ground_speed: string;track: string;lat: string;lon: string;vertrate: string;squawk: string;alert: string;emergency: string;spi: string;onground: string; interpolated:boolean, anomaly: boolean, probabilities: number[]}[] = [];
     for (var i = 0; i < lines.length; i++) {
         var line = lines[i].trim().split(',');
 
@@ -37,7 +37,8 @@ export function loadFromSBS(filename:string, file_content:string)
             spi:line[21], // SPI
             onground:line[22], // Is on ground
             interpolated:false,
-            anomaly:undefined
+            anomaly:undefined,
+            probabilities:undefined
         }
 
         data.push(row);
@@ -52,7 +53,7 @@ export function loadFromSBS(filename:string, file_content:string)
         velocity: number[];
         heading: number[];
         vertical_rate: number[];
-        callsign: string;
+        callsign: string[];
         on_ground: boolean[];
         alert: boolean[];
         spi: boolean[];
@@ -66,6 +67,7 @@ export function loadFromSBS(filename:string, file_content:string)
         end_time: number;
         interpolated: boolean[];
         anomaly: boolean[];
+        probabilities: number[][];
     }> = [] 
 
     for (var flight = 0; flight < data_splited.length; flight++) {
@@ -78,8 +80,8 @@ export function loadFromSBS(filename:string, file_content:string)
     return res;
 }
 
-function split_on_icao24(data: {msg: string;icao24: string;date: string;time: string;callsign: string;altitude: string;ground_speed: string;track: string;lat: string;lon: string;vertrate: string;squawk: string;alert: string;emergency: string;spi: string;onground: string; interpolated:boolean, anomaly: boolean}[]) : 
-{msg: string;icao24: string;date: string;time: string;callsign: string;altitude: string;ground_speed: string;track: string;lat: string;lon: string;vertrate: string;squawk: string;alert: string;emergency: string;spi: string;onground: string; interpolated:boolean, anomaly: boolean}[][]{
+function split_on_icao24(data: {msg: string;icao24: string;date: string;time: string;callsign: string;altitude: string;ground_speed: string;track: string;lat: string;lon: string;vertrate: string;squawk: string;alert: string;emergency: string;spi: string;onground: string; interpolated:boolean, anomaly: boolean, probabilities: number[]}[]) : 
+{msg: string;icao24: string;date: string;time: string;callsign: string;altitude: string;ground_speed: string;track: string;lat: string;lon: string;vertrate: string;squawk: string;alert: string;emergency: string;spi: string;onground: string; interpolated:boolean, anomaly: boolean, probabilities: number[]}[][]{
     var icao24 = {};
     for (var i = 0; i < data.length; i++) {
         var row = data[i];
@@ -100,7 +102,7 @@ function split_on_icao24(data: {msg: string;icao24: string;date: string;time: st
 }
 
 
-function getFlightAttrbutes(data: {msg: string;icao24: string;date: string;time: string;callsign: string;altitude: string;ground_speed: string;track: string;lat: string;lon: string;vertrate: string;squawk: string;alert: string;emergency: string;spi: string;onground: string; interpolated:boolean, anomaly: boolean}[])
+function getFlightAttrbutes(data: {msg: string;icao24: string;date: string;time: string;callsign: string;altitude: string;ground_speed: string;track: string;lat: string;lon: string;vertrate: string;squawk: string;alert: string;emergency: string;spi: string;onground: string; interpolated:boolean, anomaly: boolean, probabilities: number[]}[])
 {
     var time:Array<number> = Array();
     var icao24:string =  "";
@@ -109,7 +111,7 @@ function getFlightAttrbutes(data: {msg: string;icao24: string;date: string;time:
     var velocity:Array<number> =  Array();
     var heading:Array<number> =  Array();
     var vertical_rate:Array<number> =  Array();
-    var callsign:string =  "";
+    var callsign:string[] =  Array();
     var on_ground:Array<boolean> =  Array();
     var alert:Array<boolean> =  Array();
     var spi:Array<boolean> =  Array();
@@ -210,7 +212,7 @@ function getFlightAttrbutes(data: {msg: string;icao24: string;date: string;time:
                 velocity.push(parseFloat(current_ground_speed));
                 heading.push(parseFloat(current_track));
                 vertical_rate.push(parseFloat(current_vertrate));
-                callsign = current_callsign;
+                callsign.push(current_callsign);
                 on_ground.push(current_onground == "1");
                 alert.push(current_alert == "1");
                 spi.push(current_spi == "1");
@@ -277,6 +279,7 @@ function getFlightAttrbutes(data: {msg: string;icao24: string;date: string;time:
         end_time : end_time,
         interpolated : undefined,
         anomaly : undefined,
+        probabilities : undefined
     };
 }
 

@@ -62,6 +62,7 @@ body, html {
 @import "./global/header.scss";
 @import "./global/map.scss";
 @import "./global/play-bar.scss";
+@import "./global/flight-statistics.scss";
 
 /* Import css style in function of the screen size */
 
@@ -74,6 +75,7 @@ body, html {
     @import "./small-width/header.scss";
     @import "./small-width/map.scss";
     @import "./small-width/play-bar.scss";
+    @import "./small-width/flight-statistics.scss";
 }
 @media all and (max-width: 799px) and (max-height: 799px) and (min-aspect-ratio:3/2) {
     // @import "./small-height/";
@@ -83,6 +85,7 @@ body, html {
     @import "./small-height/header.scss";
     @import "./small-height/map.scss";
     @import "./small-height/play-bar.scss";
+    @import "./small-height/flight-statistics.scss";
 
 }
 @media all and (min-width: 800px) and (max-height: 799px) and (max-aspect-ratio:8/10), all and (min-height: 800px) and (max-width: 799px) and (max-aspect-ratio:8/10) {
@@ -93,6 +96,7 @@ body, html {
     @import "./small-width/header.scss";
     @import "./small-width/map.scss";
     @import "./small-width/play-bar.scss";
+    @import "./small-width/flight-statistics.scss";
 }
 @media all and (min-width: 800px) and (max-height: 799px) and (min-aspect-ratio:8/10) and (max-aspect-ratio:4/3), all and (min-height: 800px) and (max-width: 799px) and (min-aspect-ratio:8/10) and (max-aspect-ratio:4/3) {
     // @import "./large/";
@@ -102,6 +106,7 @@ body, html {
     @import "./large/header.scss";
     @import "./large/map.scss";
     @import "./large/play-bar.scss";
+    @import "./large/flight-statistics.scss";
 }
 @media all and (min-width: 800px) and (max-height: 799px) and (min-aspect-ratio:4/3), all and (min-height: 800px) and (max-width: 799px) and (min-aspect-ratio:4/3) {
     // @import "./small-height/";
@@ -111,6 +116,7 @@ body, html {
     @import "./small-height/header.scss";
     @import "./small-height/map.scss";
     @import "./small-height/play-bar.scss";
+    @import "./small-height/flight-statistics.scss";
 }
 @media all and (min-width: 800px) and (min-height: 800px) {
     // @import "./large/";
@@ -120,4 +126,5 @@ body, html {
     @import "./large/header.scss";
     @import "./large/map.scss";
     @import "./large/play-bar.scss";
+    @import "./large/flight-statistics.scss";
 }

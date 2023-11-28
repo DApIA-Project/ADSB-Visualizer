@@ -57,7 +57,7 @@ export class FlightInfoDisplayer{
         this.variable_selecor_html = document.getElementById('variable-selector') as HTMLInputElement;
         this.variable_selecor_html.addEventListener('change', () => {this.update(this.lasttimestamp);});
         this.window_lenght_html = document.getElementById('window-length') as HTMLInputElement;
-        this.window_lenght_html.addEventListener('change', () => {this.changeSpeed();});
+        this.window_lenght_html.addEventListener('change', () => {this.changeWindowLenght();});
 
         this.close_button_html = document.getElementById('close-flight-data-btn');
         this.close_button_html.addEventListener('click', () => {this.close();});
@@ -304,7 +304,7 @@ export class FlightInfoDisplayer{
     }
 
 
-    changeSpeed(){
+    changeWindowLenght(){
         var value = this.window_lenght_html.value;
         // if the value is set to infinity, we do nothing
         if (value == "∞")

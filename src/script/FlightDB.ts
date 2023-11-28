@@ -7,6 +7,7 @@ import { TimeManager } from './TimeManager';
 import { loadFromCSV } from './parsers/parse_csv';
 import { loadFromSBS } from './parsers/parse_sbs';
 import { FlightInfoDisplayer } from './FlightDataDisplayer';
+import { FlightStatisticsDisplayer } from './FlightStatisticsDisplayer';
 
 
 import * as URL from './Url'
@@ -29,6 +30,7 @@ export class FlightDB{
     private map:M.FlightMap = undefined;
     private timer:TimeManager = undefined;
     private flightInfoDisplayer:FlightInfoDisplayer = undefined;
+    private flightStatisticsDisplayer:FlightStatisticsDisplayer = undefined;
 
     private flights: Array<Flight> = Array();
 
@@ -158,6 +160,10 @@ export class FlightDB{
     {
         this.flightInfoDisplayer = flightInfoDisplayer;
     }
+    public setFlightStatisticsDisplayer(flightStatisticsDisplayer:FlightStatisticsDisplayer) : void
+    {
+        this.flightStatisticsDisplayer = flightStatisticsDisplayer;
+    }
 
     private parseFile(filename:string, content:string) : Array<Flight>
     {
@@ -220,6 +226,8 @@ export class FlightDB{
 
         // code begining // 
         var flights = this.parseFile(filename, content);
+        console.log(flights);
+        
         
         for (var i = 0; i < flights.length; i++)
         {
@@ -293,6 +301,13 @@ export class FlightDB{
             this.flightInfoDisplayer.displayFlight(undefined);
         }
 
+        if (this.flightStatisticsDisplayer.flight != undefined &&
+            this.flightStatisticsDisplayer.flight == flight)
+        {
+            this.flightStatisticsDisplayer.close();
+            this.flightStatisticsDisplayer.displayFlight(undefined);
+        }
+
         this.recalculate_db();
     }
 
@@ -344,7 +359,7 @@ export class FlightDB{
         html_flight.innerHTML = `
             <div class="flight-info">
                 <img src="${this.getImgURL(flight.getType())}" class="flight-img">
-                <div class="flight-casllsign">${flight.callsign}</div>
+                <div class="flight-casllsign">${flight.callsign[0]}</div>
                 <div class="flight-iscao24">${flight.icao24}</div>
                 <div class="flight-date">${U.timestamp_to_date(flight.getStartTimestamp())}</div>
             </div>
@@ -397,6 +412,10 @@ export class FlightDB{
 
         this.flightInfoDisplayer.displayFlight(flight);
         this.flightInfoDisplayer.update(this.timer.getTimestamp());
+
+        // TODO
+        // this.flightStatisticsDisplayer.displayFlight(flight);
+        this.flightStatisticsDisplayer.update(this.timer.getTimestamp());
     }
 
     public recalculate_db() : void
@@ -436,7 +455,7 @@ export class FlightDB{
     public recalculate_display() : void{
         for (let i = 0; i < this.flights.length; i++) {
             if (this.filter_type.get(this.flights[i].getType())
-             && this.match_filter_string(this.flights[i].icao24, this.flights[i].callsign))
+             && this.match_filter_string(this.flights[i].icao24, this.flights[i].callsign[0]))
             {
                 this.html_flights[i].style.display = 'flex';
             }
@@ -450,13 +469,13 @@ export class FlightDB{
 
 
     public getMapData(timestamp:number = undefined, end:number = undefined) : 
-        Array<{type: AircraftType;callsign: string;icao24: string;coords: [number, number][];rotation:number;start_time: number;end_time: number; flight:Flight, display_opt: {[key:string]:any[]}}>
+        Array<{type: AircraftType;icao24: string;coords: [number, number][];rotation:number;start_time: number;end_time: number; flight:Flight, display_opt: {[key:string]:any[]}}>
     {
         var flights = Array();
         for (let i = 0; i < this.flights.length; i++) {
 
             if (end == undefined || 
-                (this.filter_type.get(this.flights[i].getType()) && this.match_filter_string(this.flights[i].icao24, this.flights[i].callsign))){
+                (this.filter_type.get(this.flights[i].getType()) && this.match_filter_string(this.flights[i].icao24, this.flights[i].callsign[0]))){
 
 
                 var data = this.flights[i].getMapData(timestamp, end)
@@ -575,7 +594,7 @@ export class FlightDB{
             var match_filter:Array<number> = Array(0)
             for (let i = 0; i < this.flights.length; i++) {
                 if (this.filter_type.get(this.flights[i].getType())
-                    && this.match_filter_string(this.flights[i].icao24, this.flights[i].callsign)){
+                    && this.match_filter_string(this.flights[i].icao24, this.flights[i].callsign[0])){
 
                     match_filter.push(i);
                 }
@@ -596,6 +615,12 @@ export class FlightDB{
                     this.flightInfoDisplayer.close();
                     this.flightInfoDisplayer.displayFlight(undefined);
                 }
+
+                if (this.flightStatisticsDisplayer.flight == undefined &&
+                    this.flightStatisticsDisplayer.flight == this.flights[j]){
+                    this.flightStatisticsDisplayer.close();
+                    this.flightStatisticsDisplayer.displayFlight(undefined);
+                }
             }
         }
         else{
@@ -607,6 +632,7 @@ export class FlightDB{
             this.max_timestamp = -1;
 
             this.flightInfoDisplayer.close();
+            this.flightStatisticsDisplayer.close();
         }
         this.recalculate_db();
     }
@@ -666,7 +692,7 @@ export class FlightDB{
     public exist(flight: Flight) : boolean
     {
         for (let i = 0; i < this.flights.length; i++) {
-            if (this.flights[i].icao24 == flight.icao24 && this.flights[i].callsign == flight.callsign && this.flights[i].getStartTimestamp() == flight.getStartTimestamp())
+            if (this.flights[i].icao24 == flight.icao24 && this.flights[i].getStartTimestamp() == flight.getStartTimestamp())
                 return true;
         }
         return false;
