@@ -164,7 +164,9 @@ export class Flight
         this.hour = a.hour;
         this.start_time = a.start_time;
         this.end_time = a.end_time;
-        this.type = computeAircraftType(this.callsign[0], this.icao24);
+
+        var mid = Math.floor(this.callsign.length/2);
+        this.type = computeAircraftType(this.callsign[mid], this.icao24);
         this.hash = this.computeHash();
 
         if (a.interpolated != undefined)

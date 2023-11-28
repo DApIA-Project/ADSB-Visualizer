@@ -226,7 +226,6 @@ export class FlightDB{
 
         // code begining // 
         var flights = this.parseFile(filename, content);
-        console.log(flights);
         
         
         for (var i = 0; i < flights.length; i++)
@@ -356,10 +355,11 @@ export class FlightDB{
     private generateFlightHTML(flight: Flight) : HTMLElement{
         var html_flight = document.createElement('div');
         html_flight.classList.add('flight');
+        var mid = Math.floor(flight.callsign.length/2);
         html_flight.innerHTML = `
             <div class="flight-info">
                 <img src="${this.getImgURL(flight.getType())}" class="flight-img">
-                <div class="flight-casllsign">${flight.callsign[0]}</div>
+                <div class="flight-casllsign">${flight.callsign[mid]}</div>
                 <div class="flight-iscao24">${flight.icao24}</div>
                 <div class="flight-date">${U.timestamp_to_date(flight.getStartTimestamp())}</div>
             </div>
@@ -454,8 +454,9 @@ export class FlightDB{
     }
     public recalculate_display() : void{
         for (let i = 0; i < this.flights.length; i++) {
+            var mid = Math.floor(this.flights[i].callsign.length/2);
             if (this.filter_type.get(this.flights[i].getType())
-             && this.match_filter_string(this.flights[i].icao24, this.flights[i].callsign[0]))
+             && this.match_filter_string(this.flights[i].icao24, this.flights[i].callsign[mid]))
             {
                 this.html_flights[i].style.display = 'flex';
             }
@@ -474,8 +475,10 @@ export class FlightDB{
         var flights = Array();
         for (let i = 0; i < this.flights.length; i++) {
 
+            var mid = Math.floor(this.flights[i].callsign.length/2);
+
             if (end == undefined || 
-                (this.filter_type.get(this.flights[i].getType()) && this.match_filter_string(this.flights[i].icao24, this.flights[i].callsign[0]))){
+                (this.filter_type.get(this.flights[i].getType()) && this.match_filter_string(this.flights[i].icao24, this.flights[i].callsign[mid]))){
 
 
                 var data = this.flights[i].getMapData(timestamp, end)
@@ -593,8 +596,9 @@ export class FlightDB{
         if (useFilter){
             var match_filter:Array<number> = Array(0)
             for (let i = 0; i < this.flights.length; i++) {
+                var mid = Math.floor(this.flights[i].callsign.length/2);
                 if (this.filter_type.get(this.flights[i].getType())
-                    && this.match_filter_string(this.flights[i].icao24, this.flights[i].callsign[0])){
+                    && this.match_filter_string(this.flights[i].icao24, this.flights[i].callsign[mid])){
 
                     match_filter.push(i);
                 }
