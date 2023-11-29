@@ -33,6 +33,6 @@
     "parcel-bundler": "^1.12.5",
     "zlib": "^1.0.5",
     "axios": "^1.4.0",
-    "@dapia-project/recording-streamer": "^2.3.0"
+    "@dapia-project/recording-streamer": "^2.3.1"
   }
 }
