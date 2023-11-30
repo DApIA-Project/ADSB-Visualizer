@@ -1,7 +1,6 @@
 name : Publish Docker Image
 
-on:
-  workflow_dispatch:
+on: [push]
 
 env:
   IMAGE_TAG : dapiaproject/adsb-visualizer:0.${{ github.run_number }}
