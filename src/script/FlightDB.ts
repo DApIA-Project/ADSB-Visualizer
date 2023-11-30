@@ -499,6 +499,7 @@ export class FlightDB{
                 }
             }
         }
+        
         return flights;
     }
 

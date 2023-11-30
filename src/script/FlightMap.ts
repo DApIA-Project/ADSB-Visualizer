@@ -179,6 +179,7 @@ export class FlightMap {
             data = this.database.getMapData(minTimestamp, maxTimestamp);
             show_range = true;
         }
+        
 
         var opacity = 1;
 
@@ -190,6 +191,8 @@ export class FlightMap {
         
         for (let i = 0; i < data.length; i++) {
             var flight_id = data[i].flight.getHash();
+            console.log(flight_id);
+            
             shown_flight.set(flight_id, true);
             if (!this.polylines.has(flight_id)){
                 var poly = new MultiColorPolyLine(data[i].coords, data[i].display_opt, opacity).addTo(this.map);

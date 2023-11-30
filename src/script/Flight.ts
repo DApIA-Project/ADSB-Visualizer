@@ -188,10 +188,10 @@ export class Flight
 
     computeHash() : number
     {
-        var hash = 0;
+        var hash = 1;
        
         for (let c = 0; c < this.icao24.length; c++) {
-            hash += (this.icao24.charCodeAt(c) * c * hash) % 1000000;
+            hash += (this.icao24.charCodeAt(c) * (c+1) * hash) % 1000000;
         }
         hash += this.start_time;
         hash += this.end_time * 3;
