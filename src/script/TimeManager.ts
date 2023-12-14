@@ -5,6 +5,7 @@ import { FlightMap } from "./FlightMap";
 import * as U from './Utils';
 import {AnomalyChecker, ResultDetection} from "./AnomalyChecker";
 import Flight from "./Flight";
+import {running} from "animejs";
 
 
 // manage the timing of the simulation
@@ -35,7 +36,6 @@ export class TimeManager{
     private inputReader:InputReader
     private flightInfoDisplayer:FlightInfoDisplayer
     private anomalyChecker:AnomalyChecker
-    private timeAlreadyPassed : number[]
 
     private time:number = 0.0;
     private time_speed:number = 1.0;
@@ -73,7 +73,6 @@ export class TimeManager{
         this.html_view_all_button.addEventListener('click', this.onViewAll.bind(this));
 
         this.anomalyChecker=new AnomalyChecker()
-        this.timeAlreadyPassed = []
 
         this.today = new Date();
         this.today.setHours(12,0,0,0);   
@@ -125,7 +124,7 @@ export class TimeManager{
     }
 
     public startAnomalyChecker() {
-        setInterval(this.updateAnomaly.bind(this), 1000.0/this.FRAME_RATE);
+            setInterval(this.updateAnomaly.bind(this), 1000.0/this.FRAME_RATE);
     }
 
     public setTimestamp(timestamp:number){
@@ -137,10 +136,7 @@ export class TimeManager{
 
     /** Toutes les secondes -> checkAnomaly et setAnomaly **/
     private async  updateAnomaly(){
-        if (!this.timeAlreadyPassed.includes(Math.floor(this.time))) {
-            for(let i : number = 0; i<this.time_speed;i++){
-                this.timeAlreadyPassed.push(Math.floor(this.time+i))
-            }
+        if(this.isRunning() || this.requestQueue.length > 0) {
             // Ajouter la requête à la file d'attente
             this.requestQueue.push({
                 timestamp: Math.floor(this.time),
@@ -151,10 +147,11 @@ export class TimeManager{
             if (this.requestQueue.length === 1 && !this.isProcessingQueue) {
                 this.processNextRequest();
             }
+            // }
+            this.nb_aircraft = this.map.update(this.time, this.time);
+            this.flightInfoDisplayer.update(this.time);
+            this.last_time = this.time;
         }
-        this.nb_aircraft = this.map.update(this.time, this.time);
-        this.flightInfoDisplayer.update(this.time);
-        this.last_time = this.time;
     }
 
     private async processNextRequest() {
