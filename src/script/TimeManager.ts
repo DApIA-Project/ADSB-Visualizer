@@ -172,7 +172,7 @@ export class TimeManager{
                 for (const result of results) {
                     let flight: Flight = this.database.getFlightWithICAO(result.icao24);
                     let indice: number = flight.get("time").indexOf(result.timestamp);
-                    flight.setAnomaly(indice, !(result.prediction === result.truth));
+                    flight.setAnomaly(indice, !(result.realType === result.claimedType));
                 }
             }
         } catch (error) {

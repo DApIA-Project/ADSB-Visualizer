@@ -2,8 +2,8 @@ import {FlightDB} from "./FlightDB";
 import axios from 'axios';
 
 export type JsonMessage = Record<string, string | boolean | number | undefined>
-export type ResultDetection = {timestamp : number, icao24 : string, prediction : string, truth : string}
-export type ApiResponse = {data : [{ icao24?: string; timestamp?: number; prediction?: string; truth?: string; messages?: JsonMessage[]; error?: string }]}
+export type ResultDetection = {timestamp : number, icao24 : string, realType : string, claimedType : string}
+export type ApiResponse = {data : [{ icao24?: string; timestamp?: number; realType?: string; claimedType?: string; messages?: JsonMessage[]; error?: string }]}
 export type AxiosCallback = (message: JsonMessage[]) => Promise<ApiResponse>
 export class AnomalyChecker {
 
@@ -26,8 +26,8 @@ export class AnomalyChecker {
                     arrayResult.push({
                         timestamp : Number(dataElement['timestamp']),
                         icao24 : String(dataElement['icao24']),
-                        prediction : dataElement['prediction'],
-                        truth : dataElement['truth']
+                        realType : dataElement['realType'],
+                        claimedType : dataElement['claimedType']
                     })
                 }
 
