@@ -5,7 +5,6 @@ import {FlightDB} from './FlightDB';
 import {InputReader} from './InputReader';
 import { TimeManager } from './TimeManager';
 import { FlightInfoDisplayer } from './FlightDataDisplayer';
-import { FlightStatisticsDisplayer } from './FlightStatisticsDisplayer';
 
 
 
@@ -29,7 +28,6 @@ function onPageLoad() {
 
     var flightInfoDisplayer = new FlightInfoDisplayer();
 
-    var flightStatisticsDisplayer = new FlightStatisticsDisplayer();
 
 
     map.setFlightDB(flight_db);
@@ -37,7 +35,6 @@ function onPageLoad() {
     flight_db.setMap(map);
     flight_db.setTimer(timeManager);
     flight_db.setFlightInfoDisplayer(flightInfoDisplayer);
-    flight_db.setFlightStatisticsDisplayer(flightStatisticsDisplayer);
 
     inpurReader.setFlightDB(flight_db);
     inpurReader.setMap(map);
@@ -46,7 +43,6 @@ function onPageLoad() {
     timeManager.setMap(map);
     timeManager.setInputReader(inpurReader);
     timeManager.setFlightInfoDisplayer(flightInfoDisplayer);
-    timeManager.setFlightStatisticsDisplayer(flightStatisticsDisplayer)
     timeManager.start();
 
     inpurReader.loadDefaultExample();

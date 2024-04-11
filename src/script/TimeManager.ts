@@ -3,7 +3,6 @@ import { FlightInfoDisplayer } from "./FlightDataDisplayer";
 import { InputReader } from "./InputReader";
 import { FlightMap } from "./FlightMap";
 import * as U from './Utils';
-import { FlightStatisticsDisplayer } from "./FlightStatisticsDisplayer";
 
 
 // manage the timing of the simulation
@@ -32,7 +31,6 @@ export class TimeManager{
     private map:FlightMap
     private inputReader:InputReader
     private flightInfoDisplayer:FlightInfoDisplayer
-    private flightStatisticsDisplayer:FlightStatisticsDisplayer
 
     private time:number = 0.0;
     private time_speed:number = 1.0;
@@ -69,7 +67,7 @@ export class TimeManager{
 
 
         this.today = new Date();
-        this.today.setHours(12,0,0,0);   
+        this.today.setHours(12,0,0,0);
     }
 
     public setExempleMode(mode:boolean){
@@ -107,9 +105,7 @@ export class TimeManager{
     public setFlightInfoDisplayer(flightInfoDisplayer:FlightInfoDisplayer){
         this.flightInfoDisplayer = flightInfoDisplayer;
     }
-    public setFlightStatisticsDisplayer(flightStatisticsDisplayer:FlightStatisticsDisplayer){
-        this.flightStatisticsDisplayer = flightStatisticsDisplayer;
-    }
+
 
 
     public start(){
@@ -151,7 +147,7 @@ export class TimeManager{
         }
         var ratio = (this.time - min_time)/(max_time - min_time);
         this.html_time_range.value = ratio.toString();
-       
+
 
         // update the time display
         var timestamp = this.time;
@@ -166,7 +162,6 @@ export class TimeManager{
         if (this.time != this.last_time){
             this.nb_aircraft = this.map.update(this.time, this.time);
             this.flightInfoDisplayer.update(this.time);
-            this.flightStatisticsDisplayer.update(this.time);
             this.last_time = this.time;
         }
 
@@ -184,7 +179,7 @@ export class TimeManager{
             }
         }
         // reset the jump flag
-        this.allow_jump = true; 
+        this.allow_jump = true;
     }
 
     public onPlayButton(){
@@ -199,7 +194,7 @@ export class TimeManager{
         }
     }
 
-    public onForwardButton(){        
+    public onForwardButton(){
         this.time += this.time_speed;
         // not nessessary to do a jump, next update will do it
     }
@@ -280,7 +275,7 @@ export class TimeManager{
 
 
         if (this.view_all && this.running){
-            this.onPlayButton(); 
+            this.onPlayButton();
         }
         else if (!this.view_all && !this.running){
             this.onPlayButton();

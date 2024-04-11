@@ -7,7 +7,6 @@ import { TimeManager } from './TimeManager';
 import { loadFromCSV } from './parsers/parse_csv';
 import { loadFromSBS } from './parsers/parse_sbs';
 import { FlightInfoDisplayer } from './FlightDataDisplayer';
-import { FlightStatisticsDisplayer } from './FlightStatisticsDisplayer';
 
 
 import * as URL from './Url'
@@ -30,7 +29,6 @@ export class FlightDB{
     private map:M.FlightMap = undefined;
     private timer:TimeManager = undefined;
     private flightInfoDisplayer:FlightInfoDisplayer = undefined;
-    private flightStatisticsDisplayer:FlightStatisticsDisplayer = undefined;
 
     private flights: Array<Flight> = Array();
 
@@ -160,10 +158,7 @@ export class FlightDB{
     {
         this.flightInfoDisplayer = flightInfoDisplayer;
     }
-    public setFlightStatisticsDisplayer(flightStatisticsDisplayer:FlightStatisticsDisplayer) : void
-    {
-        this.flightStatisticsDisplayer = flightStatisticsDisplayer;
-    }
+
 
     private parseFile(filename:string, content:string) : Array<Flight>
     {
@@ -300,13 +295,6 @@ export class FlightDB{
             this.flightInfoDisplayer.displayFlight(undefined);
         }
 
-        if (this.flightStatisticsDisplayer.flight != undefined &&
-            this.flightStatisticsDisplayer.flight == flight)
-        {
-            this.flightStatisticsDisplayer.close();
-            this.flightStatisticsDisplayer.displayFlight(undefined);
-        }
-
         this.recalculate_db();
     }
 
@@ -413,9 +401,6 @@ export class FlightDB{
         this.flightInfoDisplayer.displayFlight(flight);
         this.flightInfoDisplayer.update(this.timer.getTimestamp());
 
-        // TODO
-        // this.flightStatisticsDisplayer.displayFlight(flight);
-        this.flightStatisticsDisplayer.update(this.timer.getTimestamp());
     }
 
     public recalculate_db() : void
@@ -620,12 +605,6 @@ export class FlightDB{
                     this.flightInfoDisplayer.close();
                     this.flightInfoDisplayer.displayFlight(undefined);
                 }
-
-                if (this.flightStatisticsDisplayer.flight == undefined &&
-                    this.flightStatisticsDisplayer.flight == this.flights[j]){
-                    this.flightStatisticsDisplayer.close();
-                    this.flightStatisticsDisplayer.displayFlight(undefined);
-                }
             }
         }
         else{
@@ -637,7 +616,6 @@ export class FlightDB{
             this.max_timestamp = -1;
 
             this.flightInfoDisplayer.close();
-            this.flightStatisticsDisplayer.close();
         }
         this.recalculate_db();
     }
