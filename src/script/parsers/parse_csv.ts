@@ -52,9 +52,7 @@ export function loadACSV(content:string[][], header:string[], filename:string = 
         if (column == "time" || column=="timestamp" || column == "7_8"){
             for (var i = 0; i < content.length; i++) {
                 if (content[i][c] == undefined){
-                    console.log(filename);
-                    
-                    console.log(content);
+                    console.log("undefined content for file : ", filename);
                 }
                     
                 time.push(auto_date_parse(content[i][c]));

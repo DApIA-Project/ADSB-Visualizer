@@ -191,7 +191,6 @@ export class FlightMap {
         
         for (let i = 0; i < data.length; i++) {
             var flight_id = data[i].flight.getHash();
-            console.log(flight_id);
             
             shown_flight.set(flight_id, true);
             if (!this.polylines.has(flight_id)){
