@@ -1,14 +1,15 @@
 .cache/
 .parcel-cache/
 node_modules/
+package-lock.json
 
 dist/
 public/
 
 # personal experience to generate assets
-src/assets/exp 
+src/assets/exp
 # too big
-dump24h.sbs 
+dump24h.sbs
 
 
 .vscode/
