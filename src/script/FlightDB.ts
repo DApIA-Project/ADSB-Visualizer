@@ -99,7 +99,7 @@ export class FlightDB {
                 <input type="text" id="reseach-bar" placeholder="Search by Icao, Callsign">
             </div>`)
 
-        var aircraft_types = [
+        let aircraft_types = [
             AircraftType.CARGO,
             AircraftType.PLANE,
             AircraftType.JET,
@@ -155,8 +155,8 @@ export class FlightDB {
     }
 
     private parseFile(filename: string, content: string): Array<Flight> {
-        var flights: Array<Flight> = Array();
-        var attributes: any = undefined
+        let flights: Array<Flight> = Array();
+        let attributes: any = undefined
 
         if (filename.endsWith(".csv")) {
             attributes = loadFromCSV(filename, content);
@@ -167,8 +167,8 @@ export class FlightDB {
             return flights;
         }
 
-        for (var i = 0; i < attributes.length; i++) {
-            var flight = new Flight();
+        for (let i = 0; i < attributes.length; i++) {
+            let flight = new Flight();
             flight.setAttribute(attributes[i]);
             flights.push(flight);
         }
@@ -179,7 +179,7 @@ export class FlightDB {
 
     public addFlights(filename: string, content: string, example_mode = false): void {
         // code header (example mode) //
-        var example_mode_changed = false;
+        let example_mode_changed = false;
         if (this.example_mode != example_mode) {
             example_mode_changed = true;
             // we change the mode, clear the db
@@ -205,18 +205,18 @@ export class FlightDB {
             }.bind(this), 10 * 1000);
         }
 
-        // code begining // 
-        var flights = this.parseFile(filename, content);
+        // code begining //
+        let flights = this.parseFile(filename, content);
 
-        for (var i = 0; i < flights.length; i++) {
-            var flight = flights[i];
+        for (let i = 0; i < flights.length; i++) {
+            let flight = flights[i];
 
             if (!this.exist(flight)) {
 
 
                 // add flight object
                 // sorted by start time
-                var t = 0;
+                let t = 0;
                 while (t < this.flights.length && this.flights[t].getStartTimestamp() < flight.getStartTimestamp()) {
                     t++;
                 }
@@ -236,7 +236,7 @@ export class FlightDB {
                 }
 
                 // gen html
-                var html_flight = this.generateFlightHTML(flight);
+                let html_flight = this.generateFlightHTML(flight);
                 this.html_flights.splice(t, 0, html_flight);
                 this.html_flights_visible.splice(t, 0, false);
 
@@ -255,7 +255,7 @@ export class FlightDB {
     }
 
     public removeFlight(index: number): void {
-        var flight = this.flights[index];
+        let flight = this.flights[index];
 
         if (flight.getStartTimestamp() == this.min_timestamp) {
             this.min_timestamp = -1;
@@ -317,9 +317,9 @@ export class FlightDB {
 
 
     private generateFlightHTML(flight: Flight): HTMLElement {
-        var html_flight = document.createElement('div');
+        let html_flight = document.createElement('div');
         html_flight.classList.add('flight');
-        var mid = Math.floor(flight.callsign.length/2);
+        let mid = Math.floor(flight.callsign.length/2);
         html_flight.innerHTML = `
             <div class="flight-info">
                 <img src="${this.getImgURL(flight.getType())}" class="flight-img">
@@ -331,12 +331,12 @@ export class FlightDB {
         html_flight.setAttribute("visible", "false");
 
 
-        var html_search_btn = document.createElement('a');
+        let html_search_btn = document.createElement('a');
         html_search_btn.classList.add('btn-valid');
         html_search_btn.classList.add('material-icons-outlined');
         html_search_btn.innerHTML = 'search';
 
-        var html_delete_btn = document.createElement('a');
+        let html_delete_btn = document.createElement('a');
         html_delete_btn.classList.add('btn-cancel');
         html_delete_btn.classList.add('material-icons-outlined');
         html_delete_btn.innerHTML = 'delete';
@@ -346,7 +346,7 @@ export class FlightDB {
         }.bind(this));
 
         html_search_btn.addEventListener('click', function (e) {
-            var i = e.target.getAttribute("flight-num");
+            let i = e.target.getAttribute("flight-num");
 
             this.watchFlight(this.flights[i]);
         }.bind(this));
@@ -367,7 +367,7 @@ export class FlightDB {
             this.timer.setTimestamp(flight.getStartTimestamp());
         }
 
-        // if the user never used the timer (inital configuration -> paused timer), 
+        // if the user never used the timer (inital configuration -> paused timer),
         // play it automatically
         if (this.timer.neverPlayed()) {
             this.timer.onPlayButton();
@@ -413,7 +413,7 @@ export class FlightDB {
 
     public recalculate_display(): void {
         for (let i = 0; i < this.flights.length; i++) {
-            var mid = Math.floor(this.flights[i].callsign.length/2);
+            let mid = Math.floor(this.flights[i].callsign.length/2);
             if (this.filter_type.get(this.flights[i].getType())
              && this.match_filter_string(this.flights[i].icao24, this.flights[i].callsign[mid]))
             {
@@ -427,19 +427,19 @@ export class FlightDB {
     }
 
 
-    public getMapData(timestamp:number = undefined, end:number = undefined) : 
+    public getMapData(timestamp:number = undefined, end:number = undefined) :
         Array<{type: AircraftType;icao24: string;coords: [number, number][];rotation:number;start_time: number;end_time: number; flight:Flight, display_opt: {[key:string]:any[]}}>
     {
-        var flights = Array();
+        let flights = Array();
         for (let i = 0; i < this.flights.length; i++) {
 
-            var mid = Math.floor(this.flights[i].callsign.length/2);
+            let mid = Math.floor(this.flights[i].callsign.length/2);
 
-            if (end == undefined || 
+            if (end == undefined ||
                 (this.filter_type.get(this.flights[i].getType()) && this.match_filter_string(this.flights[i].icao24, this.flights[i].callsign[mid]))){
 
 
-                var data = this.flights[i].getMapData(timestamp, end)
+                let data = this.flights[i].getMapData(timestamp, end)
                 if (data.coords.length > 0) {
                     data["flight"] = this.flights[i];
                     flights.push(data);
@@ -456,7 +456,7 @@ export class FlightDB {
                 }
             }
         }
-        
+
         return flights;
     }
 
@@ -470,15 +470,15 @@ export class FlightDB {
     }
 
     public computeBoundingBox(): L.LatLngBounds {
-        var alllatlngs = Array();
+        let alllatlngs = Array();
         for (let i = 0; i < this.flights.length; i++) {
 
-            var bounds = this.flights[i].getbounds();
+            let bounds = this.flights[i].getbounds();
 
-            var flight_min_lat = bounds.getSouth();
-            var flight_max_lat = bounds.getNorth();
-            var flight_min_lon = bounds.getWest();
-            var flight_max_lon = bounds.getEast();
+            let flight_min_lat = bounds.getSouth();
+            let flight_max_lat = bounds.getNorth();
+            let flight_min_lon = bounds.getWest();
+            let flight_max_lon = bounds.getEast();
 
             alllatlngs.push([flight_min_lat, flight_min_lon]);
             alllatlngs.push([flight_max_lat, flight_max_lon]);
@@ -488,13 +488,13 @@ export class FlightDB {
             // whole world center 0, 0, zoom 2
             return undefined;
 
-        var bounds = L.latLngBounds(alllatlngs);
+        let bounds = L.latLngBounds(alllatlngs);
 
         return bounds
     }
 
     public nextFlight(timestamp: number): { start: number, end: number } {
-        var i = 0;
+        let i = 0;
         while (i < this.flights.length && this.flights[i].getStartTimestamp() < timestamp) {
             i++;
         }
@@ -504,7 +504,7 @@ export class FlightDB {
     }
 
     public previousFlight(timestamp: number): { start: number, end: number } {
-        var i = 0;
+        let i = 0;
         while (i < this.flights.length && this.flights[i].getStartTimestamp() < timestamp) {
             i++;
         }
@@ -518,7 +518,7 @@ export class FlightDB {
             return;
         // this flight has becomes visible : auto scroll to it if it's not visible
         // put it in the middle of the list
-        var i = aircraft_i;
+        let i = aircraft_i;
 
         if (this.html_flights[i].offsetTop > this.html_flight_list.scrollTop + this.html_flight_list.clientHeight ||
             this.html_flights[i].offsetTop + this.html_flights[i].clientHeight < this.html_flight_list.scrollTop) {
@@ -549,9 +549,9 @@ export class FlightDB {
 
     private clear(useFilter: boolean = true) {
         if (useFilter) {
-            var match_filter: Array<number> = Array(0)
+            let match_filter: Array<number> = Array(0)
             for (let i = 0; i < this.flights.length; i++) {
-                var mid = Math.floor(this.flights[i].callsign.length/2);
+                let mid = Math.floor(this.flights[i].callsign.length/2);
                 if (this.filter_type.get(this.flights[i].getType())
                     && this.match_filter_string(this.flights[i].icao24, this.flights[i].callsign[mid])){
 
@@ -561,7 +561,7 @@ export class FlightDB {
 
 
             for (let i = match_filter.length - 1; i >= 0; i--) {
-                var j = match_filter[i];
+                let j = match_filter[i];
                 if (!this.example_mode)
                     this.html_flight_list.removeChild(this.html_flights[j]);
                 this.html_flights.splice(j, 1);
@@ -595,8 +595,8 @@ export class FlightDB {
             this.html_filter_type[type].style.borderColor = "transparent";
 
         // if all filter_type are false, we put UNKNOWN to true else false
-        var all_false = true;
-        var all_true = true;
+        let all_false = true;
+        let all_true = true;
         for (let k of this.filter_type.keys()) {
 
             if (k == AircraftType.UNKNOWN)
@@ -655,35 +655,13 @@ export class FlightDB {
         let timestamp_max = timestamp+time_speed
         for (const flight of this.flights) {
 
-            for (const time of flight.get("time")) {
-                if(time >= timestamp_min && time < timestamp_max){
-                    let indice: number = flight.get("time").indexOf(time)
-                    if (indice != -1) {
-                        messageArray.push({
-                            timestamp: time.toString(),
-                            icao24: flight["icao24"].toString(),
-                            latitude: flight["lat"][indice].toString(),
-                            longitude: flight["lon"][indice].toString(),
-                            groundspeed: flight["velocity"][indice].toString(),
-                            track: flight["heading"][indice].toString(),
-                            vertical_rate: flight["vertical_rate"][indice].toString(),
-                            callsign: flight["callsign"].toString(),
-                            onground: flight["on_ground"][indice].toString(),
-                            alert: flight["alert"][indice].toString(),
-                            spi: flight["spi"][indice].toString(),
-                            squawk: flight["squawk"][indice].toString(),
-                            altitude: flight["baro_altitude"][indice].toString(),
-                            geoaltitude: flight["geo_altitude"][indice].toString(),
-                            last_position: flight["last_pos_update"][indice] === undefined ? '' : flight["last_pos_update"][indice].toString(),
-                            lastcontact: flight["last_contact"][indice] === undefined ? '' : flight["last_contact"][indice].toString(),
-                            hour: flight["hour"][indice] === undefined ? '' : flight["hour"][indice].toString(),
-                        })
-                    }
-                }
+            let [i, j] = flight.getIndicesAtTimeRange(timestamp_min, timestamp_max)
+            // if there is no messages : continue
+            if (j == 0) continue
+
+            for (let ti = i; ti < j; ti++) {
+                messageArray.push(flight.getMessage(ti))
             }
-
-
-
         }
         return {name: "", messages: messageArray}
     }

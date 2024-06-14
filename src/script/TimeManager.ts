@@ -18,9 +18,7 @@ import Flight from "./Flight";
 
 export class TimeManager{
 
-
     private FRAME_RATE = 20;
-
 
     private html_play_button: HTMLElement;
     private html_forward_button: HTMLElement;
@@ -191,8 +189,8 @@ export class TimeManager{
         if (this.inputReader.isProcessing()) {
             return;
         }
-        var min_time = this.database.getMinTimestamp();
-        var max_time = this.database.getMaxTimestamp();
+        let min_time = this.database.getMinTimestamp();
+        let max_time = this.database.getMaxTimestamp();
 
         if (this.running) {
             this.time += this.time_speed / this.FRAME_RATE;
@@ -212,12 +210,12 @@ export class TimeManager{
                 this.html_play_button.innerHTML = 'play_arrow';
             }
         }
-        var ratio = (this.time - min_time) / (max_time - min_time);
+        let ratio = (this.time - min_time) / (max_time - min_time);
         this.html_time_range.value = ratio.toString();
 
 
         // update the time display
-        var timestamp = this.time;
+        let timestamp = this.time;
         // if there is no time set, display the current time
         if (this.time < 0) {
             timestamp = this.today.getTime() / 1000.0
@@ -234,10 +232,10 @@ export class TimeManager{
 
         // do a jump is there is nothing to display or if the jump is activated
         if (this.nb_aircraft == 0 && this.allow_jump) {
-            var next_flight_timing = this.database.nextFlight(this.time);
+            let next_flight_timing = this.database.nextFlight(this.time);
             if (next_flight_timing != undefined) {
                 // set the time to 1.5 seconds before the next flight
-                var jump_time = next_flight_timing.start - 1.5 * this.time_speed;
+                let jump_time = next_flight_timing.start - 1.5 * this.time_speed;
 
                 // verify that the jump time is not before the current time
                 if (jump_time > this.time) {
@@ -271,10 +269,10 @@ export class TimeManager{
 
         // nessessary to do a jump, next update will go forward and not on the previous flight
         if (this.nb_aircraft == 0 && this.allow_jump){
-            var previous_flight_timing = this.database.previousFlight(this.time);
+            let previous_flight_timing = this.database.previousFlight(this.time);
             if (previous_flight_timing != undefined){
                 // set the time to 3 seconds before the end of the flight
-                var jump_time = previous_flight_timing.end - 3 * this.time_speed;
+                let jump_time = previous_flight_timing.end - 3 * this.time_speed;
 
                 if (jump_time < previous_flight_timing.start){
                     jump_time = previous_flight_timing.start;
@@ -292,14 +290,14 @@ export class TimeManager{
 
 
     public onTimeRange(){
-        var min_time = this.database.getMinTimestamp();
-        var max_time = this.database.getMaxTimestamp();
+        let min_time = this.database.getMinTimestamp();
+        let max_time = this.database.getMaxTimestamp();
 
-        var ratio = parseFloat(this.html_time_range.value);
+        let ratio = parseFloat(this.html_time_range.value);
         this.time = min_time + (max_time - min_time)*ratio;
     }
     public onSpeedChange(){
-        var speed = parseFloat(this.html_speed_input.value);
+        let speed = parseFloat(this.html_speed_input.value);
         if (speed <= 0){
             this.time_speed = 1;
             this.html_speed_input.value = '1';
@@ -349,15 +347,15 @@ export class TimeManager{
         }
 
         if (this.view_all){
-            var min_time = this.database.getMinTimestamp();
-            var max_time = this.database.getMaxTimestamp();
+            let min_time = this.database.getMinTimestamp();
+            let max_time = this.database.getMaxTimestamp();
             this.map.update(min_time, max_time);
         }
     }
     public updateViewAllFilter(){
         if (this.view_all){
-            var min_time = this.database.getMinTimestamp();
-            var max_time = this.database.getMaxTimestamp();
+            let min_time = this.database.getMinTimestamp();
+            let max_time = this.database.getMaxTimestamp();
             this.map.update(min_time, max_time);
         }
     }

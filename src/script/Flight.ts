@@ -5,21 +5,22 @@ import * as U from './Utils';
 
 import { loadFromCSV } from './parsers/parse_csv';
 import { loadFromSBS } from './parsers/parse_sbs';
+import { JsonMessage } from './AnomalyChecker';
 
 
 
 
 // array of 3 numbers
-var aircraft_types : [string, number][] = []
+let aircraft_types : [string, number][] = []
 // load local file at "/src/assets/data/aircraft.txt"
-var aircraft_file = require('url:/src/assets/data/labels.csv');
+let aircraft_file = require('url:/src/assets/data/labels.csv');
 // split the file content into lines
 fetch(aircraft_file).then(response => response.text()).then(text => {
 
-    var lines = text.split('\n');
+    let lines = text.split('\n');
 
-    for (var i = 0; i < lines.length; i++) {
-        var line = lines[i].split(',');
+    for (let i = 0; i < lines.length; i++) {
+        let line = lines[i].split(',');
         aircraft_types.push([line[0], parseInt(line[1])]);
     }
 
@@ -27,7 +28,7 @@ fetch(aircraft_file).then(response => response.text()).then(text => {
         document.getElementById("start-screen").style.display = "none";
     }, 500);
 });
-    
+
 
 
 
@@ -96,12 +97,12 @@ function computeAircraftType(callsign:string, icao24:string) : AircraftType
         return AircraftType.SAMU;
     if (callsign.includes("AFR"))
         return AircraftType.PLANE;
-    
 
-    for (let i = 0; i < aircraft_types.length; i++) {
-        if (aircraft_types[i][0] == icao24)
+
+    for (const aircraft of aircraft_types) {
+        if (aircraft[0] == icao24)
         {
-            return numberToType(aircraft_types[i][1]);
+            return numberToType(aircraft[1]);
         }
     }
 
@@ -111,36 +112,33 @@ function computeAircraftType(callsign:string, icao24:string) : AircraftType
 
 export class Flight
 {
+
     private time:Array<number> = Array();
-    public icao24:string =  "";
+    public  icao24:string =  "";
     private lat:Array<number> =  Array();
     private lon:Array<number> =  Array();
     private velocity:Array<number> =  Array();
     private heading:Array<number> =  Array();
     private vertical_rate:Array<number> =  Array();
-    public callsign:Array<string> =  Array();
+    public  callsign:Array<string> =  Array();
     private on_ground:Array<boolean> =  Array();
     private alert:Array<boolean> =  Array();
     private spi:Array<boolean> =  Array();
     private squawk:Array<number> =  Array();
     private baro_altitude:Array<number> =  Array();
     private geo_altitude:Array<number> =  Array();
-    private last_pos_update:Array<number> =  Array();
-    private last_contact:Array<number> =  Array();
-    private hour:Array<number> =  Array();
+
+    private type:AircraftType =  AircraftType.UNKNOWN;
     private start_time:number =  0;
     private end_time:number =  0;
-    private type:AircraftType =  AircraftType.UNKNOWN;
-    private interpolated:Array<boolean> =  Array();
     private anomaly:Array<boolean> =  Array();
-    private probabilities:Array<number>[] = Array();
 
     private hash:number =  0;
 
 
     constructor()
     {
-        
+
     }
 
     setAttribute(a)
@@ -159,31 +157,19 @@ export class Flight
         this.squawk = a.squawk;
         this.baro_altitude = a.baro_altitude;
         this.geo_altitude = a.geo_altitude;
-        this.last_pos_update = a.last_pos_update;
-        this.last_contact = a.last_contact;
-        this.hour = a.hour;
         this.start_time = a.start_time;
         this.end_time = a.end_time;
 
-        var mid = Math.floor(this.callsign.length/2);
+        let mid = Math.floor(this.callsign.length/2);
         this.type = computeAircraftType(this.callsign[mid], this.icao24);
         this.hash = this.computeHash();
-
-        if (a.interpolated != undefined)
-            this.interpolated = a.interpolated;
-        else for (let i = 0; i < this.time.length; i++) 
-                this.interpolated.push(false);
 
         if (a.anomaly != undefined)
             this.anomaly = a.anomaly;
         else for (let i = 0; i < this.time.length; i++)
                 this.anomaly.push(undefined);
-        
-        if (a.probabilities != undefined)
-            this.probabilities = a.probabilities;
-        else for (let i = 0; i < this.time.length; i++)
-                this.probabilities.push([]);
-        
+
+
     }
 
     setAnomaly(indice : number, value : boolean){
@@ -192,8 +178,8 @@ export class Flight
 
     computeHash() : number
     {
-        var hash = 1;
-       
+        let hash = 1;
+
         for (let c = 0; c < this.icao24.length; c++) {
             hash += (this.icao24.charCodeAt(c) * (c+1) * hash) % 1000000;
         }
@@ -209,67 +195,82 @@ export class Flight
         return this.hash;
     }
 
+    getIndiceAtTime(time:number, i:number = 0) : number
+    {
+        // stocastic search
+        let j = this.time.length - 1;
+        if (time < this.time[i]) return -1;
+        if (time > this.time[j]) return -2;
+        let m = 0;
+
+        while (i < j){
+            m = Math.floor((i + j) / 2);
+            if (this.time[m] < time){
+                i = m + 1;
+            }
+            else{
+                j = m;
+            }
+        }
+
+        return i;
+    }
+
+    getIndicesAtTimeRange(start:number, end:number) : [number, number]
+    {
+        if (start > this.end_time) return [0, 0];
+        if (end < this.start_time) return [0, 0];
+
+        let i = this.getIndiceAtTime(start);
+        if (i == -1) i = 0;
+
+        let j = this.getIndiceAtTime(end, i);
+        if (j == -2) j = this.time.length - 1;
+
+        return [i, j];
+    }
+
+    getMessage(i:number):JsonMessage{
+        return {
+            timestamp: this.get("time")[i],
+            icao24: this["icao24"],
+            latitude: this["lat"][i],
+            longitude: this["lon"][i],
+            groundspeed: this["velocity"][i],
+            track: this["heading"][i],
+            vertical_rate: this["vertical_rate"][i],
+            callsign: this["callsign"][i],
+            onground: this["on_ground"][i],
+            alert: this["alert"][i],
+            spi: this["spi"][i],
+            squawk: this["squawk"][i],
+            altitude: this["baro_altitude"][i],
+            geoaltitude: this["geo_altitude"][i]
+        }
+    }
 
 
-    
+
     getLatLngs() : [number,number][]
     {
-        var latlngs:[number,number][] = [];
-        for (var i = 0; i < this.lat.length; i++) {
-            if (this.lat[i] == this.lat[i]  && this.lon[i] == this.lon[i]){
+        let latlngs:[number,number][] = [];
+        for (let i = 0; i < this.lat.length; i++) {
+            if (!Number.isNaN(this.lat[i])  && !Number.isNaN(this.lon[i])){
                 latlngs.push([this.lat[i], this.lon[i]]);
             }
         }
         return latlngs;
     }
-
     getbounds() : L.LatLngBounds
     {
-        var latlngs = this.getLatLngs();
-        
-        
-        var bounds = L.latLngBounds(latlngs);
+        let latlngs = this.getLatLngs();
+        let bounds = L.latLngBounds(latlngs);
         return bounds;
     }
 
-    getLatLngsForTime(time) : [number,number][]
-    {
-        const MAX_LENGTH = 1000;
-        if (time < this.start_time){
-            return [];
-        }
-        if (time > this.end_time){
-            return [];
-        }
 
-        var latlngs:[number,number][] = [];
-        var i = 0;
-        while (i < this.time.length && this.time[i] < time){
-            i++;
-        }
-        i = Math.max(0, i - MAX_LENGTH);
-        while (this.time[i] < time){
-            latlngs.push([this.lat[i], this.lon[i]]);
-            i++;
-        }
-        return latlngs;
-    }
 
-    getRotationAtTime(time) : number
-    {
-        if (time < this.start_time){
-            return 0;
-        }
-        if (time > this.end_time){
-            return 0;
-        }
 
-        var i = 0;
-        while (i < this.time.length && this.time[i] < time){
-            i++;
-        }
-        return this.heading[i];
-    }
 
     getStartTimestamp() : number
     {
@@ -284,113 +285,69 @@ export class Flight
     getMapData(timestamp:number=undefined, end:number=undefined):
         {type: AircraftType;icao24: string;coords: [number, number][];rotation:number;start_time: number;end_time: number;display_opt: {[key:string]:any[]}}
     {
+
         const BASE_COLOR = "#184296";
         const NOT_COLOR = "#44bd32";
         const TRUE_COLOR = "#e84118";
 
         const MAX_LENGTH = 10000;
-        if (timestamp == undefined){
-            timestamp = this.end_time;
-        }
         if (end == undefined){
-            // check if timestamp is in range
-            
-            if (timestamp > this.end_time || timestamp < this.start_time){
-                return {"type": AircraftType.UNKNOWN,"icao24": "NULL","coords": [], "rotation":-1,"start_time": -1,"end_time": -1,"display_opt": {}};
-            }
-            // if it's the case gather all data
-            var coords:[number, number][] = [];
-            var display_opt:{[key:string]:any[]} = {"color": [], "weight": []};
-            var i = 0;
-            while (i < this.time.length && this.time[i] <= timestamp){
-                i++;
-            }
-            i = Math.max(0, i - MAX_LENGTH);
-            while (i < this.time.length && this.time[i] <= timestamp){
-                coords.push([this.lat[i], this.lon[i]]);
-
-                if (this.anomaly[i] == undefined){
-                    display_opt["color"].push(BASE_COLOR);
-                    display_opt["weight"].push(2);
-                }
-                else if (this.anomaly[i]){
-                    display_opt["color"].push(TRUE_COLOR);
-                    display_opt["weight"].push(3);
-                }
-                else{
-                    display_opt["color"].push(NOT_COLOR);
-                    display_opt["weight"].push(3);
-                }
-                
-                i++;
-            }
-            
-            return {
-                "type": this.type,
-                "icao24": this.icao24,
-                "coords": coords,
-                "rotation":  this.heading[i - 1],
-                "start_time": this.start_time,
-                "end_time": this.end_time,
-                "display_opt": display_opt,
-            };
-        }
-        else
-        {
-            if (timestamp > this.end_time || end < this.start_time){
+            if (timestamp > this.end_time)
                 return {"type": AircraftType.UNKNOWN,"icao24": "NULL","coords": [], "rotation":-1,"start_time": -1,"end_time": -1, "display_opt": {}};
-            }
-            
 
-            // if (timestamp <= this.start_time){
-            //     timestamp = this.start_time;
-            // }
-            // if (end > this.end_time){
-            //     end = this.end_time;
-            // }
-
-            timestamp = end
-
-            var coords:[number, number][] = [];
-            var display_opt:{[key:string]:any[]} = {"color": [], "weight": []};
-
-            var i = 0;
-            while (this.time[i] < timestamp){
-                coords.push([this.lat[i], this.lon[i]]);
-
-                // when we display in a time range do multiple flight are displayed at once
-                // so no need to display multi colored line
-                display_opt["color"].push(BASE_COLOR);
-                display_opt["weight"].push(1);
-
-                i++;
-            }
-            return {
-                "type": this.type,
-                "icao24": this.icao24,
-                "coords": coords,
-                "rotation": this.heading[i - 1],
-                "start_time": this.start_time,
-                "end_time": this.end_time,
-                "display_opt": display_opt,
-            };
+            end = timestamp;
+            timestamp = 0;
         }
+
+        if (timestamp > this.end_time || end < this.start_time){
+            return {"type": AircraftType.UNKNOWN,"icao24": "NULL","coords": [], "rotation":-1,"start_time": -1,"end_time": -1, "display_opt": {}};
+        }
+        // if it's the case gather all data
+        let coords:[number, number][] = [];
+        let display_opt:{[key:string]:any[]} = {"color": [], "weight": []};
+
+        let [i, j] = this.getIndicesAtTimeRange(timestamp, end);
+
+        if (j - i > MAX_LENGTH){
+            i = j - MAX_LENGTH;
+        }
+
+        while (i <= j){
+            coords.push([this.lat[i], this.lon[i]]);
+
+            if (this.anomaly[i] == undefined){
+                display_opt["color"].push(BASE_COLOR);
+                display_opt["weight"].push(2);
+            }
+            else if (this.anomaly[i]){
+                display_opt["color"].push(TRUE_COLOR);
+                display_opt["weight"].push(3);
+            }
+            else{
+                display_opt["color"].push(NOT_COLOR);
+                display_opt["weight"].push(3);
+            }
+
+            i++;
+        }
+
+        return {
+            "type": this.type,
+            "icao24": this.icao24,
+            "coords": coords,
+            "rotation":  this.heading[i - 1],
+            "start_time": this.start_time,
+            "end_time": this.end_time,
+            "display_opt": display_opt,
+        };
     }
 
 
     public getDataToDisplay(timestamp)
     {
-        if (timestamp > this.end_time){
-            timestamp = this.end_time;
-        }
-        if (timestamp < this.start_time){
-            timestamp = this.start_time;
-        }
-
-        var i = 0;
-        while (i < this.time.length && this.time[i] < timestamp){
-            i++;
-        }
+        let i = this.getIndiceAtTime(timestamp);
+        if (i == -1) i = 0;
+        if (i == -2) i = this.time.length - 1;
 
         return {
             "callsign": this.callsign[i],
@@ -408,29 +365,14 @@ export class Flight
 
     public getAttributeProfile(attribute:string, timestamp:number, min_timestamp_history:number) : {timestamps:number[], values:number[]}
     {
-        if (timestamp > this.end_time){
-            timestamp = this.end_time;
-        }
-        if (timestamp < this.start_time){
-            return {timestamps:[], values:[]};
-        }
+        let [i, j] = this.getIndicesAtTimeRange(timestamp - min_timestamp_history, timestamp);
+        if (j == 0) return {timestamps:[], values:[]};
 
-        var ts_i = 0;
-        var ts_i_min = 0;
-        while (ts_i < this.time.length && this.time[ts_i] < timestamp){
-            ts_i++;
-        }
-        while (ts_i_min < this.time.length && this.time[ts_i_min] < timestamp - min_timestamp_history){
-            ts_i_min++;
-        }
-
-        var profile:{timestamps:number[], values:number[]} = {timestamps:[], values:[]};
-
-        for (var i = ts_i_min; i < ts_i; i++){
+        let profile:{timestamps:number[], values:number[]} = {timestamps:[], values:[]};
+        for (i; i < j; i++){
             profile.timestamps.push(this.time[i]);
             profile.values.push(this[attribute][i]);
         }
-
         return profile;
     }
 
@@ -457,7 +399,7 @@ export class Flight
         if (attribute=="squawk") return this.squawk;
         if (attribute=="baro_altitude") return this.baro_altitude;
         if (attribute=="geo_altitude") return this.geo_altitude;
-        return undefined;        
+        return undefined;
 
     }
 }
