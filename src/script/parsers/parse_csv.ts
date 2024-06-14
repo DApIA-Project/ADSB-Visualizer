@@ -24,7 +24,7 @@ export function loadACSV(content:string[][], header:string[], filename:string = 
     var velocity:Array<number> =  Array();
     var heading:Array<number> =  Array();
     var vertical_rate:Array<number> =  Array();
-    var callsign:string =  "";
+    var callsign:string[] =  Array();
     var on_ground:Array<boolean> =  Array();
     var alert:Array<boolean> =  Array();
     var spi:Array<boolean> =  Array();
@@ -38,6 +38,7 @@ export function loadACSV(content:string[][], header:string[], filename:string = 
     var end_time:number =  0;
     var interpolated:Array<boolean> =  Array();
     var anomaly:Array<boolean> =  Array();
+    var probabilities:Array<number>[] = [];
 
     if (content.length == 0){
         console.log("empty file : ", filename);
@@ -51,9 +52,7 @@ export function loadACSV(content:string[][], header:string[], filename:string = 
         if (column == "time" || column=="timestamp" || column == "7_8"){
             for (var i = 0; i < content.length; i++) {
                 if (content[i][c] == undefined){
-                    console.log(filename);
-                    
-                    console.log(content);
+                    console.log("undefined content for file : ", filename);
                 }
                     
                 time.push(auto_date_parse(content[i][c]));
@@ -91,7 +90,14 @@ export function loadACSV(content:string[][], header:string[], filename:string = 
             }
         }
         else if (column == "callsign"){
-            callsign = content[0][c];
+            for (var i = 0; i < content.length; i++) {
+                if (content[i][c] == undefined || content[i][c] == ""){
+                    callsign.push("NULL");
+                }
+                else{
+                    callsign.push(content[i][c]);
+                }
+            }
         }
         else if (column == "onground"){
             for (var i = 0; i < content.length; i++) {
@@ -191,11 +197,19 @@ export function loadACSV(content:string[][], header:string[], filename:string = 
                 }
             }
         }
+        else if (column == "y_"){
+            for (var i = 0; i < content.length; i++) {
+                let prob = content[i][c];
+                let probs = prob.split(";");
+                let probs_f = probs.map((x) => {return parseFloat(x);});
+                probabilities.push(probs_f);
+            }
+        }
     }
 
 
     // check required columns
-    if (icao24 == "" && callsign.length == 0){
+    if (icao24 == ""){
         return undefined;
     }
     if (lat.length == 0 || lon.length == 0){
@@ -223,21 +237,7 @@ export function loadACSV(content:string[][], header:string[], filename:string = 
     start_time = time[0];
     end_time = time[time.length - 1];
 
-    if (callsign == ""){
-        callsign = "NULL";
-    }
 
-    // var filename_callsign = filename.split("_");
-    
-    // if (filename_callsign[0] == "callsign"){
-    //     callsign = filename_callsign[1];
-    // }
-
-    if (callsign == undefined){
-        console.log("callsign undefined", filename);
-        console.log(content);
-        console.log(header);
-    }
 
     return {
         time : time,
@@ -260,36 +260,35 @@ export function loadACSV(content:string[][], header:string[], filename:string = 
         start_time : start_time,
         end_time : end_time,
         interpolated : interpolated,
-        anomaly : anomaly
+        anomaly : anomaly,
+        probabilities : probabilities
     };
 }
 
 
-function split_content_on_icao_callsign(content:string[][], header:string[]): string[][][]{
+function split_content_on_icao(content:string[][], header:string[]): string[][][]{
     var icao_coli = header.indexOf("icao24");
-    var callsign_coli = header.indexOf("callsign");
 
-    if (icao_coli == -1 && callsign_coli == -1){
-        console.log("no icao24 or callsign column found");
+    if (icao_coli == -1){
+        console.log("no icao24 column found");
         
         return [content];
     }
 
-    var icao_callsigns:string[][][] = [];
-    var icao_callsigns_index = {};
+    var icao_split:string[][][] = [];
+    var icao_index = {};
 
     for (var i = 0; i < content.length; i++) {
         var icao = content[i][icao_coli];
-        var callsign = content[i][callsign_coli];
 
-        if (icao_callsigns_index[icao + callsign] == undefined){
-            icao_callsigns_index[icao + callsign] = icao_callsigns.length;
-            icao_callsigns.push([]);
+        if (icao_index[icao] == undefined){
+            icao_index[icao] = icao_split.length;
+            icao_split.push([]);
         }
 
-        icao_callsigns[icao_callsigns_index[icao + callsign]].push(content[i]);
+        icao_split[icao_index[icao]].push(content[i]);
     }
-    return icao_callsigns;
+    return icao_split;
 }
 
 
@@ -309,16 +308,16 @@ export function loadFromCSV(filename:string, file_content:string)
         content.push(line);
     }
 
-    var contents = split_content_on_icao_callsign(content, header);
+    var contents = split_content_on_icao(content, header);
 
     var res:{
         time: number[], icao24: string,lat: number[],lon: number[],
         velocity: number[],heading: number[],vertical_rate: number[],
-        callsign: string,on_ground: boolean[],alert: boolean[],spi: boolean[],
+        callsign: string[],on_ground: boolean[],alert: boolean[],spi: boolean[],
         squawk: number[],baro_altitude: number[],geo_altitude: number[],
         last_pos_update: number[],last_contact: number[],hour: number[],
         start_time: number,end_time: number,interpolated: boolean[],
-        anomaly: boolean[]}[] = [];
+        anomaly: boolean[], probabilities: number[][]}[] = [];
 
     for (var i = 0; i < contents.length; i++) {
         var c = loadACSV(contents[i], header, filename);

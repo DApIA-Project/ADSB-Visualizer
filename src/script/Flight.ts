@@ -118,7 +118,7 @@ export class Flight
     private velocity:Array<number> =  Array();
     private heading:Array<number> =  Array();
     private vertical_rate:Array<number> =  Array();
-    public callsign:string =  "";
+    public callsign:Array<string> =  Array();
     private on_ground:Array<boolean> =  Array();
     private alert:Array<boolean> =  Array();
     private spi:Array<boolean> =  Array();
@@ -133,6 +133,8 @@ export class Flight
     private type:AircraftType =  AircraftType.UNKNOWN;
     private interpolated:Array<boolean> =  Array();
     private anomaly:Array<boolean> =  Array();
+    private probabilities:Array<number>[] = Array();
+
     private hash:number =  0;
 
 
@@ -162,7 +164,9 @@ export class Flight
         this.hour = a.hour;
         this.start_time = a.start_time;
         this.end_time = a.end_time;
-        this.type = computeAircraftType(this.callsign, this.icao24);
+
+        var mid = Math.floor(this.callsign.length/2);
+        this.type = computeAircraftType(this.callsign[mid], this.icao24);
         this.hash = this.computeHash();
 
         if (a.interpolated != undefined)
@@ -175,6 +179,11 @@ export class Flight
         else for (let i = 0; i < this.time.length; i++)
                 this.anomaly.push(undefined);
         
+        if (a.probabilities != undefined)
+            this.probabilities = a.probabilities;
+        else for (let i = 0; i < this.time.length; i++)
+                this.probabilities.push([]);
+        
     }
 
     setAnomaly(indice : number, value : boolean){
@@ -183,18 +192,13 @@ export class Flight
 
     computeHash() : number
     {
-        var hash = 0;
-        for (let c = 0; c < this.callsign.length; c++) {
-            hash += this.callsign.charCodeAt(c) * c;
-        }
-        hash %= 1000000;
+        var hash = 1;
+       
         for (let c = 0; c < this.icao24.length; c++) {
-            hash += this.icao24.charCodeAt(c) * c;
+            hash += (this.icao24.charCodeAt(c) * (c+1) * hash) % 1000000;
         }
-        hash %= 1000000;
-
         hash += this.start_time;
-        hash += this.end_time;
+        hash += this.end_time * 3;
         hash %= 1000000;
 
         return hash;
@@ -278,7 +282,7 @@ export class Flight
 
 
     getMapData(timestamp:number=undefined, end:number=undefined):
-        {type: AircraftType;callsign: string;icao24: string;coords: [number, number][];rotation:number;start_time: number;end_time: number;display_opt: {[key:string]:any[]}}
+        {type: AircraftType;icao24: string;coords: [number, number][];rotation:number;start_time: number;end_time: number;display_opt: {[key:string]:any[]}}
     {
         const BASE_COLOR = "#184296";
         const NOT_COLOR = "#44bd32";
@@ -292,7 +296,7 @@ export class Flight
             // check if timestamp is in range
             
             if (timestamp > this.end_time || timestamp < this.start_time){
-                return {"type": AircraftType.UNKNOWN,"callsign": "NULL","icao24": "NULL","coords": [], "rotation":-1,"start_time": -1,"end_time": -1,"display_opt": {}};
+                return {"type": AircraftType.UNKNOWN,"icao24": "NULL","coords": [], "rotation":-1,"start_time": -1,"end_time": -1,"display_opt": {}};
             }
             // if it's the case gather all data
             var coords:[number, number][] = [];
@@ -323,7 +327,6 @@ export class Flight
             
             return {
                 "type": this.type,
-                "callsign": this.callsign,
                 "icao24": this.icao24,
                 "coords": coords,
                 "rotation":  this.heading[i - 1],
@@ -335,7 +338,7 @@ export class Flight
         else
         {
             if (timestamp > this.end_time || end < this.start_time){
-                return {"type": AircraftType.UNKNOWN,"callsign": "NULL","icao24": "NULL","coords": [], "rotation":-1,"start_time": -1,"end_time": -1, "display_opt": {}};
+                return {"type": AircraftType.UNKNOWN,"icao24": "NULL","coords": [], "rotation":-1,"start_time": -1,"end_time": -1, "display_opt": {}};
             }
             
 
@@ -364,7 +367,6 @@ export class Flight
             }
             return {
                 "type": this.type,
-                "callsign": this.callsign,
                 "icao24": this.icao24,
                 "coords": coords,
                 "rotation": this.heading[i - 1],
@@ -391,7 +393,7 @@ export class Flight
         }
 
         return {
-            "callsign": this.callsign,
+            "callsign": this.callsign[i],
             "icao24": this.icao24,
             "velocity": this.velocity[i],
             "heading": this.heading[i],

@@ -76,7 +76,7 @@ export class TimeManager{
         this.timeAlreadyPassed = []
 
         this.today = new Date();
-        this.today.setHours(12,0,0,0);   
+        this.today.setHours(12,0,0,0);
     }
 
     public setExempleMode(mode:boolean){
@@ -118,6 +118,7 @@ export class TimeManager{
     public setAnomalyChecker(anomalyChecker:AnomalyChecker){
         this.anomalyChecker = anomalyChecker;
     }
+
 
 
     public start(){
@@ -260,7 +261,7 @@ export class TimeManager{
         }
     }
 
-    public onForwardButton(){        
+    public onForwardButton(){
         this.time += this.time_speed;
         // not nessessary to do a jump, next update will do it
     }
@@ -341,7 +342,7 @@ export class TimeManager{
 
 
         if (this.view_all && this.running){
-            this.onPlayButton(); 
+            this.onPlayButton();
         }
         else if (!this.view_all && !this.running){
             this.onPlayButton();

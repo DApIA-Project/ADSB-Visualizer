@@ -26,14 +26,15 @@ function onPageLoad() {
     // manage the time bar
     var timeManager = new TimeManager();
 
-    var flightInforDisplayer = new FlightInfoDisplayer();
+    var flightInfoDisplayer = new FlightInfoDisplayer();
+
 
 
     map.setFlightDB(flight_db);
 
     flight_db.setMap(map);
     flight_db.setTimer(timeManager);
-    flight_db.setFlightInfoDisplayer(flightInforDisplayer);
+    flight_db.setFlightInfoDisplayer(flightInfoDisplayer);
 
     inpurReader.setFlightDB(flight_db);
     inpurReader.setMap(map);
@@ -41,7 +42,7 @@ function onPageLoad() {
     timeManager.setFlightDB(flight_db);
     timeManager.setMap(map);
     timeManager.setInputReader(inpurReader);
-    timeManager.setFlightInfoDisplayer(flightInforDisplayer);
+    timeManager.setFlightInfoDisplayer(flightInfoDisplayer);
     timeManager.start();
     timeManager.startAnomalyChecker();
 
