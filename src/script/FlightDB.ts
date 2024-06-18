@@ -653,16 +653,31 @@ export class FlightDB {
         let messageArray : JsonMessage[] = [];
         let timestamp_min = timestamp
         let timestamp_max = timestamp+time_speed
-        for (const flight of this.flights) {
 
-            let [i, j] = flight.getIndicesAtTimeRange(timestamp_min, timestamp_max)
-            // if there is no messages : continue
-            if (j == 0) continue
-
-            for (let ti = i; ti < j; ti++) {
-                messageArray.push(flight.getMessage(ti))
+        let intervals = []
+        let flights = []
+        let indexs = []
+        for (let f = 0; f < this.flights.length; f++) {
+            let [i, j] = this.flights[f].getIndicesAtTimeRange(timestamp_min, timestamp_max)
+            if (j >= 0){
+                flights.push(f)
+                intervals.push([i,j])
+                indexs.push(i)
             }
         }
+
+        // /!\ the order of the messages should be ordered by timestamp !!!
+        for (let t=timestamp_min; t<timestamp_max; t++){
+            for (let fi = 0; fi < flights.length; fi++){
+                let f = flights[fi]
+                let i = indexs[fi]
+                if (i < intervals[fi][1] && this.flights[f].time[i] == t){
+                    messageArray.push(this.flights[f].getMessage(i))
+                    indexs[fi]++;
+                }
+            }
+        }
+
         return {name: "", messages: messageArray}
     }
 

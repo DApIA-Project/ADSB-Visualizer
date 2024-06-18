@@ -113,7 +113,7 @@ function computeAircraftType(callsign:string, icao24:string) : AircraftType
 export class Flight
 {
 
-    private time:Array<number> = Array();
+    public time:Array<number> = Array();
     public  icao24:string =  "";
     private lat:Array<number> =  Array();
     private lon:Array<number> =  Array();
@@ -218,8 +218,8 @@ export class Flight
 
     getIndicesAtTimeRange(start:number, end:number) : [number, number]
     {
-        if (start > this.end_time) return [0, 0];
-        if (end < this.start_time) return [0, 0];
+        if (start > this.end_time) return [-1, -1];
+        if (end < this.start_time) return [-1, -1];
 
         let i = this.getIndiceAtTime(start);
         if (i == -1) i = 0;
@@ -366,7 +366,7 @@ export class Flight
     public getAttributeProfile(attribute:string, timestamp:number, min_timestamp_history:number) : {timestamps:number[], values:number[]}
     {
         let [i, j] = this.getIndicesAtTimeRange(timestamp - min_timestamp_history, timestamp);
-        if (j == 0) return {timestamps:[], values:[]};
+        if (j == -1) return {timestamps:[], values:[]};
 
         let profile:{timestamps:number[], values:number[]} = {timestamps:[], values:[]};
         for (i; i < j; i++){

@@ -167,13 +167,15 @@ export class TimeManager{
 
         try {
             let results: ResultDetection[] = await this.anomalyChecker.checkAnomaly(this.database, request.timestamp, request.time_speed);
-            if (results.length !== 0 && this.database.getFlights() !== undefined) {
-                for (const result of results) {
-                    let flight: Flight = this.database.getFlightWithICAO(result.icao24);
-                    let indice: number = flight.get("time").indexOf(result.timestamp);
-                    flight.setAnomaly(indice, !(result.realType === result.claimedType));
-                }
-            }
+            console.log("Response : ", results);
+
+            // if (results.length !== 0 && this.database.getFlights() !== undefined) {
+            //     for (const result of results) {
+            //         let flight: Flight = this.database.getFlightWithICAO(result.icao24);
+            //         let indice: number = flight.time.indexOf(result.timestamp);
+            //         flight.setAnomaly(indice, !(result.realType === result.claimedType));
+            //     }
+            // }
         } catch (error) {
             console.error("An error occurred during anomaly checking:", error);
         } finally {
