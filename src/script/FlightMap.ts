@@ -34,6 +34,7 @@ import * as URL from './Url'
 
 import { Flight, AircraftType } from './Flight';
 import { FlightDB } from './FlightDB';
+import { MapMessage } from './Types';
 
 // export enum AircraftType {
 //     UNKNOWN = 0,
@@ -159,18 +160,8 @@ export class FlightMap {
 
     public update(minTimestamp:number, maxTimestamp:number) : number // return the number of aircrafts
     {
-        var data:
-            Array<{
-                type: AircraftType;
-                icao24: string;
-                coords: [number, number][];
-                rotation:number;
-                start_time: number;
-                end_time: number;
-                flight: Flight;
-                display_opt: {[key:string]:any[]};
-            }> = []
-            
+        var data:MapMessage[] = []
+
         var show_range: boolean = false;
         if (minTimestamp == maxTimestamp){
             data = this.database.getMapData(minTimestamp);
@@ -179,7 +170,7 @@ export class FlightMap {
             data = this.database.getMapData(minTimestamp, maxTimestamp);
             show_range = true;
         }
-        
+
 
         var opacity = 1;
 
@@ -188,14 +179,16 @@ export class FlightMap {
         for (let key of this.polylines.keys()) {
             shown_flight.set(key, false);
         }
-        
+        console.log(data);
+
         for (let i = 0; i < data.length; i++) {
-            var flight_id = data[i].flight.getHash();
-            
-            shown_flight.set(flight_id, true);
-            if (!this.polylines.has(flight_id)){
+            var flight_id = data[i].flight_hash
+            var trajectory_hash = flight_id + data[i].tag_hash;
+
+            shown_flight.set(trajectory_hash, true);
+            if (!this.polylines.has(trajectory_hash)){
                 var poly = new MultiColorPolyLine(data[i].coords, data[i].display_opt, opacity).addTo(this.map);
-                this.polylines.set(flight_id, poly);
+                this.polylines.set(trajectory_hash, poly);
 
                 var last = data[i].coords[data[i].coords.length-1];
                 var angle = data[i].rotation + 90;
@@ -203,33 +196,33 @@ export class FlightMap {
                 var marker: L.Marker;
                 if (angle < 90 || angle > 270){
                     marker = new L.Marker(
-                        {lat:last[0], lng:last[1]}, 
-                        {icon: icon_map[data[i].type], 
+                        {lat:last[0], lng:last[1]},
+                        {icon: icon_map[data[i].type],
                             rotationAngle:angle}).addTo(this.map);
                 }
                 else
                 {
                     marker = new L.Marker(
-                        {lat:last[0], lng:last[1]}, 
-                        {icon: flip_icon_map[data[i].type], 
+                        {lat:last[0], lng:last[1]},
+                        {icon: flip_icon_map[data[i].type],
                             rotationAngle:angle + 180}).addTo(this.map);
                 }
                 marker.on('click', (e) => {
-                    this.database.watchFlight(data[i].flight)
+                    this.database.watchFlight(data[i].flight_hash);
                 });
 
-                this.markers.set(flight_id, marker);
+                this.markers.set(trajectory_hash, marker);
             }
             else
             {
-                this.polylines.get(flight_id).setLatLngs(data[i].coords, data[i].display_opt);
-                this.polylines.get(flight_id).setStyle({opacity: opacity});
+                this.polylines.get(trajectory_hash).setLatLngs(data[i].coords, data[i].display_opt);
+                this.polylines.get(trajectory_hash).setStyle({opacity: opacity});
 
 
                 var last = data[i].coords[data[i].coords.length-1];
-                
+
                 var angle = data[i].rotation + 90;
-                var marker = this.markers.get(flight_id);
+                var marker = this.markers.get(trajectory_hash);
                 marker.setLatLng({lat: last[0], lng: last[1]});
                 if (angle < 90 || angle > 270){
                     if (marker.options.icon != icon_map[data[i].type])
@@ -252,7 +245,7 @@ export class FlightMap {
                 this.polylines.delete(key);
                 this.markers.delete(key);
             }
-            
+
         }
 
         // if show range hide all markers

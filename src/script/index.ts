@@ -5,6 +5,8 @@ import {FlightDB} from './FlightDB';
 import {InputReader} from './InputReader';
 import { TimeManager } from './TimeManager';
 import { FlightInfoDisplayer } from './FlightDataDisplayer';
+import { Streamer } from './Streamer';
+import { AnomalyChecker } from './AnomalyChecker';
 
 
 
@@ -18,15 +20,19 @@ window.addEventListener('load', onPageLoad);
 // create function
 function onPageLoad() {
     // create new map
-    var map = new FlightMap();
+    let map = new FlightMap();
     // manage the flight list
-    var flight_db = new FlightDB();
+    let flight_db = new FlightDB();
     // manage the incoming input data (drag-drop)
-    var inpurReader = new InputReader();
+    let inpurReader = new InputReader();
     // manage the time bar
-    var timeManager = new TimeManager();
+    let timeManager = new TimeManager();
 
-    var flightInfoDisplayer = new FlightInfoDisplayer();
+    let flightInfoDisplayer = new FlightInfoDisplayer();
+
+    let streamer = new Streamer();
+
+    let anomalyChecker = new AnomalyChecker();
 
 
 
@@ -43,15 +49,19 @@ function onPageLoad() {
     timeManager.setMap(map);
     timeManager.setInputReader(inpurReader);
     timeManager.setFlightInfoDisplayer(flightInfoDisplayer);
+    timeManager.setAnomalyChecker(anomalyChecker);
+
+    streamer.setFlightDB(flight_db);
+
+    anomalyChecker.setFlightDB(flight_db);
+
+    // inpurReader.loadDefaultExample();
     timeManager.start();
-    timeManager.startAnomalyChecker();
-
-    inpurReader.loadDefaultExample();
-
 
     window.addEventListener("message", (e) => {
         inpurReader.addFile(e.data.filename, e.data.content );
     });
+    // streamer.listenFemtoAvionStream();
 
 }
 

@@ -11,7 +11,7 @@ import {FlightInfoDisplayer} from './FlightDataDisplayer';
 
 import * as URL from './Url'
 import {Recording} from "@dapia-project/recording-streamer/dist/types";
-import {JsonMessage} from "./AnomalyChecker";
+import { ADSBMessage, ApiRequest, MapMessage } from './Types';
 
 
 // manage the flight database
@@ -32,6 +32,7 @@ export class FlightDB {
     private flightInfoDisplayer: FlightInfoDisplayer = undefined;
 
     private flights: Array<Flight> = Array();
+    private hash_table: { [key: number]: Flight } = {};
 
 
     // to update the flight list display
@@ -154,7 +155,7 @@ export class FlightDB {
         this.flightInfoDisplayer = flightInfoDisplayer;
     }
 
-    private parseFile(filename: string, content: string): Array<Flight> {
+    private static parseFile(filename: string, content: string): Array<Flight> {
         let flights: Array<Flight> = Array();
         let attributes: any = undefined
 
@@ -206,42 +207,13 @@ export class FlightDB {
         }
 
         // code begining //
-        let flights = this.parseFile(filename, content);
+        let flights = FlightDB.parseFile(filename, content);
 
         for (let i = 0; i < flights.length; i++) {
             let flight = flights[i];
 
             if (!this.exist(flight)) {
-
-
-                // add flight object
-                // sorted by start time
-                let t = 0;
-                while (t < this.flights.length && this.flights[t].getStartTimestamp() < flight.getStartTimestamp()) {
-                    t++;
-                }
-
-                this.flights.splice(t, 0, flight);
-
-                if (flight.getStartTimestamp() < this.min_timestamp || this.min_timestamp == -1) {
-                    this.min_timestamp = flight.getStartTimestamp();
-                }
-                if (flight.getEndTimestamp() > this.max_timestamp || this.max_timestamp == -1) {
-                    this.max_timestamp = flight.getEndTimestamp();
-                }
-
-                // if it's the first flight
-                if (this.flights.length == 1 && !this.example_mode) {
-                    this.html_flight_list.appendChild(this.html_research);
-                }
-
-                // gen html
-                let html_flight = this.generateFlightHTML(flight);
-                this.html_flights.splice(t, 0, html_flight);
-                this.html_flights_visible.splice(t, 0, false);
-
-                if (!this.example_mode)
-                    this.html_flight_list.insertBefore(html_flight, this.html_flight_list.childNodes[t + 1]);
+                this.addFlight(flight);
             }
         }
         // re-calculate flight indexing
@@ -254,6 +226,59 @@ export class FlightDB {
         }
     }
 
+    public addFlight(flight: Flight): void {
+        let t = 0;
+        while (t < this.flights.length && this.flights[t].getStartTimestamp() < flight.getStartTimestamp()) {
+            t++;
+        }
+        this.flights.splice(t, 0, flight);
+        this.hash_table[flight.getHash()] = flight;
+
+        if (flight.getStartTimestamp() < this.min_timestamp || this.min_timestamp == -1) {
+            this.min_timestamp = flight.getStartTimestamp();
+        }
+        if (flight.getEndTimestamp() > this.max_timestamp || this.max_timestamp == -1) {
+            this.max_timestamp = flight.getEndTimestamp();
+        }
+        // if it's the first flight
+        if (this.flights.length == 1 && !this.example_mode) {
+            this.html_flight_list.appendChild(this.html_research);
+        }
+        // gen html
+        let html_flight = this.generateFlightHTML(flight);
+        this.html_flights.splice(t, 0, html_flight);
+        this.html_flights_visible.splice(t, 0, false);
+
+        if (!this.example_mode)
+            this.html_flight_list.insertBefore(html_flight, this.html_flight_list.childNodes[t + 1]);
+    }
+
+    public addMessage(timestamp: number, icao24: string, latitude: number, longitude: number, groundspeed: number, track: number, vertical_rate: number, callsign: string, onground: boolean, alert: boolean, spi: boolean, squawk: number, altitude: number, geoaltitude: number): void {
+        if (callsign == null) callsign = "null";
+
+        let flight:Flight = this.getFlightWithICAO(icao24)
+        if (flight == undefined){
+
+            flight = new Flight()
+            flight.addMessage(timestamp, icao24, latitude, longitude, groundspeed, track, vertical_rate, callsign, onground, alert, spi, squawk, altitude, geoaltitude)
+            this.addFlight(flight)
+
+            this.recalculate_db();
+            this.recalculate_display();
+        }
+        else
+        {
+            flight.addMessage(timestamp, icao24, latitude, longitude, groundspeed, track, vertical_rate, callsign, onground, alert, spi, squawk, altitude, geoaltitude)
+            if (timestamp > this.max_timestamp || this.max_timestamp == -1) {
+                this.max_timestamp = timestamp;
+            }
+        }
+
+
+    }
+
+
+
     public removeFlight(index: number): void {
         let flight = this.flights[index];
 
@@ -265,6 +290,7 @@ export class FlightDB {
         }
 
         this.flights.splice(index, 1);
+        delete this.hash_table[flight.getHash()];
 
         this.html_flights[index].remove();
         this.html_flights.splice(index, 1);
@@ -348,7 +374,7 @@ export class FlightDB {
         html_search_btn.addEventListener('click', function (e) {
             let i = e.target.getAttribute("flight-num");
 
-            this.watchFlight(this.flights[i]);
+            this.watchFlight(this.flights[i].getHash());
         }.bind(this));
 
         html_flight.appendChild(html_search_btn);
@@ -357,7 +383,9 @@ export class FlightDB {
         return html_flight;
     }
 
-    public watchFlight(flight: Flight): void {
+    public watchFlight(flight_hash: number): void {
+        const flight = this.hash_table[flight_hash];
+        if (flight == undefined) return;
         this.map.fitBounds(flight.getbounds());
 
         // if flight is not visible, set timer to flight start time
@@ -428,9 +456,9 @@ export class FlightDB {
 
 
     public getMapData(timestamp:number = undefined, end:number = undefined) :
-        Array<{type: AircraftType;icao24: string;coords: [number, number][];rotation:number;start_time: number;end_time: number; flight:Flight, display_opt: {[key:string]:any[]}}>
+        Array<MapMessage>
     {
-        let flights = Array();
+        let flight_data:Array<MapMessage> = Array();
         for (let i = 0; i < this.flights.length; i++) {
 
             let mid = Math.floor(this.flights[i].callsign.length/2);
@@ -440,10 +468,12 @@ export class FlightDB {
 
 
                 let data = this.flights[i].getMapData(timestamp, end)
-                if (data.coords.length > 0) {
-                    data["flight"] = this.flights[i];
-                    flights.push(data);
+                for (const sub_data of data) {
+                    flight_data.push(sub_data);
+                }
 
+
+                if (data.length > 0) {
                     // the map asked for this flight, so we make it visible
                     this.html_flights[i].setAttribute("visible", "true");
                     if (!this.html_flights_visible[i]) {
@@ -456,8 +486,32 @@ export class FlightDB {
                 }
             }
         }
+        return flight_data;
+    }
 
-        return flights;
+    public getMessagesForAnomalyChecker(timestamp:number = undefined) : ApiRequest
+    {
+        let data = Array<ADSBMessage>();
+        let flight_hash = Array<number>();
+        let flight_t = Array<number>();
+
+        for (const flight of this.flights) {
+            // if flight is not visible, we don't need to get the messages
+            if (flight.getStartTimestamp() <= timestamp && timestamp <= flight.getEndTimestamp()) {
+
+                let start_i = flight.getLastCheckRequest() + 1;
+                let end_i = flight.getIndiceAtTime(timestamp, start_i-1);
+                if(end_i == -1) continue;
+                for (let j = start_i; j < end_i; j++) {
+                    data.push(flight.getMessage(j));
+                    flight_hash.push(flight.getHash());
+                    flight_t.push(j);
+                }
+                flight.setLastCheckRequest(end_i - 1);
+            }
+        }
+
+        return {data: data, flight_hash: flight_hash, flight_t: flight_t};
     }
 
 
@@ -471,9 +525,9 @@ export class FlightDB {
 
     public computeBoundingBox(): L.LatLngBounds {
         let alllatlngs = Array();
-        for (let i = 0; i < this.flights.length; i++) {
+        for (const flight of this.flights) {
 
-            let bounds = this.flights[i].getbounds();
+            let bounds = flight.getbounds();
 
             let flight_min_lat = bounds.getSouth();
             let flight_max_lat = bounds.getNorth();
@@ -638,56 +692,34 @@ export class FlightDB {
     }
 
     public exist(flight: Flight): boolean {
-        for (let i = 0; i < this.flights.length; i++) {
-            if (this.flights[i].icao24 == flight.icao24 && this.flights[i].getStartTimestamp() == flight.getStartTimestamp())
-                return true;
-        }
-        return false;
+        return (this.hash_table[flight.getHash()] != undefined)
+        // for (let i = 0; i < this.flights.length; i++) {
+        //     if (this.flights[i].icao24 == flight.icao24 && this.flights[i].getStartTimestamp() == flight.getStartTimestamp())
+        //         return true;
+        // }
+        // return false;
     }
 
     getFlights() : Flight[]{
         return this.flights;
     }
-
-    public getMessages(timestamp: number, time_speed : number): Recording {
-        let messageArray : JsonMessage[] = [];
-        let timestamp_min = timestamp
-        let timestamp_max = timestamp+time_speed
-
-        let intervals = []
-        let flights = []
-        let indexs = []
-        for (let f = 0; f < this.flights.length; f++) {
-            let [i, j] = this.flights[f].getIndicesAtTimeRange(timestamp_min, timestamp_max)
-            if (j >= 0){
-                flights.push(f)
-                intervals.push([i,j])
-                indexs.push(i)
-            }
-        }
-
-        // /!\ the order of the messages should be ordered by timestamp !!!
-        for (let t=timestamp_min; t<timestamp_max; t++){
-            for (let fi = 0; fi < flights.length; fi++){
-                let f = flights[fi]
-                let i = indexs[fi]
-                if (i < intervals[fi][1] && this.flights[f].time[i] == t){
-                    messageArray.push(this.flights[f].getMessage(i))
-                    indexs[fi]++;
-                }
-            }
-        }
-
-        return {name: "", messages: messageArray}
+    getFlight(i : number) : Flight{
+        return this.flights[i]
     }
+    findFlight(hash : number) : Flight{
+        return this.hash_table[hash]
+    }
+
 
 
     public getFlightWithICAO(icao : string) : Flight{
         for (const flight of this.flights) {
+
             if(flight.get("icao24") === icao){
                 return flight
             }
         }
+        return undefined
     }
 
 }
