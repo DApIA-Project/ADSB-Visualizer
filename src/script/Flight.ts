@@ -187,6 +187,7 @@ export class Flight
         this.squawk.push(squawk);
         this.baro_altitude.push(altitude);
         this.geo_altitude.push(geoaltitude);
+        this.tag.push("");
         if (this.start_time == 0)
             this.start_time = timestamp;
         this.end_time = timestamp;

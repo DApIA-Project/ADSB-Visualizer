@@ -6,17 +6,34 @@ import { FlightDB } from './FlightDB';
 export class AnomalyChecker {
 
     private database:FlightDB
-
+    private server_inactivity:number = 0;
+    private server_inactive:boolean = false;
 
     public setFlightDB(database:FlightDB){
         this.database = database;
     }
 
+    public isServerInactive(){
+        return this.server_inactive;
+    }
+
     public async checkMessages(messages:ApiRequest) {
         let anomaly_updated = false;
+
         if(messages != undefined && messages.data.length > 0){
 
-            let result:ApiResponse =  await axios.post("http://127.0.0.1:3033/", messages.data, {responseType: 'json'});
+            let result:ApiResponse = undefined;
+            try{
+                result = await axios.post("http://127.0.0.1:3033/", messages.data, {responseType: 'json'});
+            }catch(e){
+                this.server_inactivity++;
+                if(this.server_inactivity > 10){
+                    console.log("Server is inactive");
+                    this.server_inactive = true;
+                }
+
+                console.log(e);
+            }
 
             if(result !== undefined){
 

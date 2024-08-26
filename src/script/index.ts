@@ -55,13 +55,13 @@ function onPageLoad() {
 
     anomalyChecker.setFlightDB(flight_db);
 
-    // inpurReader.loadDefaultExample();
+    inpurReader.loadDefaultExample();
     timeManager.start();
 
     window.addEventListener("message", (e) => {
         inpurReader.addFile(e.data.filename, e.data.content );
     });
-    // streamer.listenFemtoAvionStream();
+    streamer.listenFemtoAvionStream();
 
 }
 

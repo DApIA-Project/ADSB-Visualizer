@@ -179,7 +179,6 @@ export class FlightMap {
         for (let key of this.polylines.keys()) {
             shown_flight.set(key, false);
         }
-        console.log(data);
 
         for (let i = 0; i < data.length; i++) {
             var flight_id = data[i].flight_hash

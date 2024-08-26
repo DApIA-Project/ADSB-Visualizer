@@ -254,6 +254,15 @@ export class FlightDB {
     }
 
     public addMessage(timestamp: number, icao24: string, latitude: number, longitude: number, groundspeed: number, track: number, vertical_rate: number, callsign: string, onground: boolean, alert: boolean, spi: boolean, squawk: number, altitude: number, geoaltitude: number): void {
+        let example_mode_changed = false;
+        if (this.example_mode) {
+            example_mode_changed = true;
+            this.example_mode = false;
+            // we change the mode, clear the db
+            this.clear(false);
+        }
+
+
         if (callsign == null) callsign = "null";
 
         let flight:Flight = this.getFlightWithICAO(icao24)
@@ -274,6 +283,9 @@ export class FlightDB {
             }
         }
 
+        if (example_mode_changed) {
+            this.timer.setExempleMode(this.example_mode);
+        }
 
     }
 

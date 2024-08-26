@@ -30,11 +30,23 @@ export class Streamer{
 
 
     listenFemtoAvionStream(){
+        let fails = 0;
         this.interval = setInterval(async () => {
             // http request
-            let response = await fetch(`http://femto-avion.iut-bm.univ-fcomte.fr/aircraftlist.json&knownposonly=1&srcexcl=D&srcexcl=F&srcexcl=L&srcexcl=O`)
-            let data = await response.json();
-            this.updateFemtoAvionStream(data);
+            try{
+                let response = await fetch(`http://femto-avion.iut-bm.univ-fcomte.fr/aircraftlist.json&knownposonly=1&srcexcl=D&srcexcl=F&srcexcl=L&srcexcl=O`, { signal: AbortSignal.timeout(5000) })
+                let data = await response.json();
+                this.updateFemtoAvionStream(data);
+                fails = 0;
+            }catch(e){
+                console.log(e);
+                fails++;
+                if (fails > 10){
+                    clearInterval(this.interval);
+                    console.log("FemtoAvion stream is inactive");
+                }
+            }
+
         }, 1000);
     }
     updateFemtoAvionStream(data: any){
