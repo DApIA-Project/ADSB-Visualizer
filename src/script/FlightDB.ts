@@ -163,6 +163,7 @@ export class FlightDB {
             attributes = loadFromCSV(filename, content);
         } else if (filename.endsWith(".sbs")) {
             attributes = loadFromSBS(filename, content);
+
         } else {
             // unknown file format
             return flights;
@@ -209,13 +210,17 @@ export class FlightDB {
         // code begining //
         let flights = FlightDB.parseFile(filename, content);
 
+        console.log(this.flights);
         for (let i = 0; i < flights.length; i++) {
             let flight = flights[i];
 
             if (!this.exist(flight)) {
+
                 this.addFlight(flight);
             }
         }
+        console.log(this.flights);
+
         // re-calculate flight indexing
 
         this.recalculate_db();
@@ -227,11 +232,13 @@ export class FlightDB {
     }
 
     public addFlight(flight: Flight): void {
+        console.log(flight);
         let t = 0;
         while (t < this.flights.length && this.flights[t].getStartTimestamp() < flight.getStartTimestamp()) {
             t++;
         }
         this.flights.splice(t, 0, flight);
+
         this.hash_table[flight.getHash()] = flight;
 
         if (flight.getStartTimestamp() < this.min_timestamp || this.min_timestamp == -1) {
@@ -301,8 +308,8 @@ export class FlightDB {
             this.max_timestamp = -1;
         }
 
-        this.flights.splice(index, 1);
         delete this.hash_table[flight.getHash()];
+        this.flights.splice(index, 1);
 
         this.html_flights[index].remove();
         this.html_flights.splice(index, 1);
@@ -632,6 +639,7 @@ export class FlightDB {
                     this.html_flight_list.removeChild(this.html_flights[j]);
                 this.html_flights.splice(j, 1);
                 this.html_flights_visible.splice(j, 1);
+                delete this.hash_table[this.flights[j].getHash()];
                 this.flights.splice(j, 1);
 
                 if (this.flightInfoDisplayer.flight == undefined &&
@@ -642,6 +650,7 @@ export class FlightDB {
             }
         } else {
             this.flights = Array();
+            this.hash_table = {};
             this.html_flights = Array();
             this.html_flights_visible = Array();
 

@@ -67,8 +67,6 @@ export class Streamer{
             let squawk=aircraft["squ"];
             let altitude=aircraft["alt"];
             let geoaltitude=aircraft["altg"];
-
-
             this.flight_db.addMessage(timestamp, icao24, latitude, longitude, groundspeed, track, vertical_rate, callsign, onground, alert, spi, squawk, altitude, geoaltitude);
         }
     }

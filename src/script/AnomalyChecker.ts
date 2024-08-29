@@ -33,6 +33,12 @@ export class AnomalyChecker {
                 }
 
                 console.log(e);
+                for (let i = 0; i < messages.data.length; i++) {
+                    let flight_hash = messages.flight_hash[i];
+                    let flight = this.database.findFlight(flight_hash)
+                    flight.setLastCheckRequest(0)
+                }
+
             }
 
             if(result !== undefined){

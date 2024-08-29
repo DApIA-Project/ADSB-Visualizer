@@ -61,7 +61,7 @@ function onPageLoad() {
     window.addEventListener("message", (e) => {
         inpurReader.addFile(e.data.filename, e.data.content );
     });
-    streamer.listenFemtoAvionStream();
+    // streamer.listenFemtoAvionStream();
 
 }
 
