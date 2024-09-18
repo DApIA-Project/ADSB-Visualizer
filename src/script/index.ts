@@ -7,6 +7,7 @@ import { TimeManager } from './TimeManager';
 import { FlightInfoDisplayer } from './FlightDataDisplayer';
 import { Streamer } from './Streamer';
 import { AnomalyChecker } from './AnomalyChecker';
+import { FlightAttack } from './FlightAttack';
 
 
 
@@ -34,6 +35,8 @@ function onPageLoad() {
 
     let anomalyChecker = new AnomalyChecker();
 
+    let flightAttack = new FlightAttack();
+
 
 
     map.setFlightDB(flight_db);
@@ -54,6 +57,10 @@ function onPageLoad() {
     streamer.setFlightDB(flight_db);
 
     anomalyChecker.setFlightDB(flight_db);
+
+    flightAttack.setMap(map);
+    flightAttack.setTimeManager(timeManager);
+    flightAttack.setFlightDB(flight_db);
 
     inpurReader.loadDefaultExample();
     timeManager.start();

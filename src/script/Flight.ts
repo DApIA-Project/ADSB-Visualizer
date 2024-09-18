@@ -1,6 +1,6 @@
 import * as L from 'leaflet';
 import * as U from './Utils';
-import { ADSBMessage, MapMessage } from './Types';
+import { ADSBMessage, MapMessage, MultiADSBMessage } from './Types';
 // manage the data of a flight
 // - store all the data of a flight
 
@@ -138,28 +138,27 @@ export class Flight
 
 
 
-    setAttribute(a)
+    setAttribute(a:MultiADSBMessage)
     {
-        this.time = a.time;
+        this.time = a.timestamp;
         this.icao24 = a.icao24;
-        this.lat = a.lat;
-        this.lon = a.lon;
-        this.velocity = a.velocity;
-        this.heading = a.heading;
+        this.lat = a.latitude;
+        this.lon = a.longitude;
+        this.velocity = a.groundspeed;
+        this.heading = a.track;
         this.vertical_rate = a.vertical_rate;
         this.callsign = a.callsign;
-        this.on_ground = a.on_ground;
+        this.on_ground = a.onground;
         this.alert = a.alert;
         this.spi = a.spi;
         this.squawk = a.squawk;
-        this.baro_altitude = a.baro_altitude;
-        this.geo_altitude = a.geo_altitude;
-        this.start_time = a.start_time;
-        this.end_time = a.end_time;
-        this.tag = new Array(this.time.length).fill("");
+        this.baro_altitude = a.altitude;
+        this.geo_altitude = a.geoaltitude;
+        this.start_time = a.timestamp[0];
+        this.end_time = a.timestamp[a.timestamp.length - 1];
 
-        let mid = Math.floor(this.callsign.length/2);
-        this.type = computeAircraftType(this.callsign[mid], this.icao24);
+        this.tag = new Array(this.time.length).fill("");
+        this.type = computeAircraftType(this.callsign[Math.floor(this.callsign.length/2)], this.icao24);
         this.hash = this.computeHash();
 
         if (a.anomaly != undefined){
@@ -467,7 +466,57 @@ export class Flight
         if (attribute=="baro_altitude") return this.baro_altitude;
         if (attribute=="geo_altitude") return this.geo_altitude;
         return undefined;
+    }
+    // overload the setitem operator
+    public set(attribute:string, value:any) : void
+    {
+        if (attribute=="time"){
+            this.time = value;
+            this.start_time = value[0];
+            this.end_time = value[value.length - 1];
+            this.hash = this.computeHash();
+        }
+        if (attribute=="icao24") this.icao24 = value;
+        if (attribute=="lat") this.lat = value;
+        if (attribute=="lon") this.lon = value;
+        if (attribute=="velocity") this.velocity = value;
+        if (attribute=="heading") this.heading = value;
+        if (attribute=="vertical_rate") this.vertical_rate = value;
+        if (attribute=="callsign") this.callsign = value;
+        if (attribute=="on_ground") this.on_ground = value;
+        if (attribute=="alert") this.alert = value;
+        if (attribute=="spi") this.spi = value;
+        if (attribute=="squawk") this.squawk = value;
+        if (attribute=="baro_altitude") this.baro_altitude = value;
+        if (attribute=="geo_altitude") this.geo_altitude = value;
+    }
 
+    public copy() : Flight
+    {
+        let f = new Flight();
+        f.time = [...this.time];
+        f.icao24 = this.icao24;
+        f.lat = [...this.lat];
+        f.lon = [...this.lon];
+        f.velocity = [...this.velocity];
+        f.heading = [...this.heading];
+        f.vertical_rate = [...this.vertical_rate];
+        f.callsign = [...this.callsign];
+        f.on_ground = [...this.on_ground];
+        f.alert = [...this.alert];
+        f.spi = [...this.spi];
+        f.squawk = [...this.squawk];
+        f.baro_altitude = [...this.baro_altitude];
+        f.geo_altitude = [...this.geo_altitude];
+        f.type = this.type;
+        f.start_time = this.start_time;
+        f.end_time = this.end_time;
+        f.anomaly = [...this.anomaly];
+        f.tag = [...this.tag];
+        f.hash = this.hash;
+        f.last_anomaly = this.last_anomaly;
+        f.last_check_request = this.last_check_request;
+        return f;
     }
 }
 

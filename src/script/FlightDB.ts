@@ -210,7 +210,6 @@ export class FlightDB {
         // code begining //
         let flights = FlightDB.parseFile(filename, content);
 
-        console.log(this.flights);
         for (let i = 0; i < flights.length; i++) {
             let flight = flights[i];
 
@@ -219,8 +218,6 @@ export class FlightDB {
                 this.addFlight(flight);
             }
         }
-        console.log(this.flights);
-
         // re-calculate flight indexing
 
         this.recalculate_db();
@@ -232,7 +229,6 @@ export class FlightDB {
     }
 
     public addFlight(flight: Flight): void {
-        console.log(flight);
         let t = 0;
         while (t < this.flights.length && this.flights[t].getStartTimestamp() < flight.getStartTimestamp()) {
             t++;

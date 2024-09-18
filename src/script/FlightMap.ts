@@ -135,6 +135,8 @@ export class FlightMap {
     private polylines: Map<number, MultiColorPolyLine> = new Map();
     private markers: Map<number, L.Marker> = new Map();
 
+    private on_click_callbacks: Array<(e: L.LeafletMouseEvent) => void> = [];
+
     constructor() {
         this.map = L.map('map', {
             center: [0, 0],
@@ -146,7 +148,19 @@ export class FlightMap {
             attribution: 'Map data © <a href="https://openstreetmap.org">OpenStreetMap</a> contributors'
         }).addTo(this.map);
 
+        this.map.on('click', (e) => {
+            for (let callback of this.on_click_callbacks) {
+                callback(e);
+            }
+        });
+
     }
+
+    public addOnClickListener(callback: (e: L.LeafletMouseEvent) => void) : void{
+        this.on_click_callbacks.push(callback);
+    }
+
+
 
     public setFlightDB(db:FlightDB) : void{
         this.database = db;
@@ -261,5 +275,10 @@ export class FlightMap {
 
         return data.length;
 
+    }
+
+    public elementXYToLatLng(x:number, y:number) : L.LatLng
+    {
+        return this.map.containerPointToLatLng(L.point(x, y));
     }
 }

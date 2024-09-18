@@ -1,10 +1,11 @@
+import { MultiADSBMessage } from "../Types";
 
 
 
 
 
 
-export function loadFromSBS(filename:string, file_content:string)
+export function loadFromSBS(filename:string, file_content:string):MultiADSBMessage[]
 {
 
     // split the file content into lines
@@ -46,30 +47,7 @@ export function loadFromSBS(filename:string, file_content:string)
     let data_splited = split_on_icao24(data);
 
 
-    let res:Array<{
-        time: number[];
-        icao24: string;
-        lat: number[];
-        lon: number[];
-        velocity: number[];
-        heading: number[];
-        vertical_rate: number[];
-        callsign: string[];
-        on_ground: boolean[];
-        alert: boolean[];
-        spi: boolean[];
-        squawk: number[];
-        baro_altitude: number[];
-        geo_altitude: number[];
-        last_pos_update: number[];
-        last_contact: number[];
-        hour: number[];
-        start_time: number;
-        end_time: number;
-        interpolated: boolean[];
-        anomaly: boolean[];
-        probabilities: number[][];
-    }> = []
+    let res:MultiADSBMessage[] = [];
 
     for (let flight = 0; flight < data_splited.length; flight++) {
         let flight_data = data_splited[flight];
@@ -103,7 +81,7 @@ function split_on_icao24(data: {msg: string;icao24: string;date: string;time: st
 }
 
 
-function getFlightAttrbutes(data: {msg: string;icao24: string;date: string;time: string;callsign: string;altitude: string;ground_speed: string;track: string;lat: string;lon: string;vertrate: string;squawk: string;alert: string;emergency: string;spi: string;onground: string; interpolated:boolean, anomaly: boolean, probabilities: number[]}[])
+function getFlightAttrbutes(data: {msg: string;icao24: string;date: string;time: string;callsign: string;altitude: string;ground_speed: string;track: string;lat: string;lon: string;vertrate: string;squawk: string;alert: string;emergency: string;spi: string;onground: string; interpolated:boolean, anomaly: boolean, probabilities: number[]}[]): MultiADSBMessage
 {
     let time:Array<number> = Array();
     let icao24:string =  "";
@@ -264,28 +242,21 @@ function getFlightAttrbutes(data: {msg: string;icao24: string;date: string;time:
     }
 
     return {
-        time : time,
+        timestamp : time,
         icao24 : icao24,
-        lat : lat,
-        lon : lon,
-        velocity : velocity,
-        heading : heading,
+        latitude : lat,
+        longitude : lon,
+        groundspeed : velocity,
+        track : heading,
         vertical_rate : vertical_rate,
         callsign : callsign,
-        on_ground : on_ground,
+        onground : on_ground,
         alert : alert,
         spi : spi,
         squawk : squawk,
-        baro_altitude : baro_altitude,
-        geo_altitude : geo_altitude,
-        last_pos_update : last_pos_update,
-        last_contact : last_contact,
-        hour : hour,
-        start_time : start_time,
-        end_time : end_time,
-        interpolated : undefined,
+        altitude : baro_altitude,
+        geoaltitude : geo_altitude,
         anomaly : undefined,
-        probabilities : undefined
     };
 }
 

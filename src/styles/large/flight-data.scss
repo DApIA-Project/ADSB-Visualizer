@@ -1,18 +1,18 @@
 
-  
-  
+
+
 #window-flight-data{
     top: 320px;
-
     left: 100vw;
+
     width: 360px;
     height: 350px;
 
-    transform: translate(calc(-100% - 20px), 70px); 
+    transform: translate(calc(-100% - 20px), 70px);
 
 }
-  
-  
+
+
 #window-flight-data>h1>div{
     display: flex;
     justify-content: flex-end;
@@ -35,8 +35,8 @@
     /* overflow Y */
     overflow-y: scroll;
     overflow-x: hidden;
-  
-    margin: 0px 5px;   
+
+    margin: 0px 5px;
 
     display: flex;
     justify-content: flex-start;
@@ -61,12 +61,12 @@
 
 #flight-data>.line
 {
-    min-height: 40px; 
+    min-height: 40px;
 }
 
 
 #flight-data-graph-container{
-    
+
     width: 100%;
     min-height: calc(100% - 40px);
 }
