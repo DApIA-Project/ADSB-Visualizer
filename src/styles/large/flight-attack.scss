@@ -1,0 +1,42 @@
+#window-flight-attack{
+
+    width: 350px;
+    background-color: rgba($backgound-1, 0.8);
+
+    top: 0vh;
+    left: 0vw;
+
+
+    transform: translate(20px, 70px);
+}
+
+
+#window-flight-attack a{
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+
+}
+
+#window-flight-attack img{
+    width: 64px;
+    background-color: $backgound-2;
+    border-radius: 8px;
+    padding: 5px;
+    border: 2px solid $backgound-2;
+}
+
+#window-flight-attack a.selected>img{
+    border: 2px solid $secondary;
+}
+
+#window-flight-attack img:hover{
+    background-color: $backgound-1;
+    border-color: $backgound-1;
+}
+
+#window-flight-attack>div{
+    width: 100%;
+    padding: 20px 0;
+}
