@@ -16,30 +16,6 @@
 
 
 
-#window-flight-list>h1{
-    width: calc(100% - 2vh);
-    height: 5vh;
-    margin: 0;
-    padding: 0 1vh;
-    text-align: center;
-    font-size: 3.5vh;
-}
-
-#window-flight-list>h1>div{
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    flex-direction: row;
-    width: 35%;
-}
-#window-flight-list>h1>div>*{
-
-    height: 3.5vh;
-    font-size: 3.0vh !important;
-    padding: 0.5vh;
-    margin: 0.5vh;
-}
-
 
   
 #flight-list, #empty-flight-list{

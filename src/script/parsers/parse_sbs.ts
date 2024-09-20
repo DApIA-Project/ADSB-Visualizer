@@ -1,7 +1,7 @@
 import { MultiADSBMessage } from "../Types";
 
 
-
+type SBS_row = {msg: string;icao24: string;time: number;callsign: string;altitude: string;ground_speed: string;track: string;lat: string;lon: string;vertrate: string;squawk: string;alert: string;emergency: string;spi: string;onground: string; interpolated:boolean, anomaly: boolean, probabilities: number[]}
 
 
 
@@ -12,7 +12,7 @@ export function loadFromSBS(filename:string, file_content:string):MultiADSBMessa
     file_content = file_content.trim();
     let lines = file_content.split('\n');
 
-    let data:{msg: string;icao24: string;date: string;time: string;callsign: string;altitude: string;ground_speed: string;track: string;lat: string;lon: string;vertrate: string;squawk: string;alert: string;emergency: string;spi: string;onground: string; interpolated:boolean, anomaly: boolean, probabilities: number[]}[] = [];
+    let data:SBS_row[] = [];
     for (let i = 0; i < lines.length; i++) {
         let line = lines[i].trim().split(',');
 
@@ -20,11 +20,19 @@ export function loadFromSBS(filename:string, file_content:string):MultiADSBMessa
             continue;
         line.unshift("");
 
-        let row = {
+        let date = new Date(line[7]);
+        let time = line[8].split(":");
+        let timestamp = 0;
+        if (time.length == 3)
+            timestamp = new Date(date.getFullYear(), date.getMonth(), date.getDate(), parseInt(time[0]), parseInt(time[1]), Math.floor(parseFloat(time[2]))).getTime() / 1000;
+        else if (time.length == 2)
+            timestamp = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, parseInt(time[0]), Math.floor(parseFloat(time[1]))).getTime() / 1000;
+
+
+        let row:SBS_row = {
             msg:line[1], // message type
             icao24:line[5], // icao24
-            date:line[7], // date
-            time:line[8], // time
+            time:timestamp, // time
             callsign:line[11], // Callsign
             altitude:line[12], // Altitude
             ground_speed:line[13], // Ground speed
@@ -54,13 +62,11 @@ export function loadFromSBS(filename:string, file_content:string):MultiADSBMessa
         let flight_attribute = getFlightAttrbutes(flight_data);
         if (flight_attribute != undefined)
             res.push(flight_attribute);
-
     }
     return res;
 }
 
-function split_on_icao24(data: {msg: string;icao24: string;date: string;time: string;callsign: string;altitude: string;ground_speed: string;track: string;lat: string;lon: string;vertrate: string;squawk: string;alert: string;emergency: string;spi: string;onground: string; interpolated:boolean, anomaly: boolean, probabilities: number[]}[]) :
-{msg: string;icao24: string;date: string;time: string;callsign: string;altitude: string;ground_speed: string;track: string;lat: string;lon: string;vertrate: string;squawk: string;alert: string;emergency: string;spi: string;onground: string; interpolated:boolean, anomaly: boolean, probabilities: number[]}[][]{
+function split_on_icao24(data: SBS_row[]) : SBS_row[][]{
     let icao24 = {};
     for (let i = 0; i < data.length; i++) {
         let row = data[i];
@@ -81,7 +87,7 @@ function split_on_icao24(data: {msg: string;icao24: string;date: string;time: st
 }
 
 
-function getFlightAttrbutes(data: {msg: string;icao24: string;date: string;time: string;callsign: string;altitude: string;ground_speed: string;track: string;lat: string;lon: string;vertrate: string;squawk: string;alert: string;emergency: string;spi: string;onground: string; interpolated:boolean, anomaly: boolean, probabilities: number[]}[]): MultiADSBMessage
+function getFlightAttrbutes(data: SBS_row[]): MultiADSBMessage
 {
     let time:Array<number> = Array();
     let icao24:string =  "";
@@ -100,13 +106,10 @@ function getFlightAttrbutes(data: {msg: string;icao24: string;date: string;time:
     let last_pos_update:Array<number> =  Array();
     let last_contact:Array<number> =  Array();
     let hour:Array<number> =  Array();
-    let start_time:number =  0;
-    let end_time:number =  0;
 
     // for each message, extract the data
     let current_icao24 = "";
-    let current_date = "";
-    let current_time = "";
+    let current_time = 0;
     let current_callsign = "";
     let current_altitude = "";
     let current_ground_speed = "";
@@ -123,14 +126,13 @@ function getFlightAttrbutes(data: {msg: string;icao24: string;date: string;time:
     let current_last_pos_update = 0;
     let current_last_contact = 0;
 
+
     for (let i = 0; i < data.length; i++) {
         let pos_updated = false;
         let row = data[i];
         if (current_icao24 != row.icao24 && row.icao24 != "")
             current_icao24 = row.icao24;
-        if (current_date != row.date && row.date != "")
-            current_date = row.date;
-        if (current_time != row.time && row.time != "")
+        if (current_time != row.time && row.time != 0)
             current_time = row.time;
         if (current_callsign != row.callsign && row.callsign != "")
             current_callsign = row.callsign;
@@ -161,28 +163,21 @@ function getFlightAttrbutes(data: {msg: string;icao24: string;date: string;time:
             current_onground = row.onground;
 
 
-        if (current_lat != "" && current_lon != ""){
-            let date = new Date(current_date);
-            let time_split = current_time.split(":");
-            let timestamp = 0;
-            if (time_split.length == 3)
-                timestamp =new Date(date.getFullYear(), date.getMonth(), date.getDate(), parseInt(time_split[0]), parseInt(time_split[1]), parseInt(time_split[2])).getTime() / 1000;
-            else if (time_split.length == 2)
-                timestamp =new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, parseInt(time_split[0]), parseInt(time_split[1])).getTime() / 1000;
+        if (current_lat != "" && current_lon != "" && current_time != time[time.length - 1]){
 
             if (current_last_pos_update == 0 && current_last_contact == 0){
-                current_last_pos_update = timestamp;
-                current_last_contact = timestamp;
+                current_last_pos_update = current_time;
+                current_last_contact = current_time;
             }
 
             if (row.msg == "3"){
-                current_last_pos_update = timestamp;
+                current_last_pos_update = current_time;
             }
 
-            current_last_contact = timestamp;
+            current_last_contact = current_time;
 
             if (pos_updated){
-                let t:number = Math.ceil(timestamp)
+                let t:number = Math.ceil(current_time)
                 time.push(t);
 
                 icao24 = current_icao24;
@@ -205,9 +200,6 @@ function getFlightAttrbutes(data: {msg: string;icao24: string;date: string;time:
             }
         }
     }
-
-    start_time = time[0];
-    end_time = time[time.length - 1];
 
     let indices = [];
     for (let i = 0; i < time.length; i++) {

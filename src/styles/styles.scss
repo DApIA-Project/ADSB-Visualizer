@@ -35,14 +35,28 @@ body, html {
 
 
 /* GOOGLE MATERIAL ICONS */
-.material-icons{
+.material-symbols{
+    font-family: 'Material Symbols Outlined';
     font-size: inherit !important;
     font-weight: bold;
+
+    font-variation-settings:
+        'FILL' 1,
+        'wght' 400,
+        'GRAD' 0,
+        'opsz' 24
 }
 
-.material-icons-outlined{
+.material-symbols-outlined{
     font-size: inherit !important;
     font-weight: bold;
+
+    font-variation-settings:
+        'FILL' 0,
+        'wght' 400,
+        'GRAD' 0,
+        'opsz' 24
+
 }
 
 

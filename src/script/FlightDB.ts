@@ -73,6 +73,11 @@ export class FlightDB {
             this.clear();
         });
 
+        document.getElementById('reset-btn').addEventListener('click', (e) => {
+            this.reset();
+            this.timer.setTimestamp(this.min_timestamp);
+        });
+
         this.html_go_up_btn = document.getElementById('go-up-btn');
         this.html_go_up_btn.addEventListener('click', (e) => {
             this.html_flight_list.scrollTop = 0;
@@ -374,12 +379,12 @@ export class FlightDB {
 
         let html_search_btn = document.createElement('a');
         html_search_btn.classList.add('btn-valid');
-        html_search_btn.classList.add('material-icons-outlined');
+        html_search_btn.classList.add('material-symbols-outlined');
         html_search_btn.innerHTML = 'search';
 
         let html_delete_btn = document.createElement('a');
         html_delete_btn.classList.add('btn-cancel');
-        html_delete_btn.classList.add('material-icons-outlined');
+        html_delete_btn.classList.add('material-symbols-outlined');
         html_delete_btn.innerHTML = 'delete';
 
         html_delete_btn.addEventListener('click', function (e) {
@@ -740,4 +745,9 @@ export class FlightDB {
         return undefined
     }
 
+    public reset() {
+        for (let flight of this.flights) {
+            flight.reset();
+        }
+    }
 }

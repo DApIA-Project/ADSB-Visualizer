@@ -126,7 +126,7 @@ export class Flight {
     private end_time: number = 0;
     private anomaly: Array<boolean> = Array();
     private tag: Array<string> = Array();
-    private unique_tag: Set<string> = new Set();
+    public unique_tag: Set<string> = new Set();
 
     private hash: number = 0;
 
@@ -154,7 +154,7 @@ export class Flight {
         this.start_time = a.timestamp[0];
         this.end_time = a.timestamp[a.timestamp.length - 1];
 
-        this.tag = new Array(this.time.length).fill("");
+        this.tag = new Array(this.time.length).fill("0");
         this.type = computeAircraftType(this.callsign[Math.floor(this.callsign.length / 2)], this.icao24);
         this.hash = this.computeHash();
 
@@ -165,7 +165,6 @@ export class Flight {
         else {
             this.anomaly = new Array(this.time.length).fill(undefined);
         }
-
     }
 
     addMessage(timestamp: number, icao24: string, latitude: number, longitude: number, groundspeed: number, track: number, vertical_rate: number, callsign: string, onground: boolean, alert: boolean, spi: boolean, squawk: number, altitude: number, geoaltitude: number) {
@@ -183,7 +182,7 @@ export class Flight {
         this.squawk.push(squawk);
         this.baro_altitude.push(altitude);
         this.geo_altitude.push(geoaltitude);
-        this.tag.push("");
+        this.tag.push("0");
         if (this.start_time == 0)
             this.start_time = timestamp;
         this.end_time = timestamp;
@@ -210,7 +209,7 @@ export class Flight {
         this.squawk.splice(i, 0, this.squawk[i-1]);
         this.baro_altitude.splice(i, 0, this.baro_altitude[i-1]);
         this.geo_altitude.splice(i, 0, this.geo_altitude[i-1]);
-        this.tag.splice(i, 0, "");
+        this.tag.splice(i, 0, "0");
         this.anomaly.splice(i, 0, undefined);
     }
 
@@ -236,10 +235,7 @@ export class Flight {
 
     computeHash(): number {
         let hash = 1;
-
-        for (let c = 0; c < this.icao24.length; c++) {
-            hash += (this.icao24.charCodeAt(c) * (c + 1) * hash) % 1000000000;
-        }
+        hash += U.hash_string(this.icao24);
         hash += this.start_time;
         hash += this.lat[0] * 10e6 + this.lon[0] * 10e6;
         hash %= 10e9;
@@ -252,7 +248,7 @@ export class Flight {
     }
 
     getTagsHashes(): number[] {
-        let res = [0]
+        let res = [];
         for (let tag of this.unique_tag) {
             res.push(this.hashTag(tag));
         }
@@ -261,7 +257,7 @@ export class Flight {
 
     hashTag(tag: string): number {
         if (tag == "") return 0;
-        return parseInt(tag.split("_")[1]) + 1;
+        return U.hash_string(tag);
     }
 
     getIndiceAtTime(time: number, i: number = 0): number {
@@ -302,20 +298,21 @@ export class Flight {
 
     getMessage(i: number): ADSBMessage {
         return {
-            timestamp: this.get("time")[i],
-            icao24: this["icao24"],
-            latitude: this["lat"][i],
-            longitude: this["lon"][i],
-            groundspeed: this["velocity"][i],
-            track: this["heading"][i],
-            vertical_rate: this["vertical_rate"][i],
-            callsign: this["callsign"][i],
-            onground: this["on_ground"][i],
-            alert: this["alert"][i],
-            spi: this["spi"][i],
-            squawk: this["squawk"][i],
-            altitude: this["baro_altitude"][i],
-            geoaltitude: this["geo_altitude"][i]
+            timestamp: this.time[i],
+            icao24: this.icao24,
+            latitude: this.lat[i],
+            longitude: this.lon[i],
+            groundspeed: this.velocity[i],
+            track: this.heading[i],
+            vertical_rate: this.vertical_rate[i],
+            callsign: this.callsign[i],
+            onground: this.on_ground[i],
+            alert: this.alert[i],
+            spi: this.spi[i],
+            squawk: this.squawk[i],
+            altitude: this.baro_altitude[i],
+            geoaltitude: this.geo_altitude[i],
+            tag: this.tag[i]
         }
     }
 
@@ -462,13 +459,9 @@ export class Flight {
         return this.type;
     }
     public spoof_icao(new_icao: string, callsign: string = "") {
-        console.log("spoofing", this.icao24, "to", new_icao);
-
         this.icao24 = new_icao;
         this.callsign.fill(callsign);
         this.type = computeAircraftType(this.callsign[Math.floor(this.callsign.length / 2)], this.icao24);
-        console.log(this.type);
-
     }
 
     // overlead the [] operator
@@ -516,6 +509,12 @@ export class Flight {
         f.last_anomaly = this.last_anomaly;
         f.last_check_request = this.last_check_request;
         return f;
+    }
+
+    public reset() {
+        this.anomaly.fill(undefined);
+        this.last_anomaly = -1;
+        this.last_check_request = -1;
     }
 }
 

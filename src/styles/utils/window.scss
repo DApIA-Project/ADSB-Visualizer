@@ -5,7 +5,7 @@
     left: 0px;
     z-index: 1000;
     background-color: $backgound-1;
-  
+
     display: flex;
     justify-content: space-evenly;
     align-items: center;
@@ -27,4 +27,33 @@
     justify-content: space-between;
     align-items: center;
     padding: 0 15px;
-  }
+}
+
+
+// .window>h1{
+//     background-color: rgba($backgound-2, 0.8);
+// }
+
+.window>h1>div{
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    flex-direction: row;
+    width: 20%;
+    height: 100%;
+}
+
+
+
+.window>h1>div>*{
+    padding: 3px;
+    margin: 3px;
+}
+
+
+.window>div>h2{
+    margin: 10px 0px 0px 30px;
+    font-size: 20px;
+}
+
+

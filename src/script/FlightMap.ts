@@ -188,7 +188,6 @@ export class FlightMap {
         this.clearHighlightFlight();
 
         this.highlighted_flight = flight.getHash();
-        console.log("highlight", this.highlighted_flight);
 
         // update display
         let tag_hashes = flight.getTagsHashes();
@@ -203,7 +202,6 @@ export class FlightMap {
     public clearHighlightFlight(){
         if (this.highlighted_flight == -1) return;
         // update display
-        console.log("remove", this.highlighted_flight);
 
         let flight = this.database.findFlight(this.highlighted_flight);
         let tag_hashes = flight.getTagsHashes();
@@ -211,8 +209,6 @@ export class FlightMap {
         for (let tag_hash of tag_hashes) {
             let trajectory_hash = flight.getHash() + tag_hash;
             if (this.markers.has(trajectory_hash)){
-                console.log(trajectory_hash);
-
                 this.markers.get(trajectory_hash).getElement().classList.remove('highlight');
             }
         }

@@ -1,5 +1,4 @@
 import { FlightMap } from "./FlightMap";
-import * as fs from 'fs';
 import { replays } from "./Replays";
 import { loadFromCSV } from "./parsers/parse_csv";
 import Flight, { AircraftType } from "./Flight";
@@ -63,7 +62,6 @@ function translate_rotate(lats: number[], lons: number[], tracks: number[], lat,
         let [x, y, z] = spherical_to_cartesian(lats[i], lons[i]);
         [x, y, z] = z_rotation(x, y, z, radians(-lons[0]));
         [x, y, z] = y_rotation(x, y, z, radians(-lats[0]));
-        if (i == 0) console.log(x, y, z);
         [x, y, z] = x_rotation(x, y, z, radians(track));
         [x, y, z] = y_rotation(x, y, z, radians(lat_trg));
         [x, y, z] = z_rotation(x, y, z, radians(lon_trg));
@@ -88,9 +86,8 @@ const MEDIUM = ["3919ac", "39ce53", "391735"];
 
 export class FlightAttack {
     private html_attacks: Array<HTMLElement>;
-    private selected_attack: AttackType = AttackType.REPLAY;
+    private selected_attack: AttackType = AttackType.NONE;
     private replay_db: Array<MultiADSBMessage> = [];
-    private icao24_db = {}
     private ith_replay: number = 0;
 
 
@@ -103,8 +100,6 @@ export class FlightAttack {
     constructor() {
         this.html_attacks = Array.from(document.querySelectorAll('#window-flight-attack .attack'));
         for (let i = 0; i < this.html_attacks.length; i++) {
-            console.log(i);
-
             this.html_attacks[i].addEventListener('click', (event) => this.select_attack(i));
         }
         setTimeout(() => {
@@ -173,10 +168,13 @@ export class FlightAttack {
         let selected_flight = this.map.getHighlightedFlight();
         if (selected_flight != -1){
 
+            console.log(this.selected_attack);
+
             if (this.selected_attack == AttackType.SPOOFING) {
                 this.make_spoofing(selected_flight);
             }
             else if (this.selected_attack == AttackType.SATURATION) {
+                console.log("saturation");
                 this.make_saturation(selected_flight);
             }
         }
@@ -189,10 +187,12 @@ export class FlightAttack {
     }
 
     public flight_clicked(flight_hash: number) {
+
         if (this.selected_attack == AttackType.SPOOFING) {
             this.make_spoofing(flight_hash);
         }
         else if (this.selected_attack == AttackType.SATURATION) {
+
             this.make_saturation(flight_hash);
         }
 
@@ -208,7 +208,6 @@ export class FlightAttack {
         if (this.ith_replay >= this.replay_db.length) {
             this.ith_replay = 0;
         }
-        console.log("click in", lat, lon);
 
         let dlat = lat - data.latitude[0];
         let dlon = lon - data.longitude[0];
@@ -217,7 +216,6 @@ export class FlightAttack {
         [data.latitude, data.longitude, data.track] = translate_rotate(data.latitude, data.longitude, data.track, dlat, dlon, dtrack);
         let timestamp = Math.floor(this.timeManager.getTimestamp());
         data.timestamp = set_start_timestamp(data.timestamp, timestamp);
-        console.log(data);
 
         let flight = new Flight();
         flight.setAttribute(data)
@@ -229,6 +227,7 @@ export class FlightAttack {
     }
 
     public make_spoofing(flight_hash:number) {
+
         let flight = this.flightDB.findFlight(flight_hash);
 
         if (flight.getType() != AircraftType.SAMU){
@@ -244,10 +243,16 @@ export class FlightAttack {
     }
 
     public make_saturation(flight_hash:number) {
+        console.log(flight_hash);
+
         let flight = this.flightDB.findFlight(flight_hash);
+        console.log(flight);
+
         if (flight.getTagsHashes().length > 1) {
             return;// already saturated
         }
+        console.log("ok");
+
         let time = Math.floor(this.timeManager.getTimestamp());
         let i = flight.getIndiceAtTime(time);
 
@@ -274,8 +279,6 @@ export class FlightAttack {
                 flight.setTag(t, flight["icao24"]+"_"+((j+1).toString()))
             }
         }
-        console.log(flight);
-
 
         this.map.update(this.timeManager.getTimestamp(), this.timeManager.getTimestamp());
     }

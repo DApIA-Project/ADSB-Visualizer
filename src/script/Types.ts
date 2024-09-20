@@ -2,7 +2,7 @@ import Flight, { AircraftType } from "./Flight";
 
 export type ADSBMessage      = {timestamp:number,   icao24:string, latitude:number,   longitude:number,   groundspeed:number,
                                 track:number,   vertical_rate:number,   callsign:string,   onground:boolean,   alert:boolean,
-                                spi:boolean,   squawk:number,   altitude:number,   geoaltitude:number};
+                                spi:boolean,   squawk:number,   altitude:number,   geoaltitude:number, tag?:string};
 
 export type MultiADSBMessage = {timestamp:number[], icao24:string, latitude:number[], longitude:number[], groundspeed:number[],
                                 track:number[], vertical_rate:number[], callsign:string[], onground:boolean[], alert:boolean[],

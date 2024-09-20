@@ -53,7 +53,21 @@ export function float_to_string(value:number, precision:number):string{
 export function createElementFromHTML(htmlString:string):HTMLElement {
     var div:HTMLElement = document.createElement('div');
     div.innerHTML = htmlString.trim();
-  
+
     // Change this to div.childNodes to support multiple top-level nodes.
     return div.firstChild as HTMLElement;
+  }
+
+
+
+  export function hash_string(str:string) {
+    var hash = 0,
+      i, chr;
+    if (str.length === 0) return hash;
+    for (i = 0; i < str.length; i++) {
+      chr = str.charCodeAt(i);
+      hash = ((hash << 5) - hash) + chr;
+      hash |= 0; // Convert to 32bit integer
+    }
+    return hash;
   }

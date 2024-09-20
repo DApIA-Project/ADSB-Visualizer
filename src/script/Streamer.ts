@@ -25,7 +25,7 @@ export class Streamer{
         // }, 1000);
     }
     updateOpenSkyStream(response: any){
-        // console.log(response);
+
     }
 
 

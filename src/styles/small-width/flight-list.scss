@@ -1,48 +1,25 @@
 
-  
-  
+
+
 #window-flight-list{
     top: 0vh;
     left: 100vw;
     width: 40vw;
     height: 40vw;
-  
-    transform: translate(calc(-100% - 4vw), 10vw); 
+
+    transform: translate(calc(-100% - 4vw), 10vw);
 
 
 }
 
 
-#window-flight-list>h1{
-    width: calc(100% - 2vw);
-    height: 5vw;
-    margin: 0;
-    padding: 0 1vw;
-    text-align: center;
-    font-size: 4vw;
-}
-
-#window-flight-list>h1>div{
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    flex-direction: row;
-    width: 40%;
-    font-size: 3vw;
-}
-#window-flight-list>h1>div>*{
-    padding: 0.3vw;
-    margin: 0.2vw;
-}
-
-  
 #flight-list, #empty-flight-list{
     width: calc(100% - 2vw);
     height: 100%;
     /* overflow Y */
     overflow-y: scroll;
     overflow-x: hidden;
-  
+
     margin: 0px 2vw;
 }
 #empty-flight-list{
@@ -54,14 +31,14 @@
     font-size: 3vw;
 }
 
-  
+
 .flight{
     width: calc(100% - 4vw);
     // height: 6vw;
     border-radius: 1vw;
     margin: 1vw 2vw 0 0.5vw;
     padding: 1vw 1vw;
-  
+
     display: flex;
     justify-content: center;
     flex-wrap: wrap;
@@ -72,15 +49,15 @@
     margin: 0 1vw;
 }
 
-/* last flight margin for scroll */ 
+/* last flight margin for scroll */
 .flight:last-child{
     margin-bottom: 1vw;
 }
-  
+
 .flight>.flight-info{
     width: 100%;
     height: 100%;
-  
+
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -94,7 +71,7 @@
     font-size: 3vw !important;
     padding: 0.5vw;
 }
-  
+
 
 .flight-info>img{
     width: 4vw;
@@ -136,7 +113,7 @@
     font-size: 2vw;
 }
 
-  
+
 
 // #clear-list-btn{
 //     float: right;
@@ -146,7 +123,7 @@
 //     margin: 0;
 //     padding: 0 1vw;
 // }
-  
+
 
 
 #go-up-btn{

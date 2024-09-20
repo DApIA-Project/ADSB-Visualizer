@@ -1,8 +1,9 @@
 <div id="window-flight-attack"  class="window">
     <h1>
-        Flight alterations
+        Flight Attacks
         <div>
-            <a class="btn-cancel material-icons-outlined" id="close-flight-data-btn">close</a>
+            <a class="btn-alert material-symbols-outlined" id="refresh-server-status" style="display: none;">refresh</a>
+            <span class="btn-alert material-symbols-outlined" id="server-status">help</span>
         </div>
     </h1>
     <div>
@@ -15,10 +16,20 @@
                 <img src="./assets/images/saturation.png" alt="Saturation">
                 Saturation
             </a>
-            <a id="replay" class="attack selected">
+            <a id="replay" class="attack">
                 <img src="./assets/images/ghost.png" alt="Replay">
                 Rejeux
             </a>
+        </div>
+        <br>
+        <div class="line stats">
+            <div style="font-weight: bold; font-size: 20px;">Detections : </div>
+            <div>
+                <span>0</span> <span class="btn btn-valid material-symbols-outlined">check_circle</span>
+            </div>
+            <div>
+                <span>0</span> <span class="btn btn-cancel material-symbols-outlined">cancel</span>
+            </div>
         </div>
     </div>
 </div>

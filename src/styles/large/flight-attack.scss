@@ -40,3 +40,20 @@
     width: 100%;
     padding: 20px 0;
 }
+
+#window-flight-attack .stats{
+    justify-content: center !important;
+    gap: 2em;
+}
+
+#window-flight-attack .stats>div{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5em;
+}
+
+#window-flight-attack .stats .btn{
+    padding: 3px;
+    font-size: 25px;
+}

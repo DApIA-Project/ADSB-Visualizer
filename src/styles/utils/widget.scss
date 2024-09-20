@@ -10,32 +10,36 @@ input:focus {
     align-items: center;
     justify-content: center;
     width: fit-content;
-  
+
     background-color: $backgound-1;
     border: none;
     color: #d6d6d6;
     text-decoration: none;
-    cursor: pointer;
-  
+
     padding: min(2%, 5px);
     border-radius: 20%;
-  
+
     transition: all 0.1s ease-in-out;
-  
-    -webkit-user-select: none; /* Safari */        
+
+    -webkit-user-select: none; /* Safari */
     -moz-user-select: none; /* Firefox */
     -ms-user-select: none; /* IE10+/Edge */
     user-select: none; /* Standard */
 
     font-size: inherit;
 }
+
+a.btn{
+    cursor: pointer;
+
+}
 .btn-valid{
     background-color: #5d8c43;
-    
+
 }
 .btn-alert{
     background-color: #b38833;
-    
+
 }
 .btn-cancel{
     background-color: #c23616;
@@ -43,33 +47,33 @@ input:focus {
 .btn-info{
     background-color: #43688c;
 }
-.btn:hover{
+a.btn:hover{
     background-color: $backgound-1;
-  
+
     transform: scale(1.05);
     transition: all 0.1s ease-in-out;
 }
-.btn-valid:hover{
+a.btn-valid:hover{
     background-color: #3a6523;
-  
+
     transform: scale(1.05);
     transition: all 0.1s ease-in-out;
 }
-.btn-alert:hover{
+a.btn-alert:hover{
     background-color: #9b752b;
-  
+
     transform: scale(1.05);
     transition: all 0.1s ease-in-out;
 }
-.btn-cancel:hover{
+a.btn-cancel:hover{
     background-color: #8c1e05;
-  
+
     transform: scale(1.05);
     transition: all 0.1s ease-in-out;
 }
-.btn-info:hover{
+a.btn-info:hover{
     background-color: #43688c;
-  
+
     transform: scale(1.05);
     transition: all 0.1s ease-in-out;
 }
@@ -82,7 +86,7 @@ input[type="text"]{
     background-color: $backgound-3;
     border: 1px solid $backgound-1;
 }
-  
+
 select{
     color: $base;
     background-color: $backgound-3;
