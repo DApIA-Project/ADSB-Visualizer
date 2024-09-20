@@ -192,6 +192,13 @@ export class FlightAttack {
     }
 
     public flight_clicked(flight_hash: number) {
+        if (this.selected_attack == AttackType.SPOOFING) {
+            this.make_spoofing(flight_hash);
+        }
+        else if (this.selected_attack == AttackType.SATURATION) {
+            this.make_saturation(flight_hash);
+        }
+
         this.select_attack(AttackType.NONE);
     }
 
@@ -241,6 +248,9 @@ export class FlightAttack {
 
     public make_saturation(flight_hash:number) {
         let flight = this.flightDB.findFlight(flight_hash);
+        if (flight.getTagsHashes().length > 1) {
+            return;// already saturated
+        }
         let time = Math.floor(this.timeManager.getTimestamp());
         let i = flight.getIndiceAtTime(time);
 
