@@ -158,9 +158,9 @@ export class FlightMap {
             }
             this.clearHighlightFlight();
 
-            if (this.flightAttack.get_selected_attack() != AttackType.REPLAY){
-                this.flightAttack.select_attack(AttackType.NONE);
-            }
+            // if (this.flightAttack.get_selected_attack() != AttackType.REPLAY){
+            //     this.flightAttack.select_attack(AttackType.NONE);
+            // }
         });
 
     }

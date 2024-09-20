@@ -83,7 +83,7 @@ function set_start_timestamp(timestamps: number[], start_timestamp: number) {
 
 
 const SAMU = ["39ac45", "39ac44", "39ac43"];
-const MEDIUM = ["39364a", "394d72", "39b415"];
+const MEDIUM = ["3919ac", "39ce53", "391735"];
 
 
 export class FlightAttack {
@@ -183,9 +183,6 @@ export class FlightAttack {
     }
 
     public map_clicked(event: L.LeafletMouseEvent) {
-        console.log(event);
-        console.log("a", this.selected_attack);
-
         if (this.selected_attack == AttackType.REPLAY) {
             this.create_replay(event.latlng.lat, event.latlng.lng);
         }
