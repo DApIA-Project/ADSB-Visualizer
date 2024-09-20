@@ -1,0 +1,10 @@
+.leaflet-marker-icon.highlight {
+    border: 2px solid #184296;
+    border-radius: 6px;
+}
+
+.leaflet-marker-icon:focus-visible {
+    // border: 2px solid #184296;
+    // border-radius: 6px;
+    outline: none;
+}

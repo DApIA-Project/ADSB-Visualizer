@@ -35,6 +35,7 @@ import * as URL from './Url'
 import { Flight, AircraftType } from './Flight';
 import { FlightDB } from './FlightDB';
 import { MapMessage } from './Types';
+import { AttackType, FlightAttack } from './FlightAttack';
 
 // export enum AircraftType {
 //     UNKNOWN = 0,
@@ -55,39 +56,39 @@ import { MapMessage } from './Types';
 // }
 
 
-var unknown_img = L.icon({iconUrl: URL.unknown,iconSize: [30, 30],iconAnchor: [15, 15],});
-var unknown_img_flip = L.icon({iconUrl: URL.unknown_flip,iconSize: [30, 30],iconAnchor: [15, 15],});
-var cargo_img = L.icon({iconUrl: URL.cargo,iconSize: [30, 30],iconAnchor: [15, 15],});
-var cargo_img_flip = L.icon({iconUrl: URL.cargo_flip,iconSize: [30, 30],iconAnchor: [15, 15],});
-var plane_img = L.icon({iconUrl: URL.plane,iconSize: [30, 30],iconAnchor: [15, 15],});
-var plane_img_flip = L.icon({iconUrl: URL.plane_flip,iconSize: [30, 30],iconAnchor: [15, 15],});
-var jet_img = L.icon({iconUrl: URL.jet,iconSize: [30, 30],iconAnchor: [15, 15],});
-var jet_img_flip = L.icon({iconUrl: URL.jet_flip,iconSize: [30, 30],iconAnchor: [15, 15],});
-var turboprop_img = L.icon({iconUrl: URL.turboprop,iconSize: [30, 30],iconAnchor: [15, 15],});
-var turboprop_img_flip = L.icon({iconUrl: URL.turboprop_flip,iconSize: [30, 30],iconAnchor: [15, 15],});
-var medium_img = L.icon({iconUrl: URL.medium,iconSize: [30, 30],iconAnchor: [15, 15],});
-var medium_img_flip = L.icon({iconUrl: URL.medium_flip,iconSize: [30, 30],iconAnchor: [15, 15],});
-var light_img = L.icon({iconUrl: URL.light,iconSize: [30, 30],iconAnchor: [15, 15],});
-var light_img_flip = L.icon({iconUrl: URL.light_flip,iconSize: [30, 30],iconAnchor: [15, 15],});
-var super_light_img = L.icon({iconUrl: URL.super_light,iconSize: [30, 30],iconAnchor: [15, 15],});
-var super_light_img_flip = L.icon({iconUrl: URL.super_light_flip,iconSize: [30, 30],iconAnchor: [15, 15],});
-var glider_img = L.icon({iconUrl: URL.glider,iconSize: [30, 30],iconAnchor: [15, 15],});
-var glider_img_flip = L.icon({iconUrl: URL.glider_flip,iconSize: [30, 30],iconAnchor: [15, 15],});
-var helicopter_img = L.icon({iconUrl: URL.helicopter,iconSize: [30, 30],iconAnchor: [15, 15],});
-var helicopter_img_flip = L.icon({iconUrl: URL.helicopter_flip,iconSize: [30, 30],iconAnchor: [15, 15],});
-var ulm_img = L.icon({iconUrl: URL.ulm,iconSize: [30, 30],iconAnchor: [15, 15],});
-var ulm_img_flip = L.icon({iconUrl: URL.ulm_flip,iconSize: [30, 30],iconAnchor: [15, 15],});
-var military_img = L.icon({iconUrl: URL.military,iconSize: [30, 30],iconAnchor: [15, 15],});
-var military_img_flip = L.icon({iconUrl: URL.military_flip,iconSize: [30, 30],iconAnchor: [15, 15],});
-var samu_img = L.icon({iconUrl: URL.samu,iconSize: [30, 30],iconAnchor: [15, 15],});
-var samu_img_flip = L.icon({iconUrl: URL.samu_flip,iconSize: [30, 30],iconAnchor: [15, 15],});
-var ground_vehicle_img = L.icon({iconUrl: URL.ground_vehicle,iconSize: [30, 30],iconAnchor: [15, 15],});
-var ground_vehicle_img_flip = L.icon({iconUrl: URL.ground_vehicle_flip,iconSize: [30, 30],iconAnchor: [15, 15],});
-var drone_img = L.icon({iconUrl: URL.drone,iconSize: [30, 30],iconAnchor: [15, 15],});
-var drone_img_flip = L.icon({iconUrl: URL.drone_flip,iconSize: [30, 30],iconAnchor: [15, 15],});
+const unknown_img = L.icon({iconUrl: URL.unknown,iconSize: [30, 30],iconAnchor: [15, 15],});
+const unknown_img_flip = L.icon({iconUrl: URL.unknown_flip,iconSize: [30, 30],iconAnchor: [15, 15],});
+const cargo_img = L.icon({iconUrl: URL.cargo,iconSize: [30, 30],iconAnchor: [15, 15],});
+const cargo_img_flip = L.icon({iconUrl: URL.cargo_flip,iconSize: [30, 30],iconAnchor: [15, 15],});
+const plane_img = L.icon({iconUrl: URL.plane,iconSize: [30, 30],iconAnchor: [15, 15],});
+const plane_img_flip = L.icon({iconUrl: URL.plane_flip,iconSize: [30, 30],iconAnchor: [15, 15],});
+const jet_img = L.icon({iconUrl: URL.jet,iconSize: [30, 30],iconAnchor: [15, 15],});
+const jet_img_flip = L.icon({iconUrl: URL.jet_flip,iconSize: [30, 30],iconAnchor: [15, 15],});
+const turboprop_img = L.icon({iconUrl: URL.turboprop,iconSize: [30, 30],iconAnchor: [15, 15],});
+const turboprop_img_flip = L.icon({iconUrl: URL.turboprop_flip,iconSize: [30, 30],iconAnchor: [15, 15],});
+const medium_img = L.icon({iconUrl: URL.medium,iconSize: [30, 30],iconAnchor: [15, 15],});
+const medium_img_flip = L.icon({iconUrl: URL.medium_flip,iconSize: [30, 30],iconAnchor: [15, 15],});
+const light_img = L.icon({iconUrl: URL.light,iconSize: [30, 30],iconAnchor: [15, 15],});
+const light_img_flip = L.icon({iconUrl: URL.light_flip,iconSize: [30, 30],iconAnchor: [15, 15],});
+const super_light_img = L.icon({iconUrl: URL.super_light,iconSize: [30, 30],iconAnchor: [15, 15],});
+const super_light_img_flip = L.icon({iconUrl: URL.super_light_flip,iconSize: [30, 30],iconAnchor: [15, 15],});
+const glider_img = L.icon({iconUrl: URL.glider,iconSize: [30, 30],iconAnchor: [15, 15],});
+const glider_img_flip = L.icon({iconUrl: URL.glider_flip,iconSize: [30, 30],iconAnchor: [15, 15],});
+const helicopter_img = L.icon({iconUrl: URL.helicopter,iconSize: [30, 30],iconAnchor: [15, 15],});
+const helicopter_img_flip = L.icon({iconUrl: URL.helicopter_flip,iconSize: [30, 30],iconAnchor: [15, 15],});
+const ulm_img = L.icon({iconUrl: URL.ulm,iconSize: [30, 30],iconAnchor: [15, 15],});
+const ulm_img_flip = L.icon({iconUrl: URL.ulm_flip,iconSize: [30, 30],iconAnchor: [15, 15],});
+const military_img = L.icon({iconUrl: URL.military,iconSize: [30, 30],iconAnchor: [15, 15],});
+const military_img_flip = L.icon({iconUrl: URL.military_flip,iconSize: [30, 30],iconAnchor: [15, 15],});
+const samu_img = L.icon({iconUrl: URL.samu,iconSize: [30, 30],iconAnchor: [15, 15],});
+const samu_img_flip = L.icon({iconUrl: URL.samu_flip,iconSize: [30, 30],iconAnchor: [15, 15],});
+const ground_vehicle_img = L.icon({iconUrl: URL.ground_vehicle,iconSize: [30, 30],iconAnchor: [15, 15],});
+const ground_vehicle_img_flip = L.icon({iconUrl: URL.ground_vehicle_flip,iconSize: [30, 30],iconAnchor: [15, 15],});
+const drone_img = L.icon({iconUrl: URL.drone,iconSize: [30, 30],iconAnchor: [15, 15],});
+const drone_img_flip = L.icon({iconUrl: URL.drone_flip,iconSize: [30, 30],iconAnchor: [15, 15],});
 
 
-var icon_map = {
+const icon_map = {
     [AircraftType.CARGO]: cargo_img,
     [AircraftType.PLANE]: plane_img,
     [AircraftType.JET]: jet_img,
@@ -105,7 +106,7 @@ var icon_map = {
     [AircraftType.UNKNOWN]: unknown_img,
 }
 
-var flip_icon_map = {
+const flip_icon_map = {
     [AircraftType.CARGO]: cargo_img_flip,
     [AircraftType.PLANE]: plane_img_flip,
     [AircraftType.JET]: jet_img_flip,
@@ -129,11 +130,14 @@ var flip_icon_map = {
 export class FlightMap {
 
     private map: L.Map;
-    private database:FlightDB;
 
+    private database:FlightDB;
+    private flightAttack:FlightAttack;
 
     private polylines: Map<number, MultiColorPolyLine> = new Map();
     private markers: Map<number, L.Marker> = new Map();
+
+    private highlighted_flight: number = -1;
 
     private on_click_callbacks: Array<(e: L.LeafletMouseEvent) => void> = [];
 
@@ -152,6 +156,11 @@ export class FlightMap {
             for (let callback of this.on_click_callbacks) {
                 callback(e);
             }
+            this.clearHighlightFlight();
+
+            if (this.flightAttack.get_selected_attack() != AttackType.REPLAY){
+                this.flightAttack.select_attack(AttackType.NONE);
+            }
         });
 
     }
@@ -165,6 +174,9 @@ export class FlightMap {
     public setFlightDB(db:FlightDB) : void{
         this.database = db;
     }
+    public setFlightAttack(fa:FlightAttack) : void{
+        this.flightAttack = fa;
+    }
 
     public fitBounds(box:L.LatLngBounds)
     {
@@ -172,11 +184,49 @@ export class FlightMap {
         this.map.fitBounds(box);
     }
 
+    public highlightFlight(flight:Flight){
+        this.clearHighlightFlight();
+
+        this.highlighted_flight = flight.getHash();
+        console.log("highlight", this.highlighted_flight);
+
+        // update display
+        let tag_hashes = flight.getTagsHashes();
+        for (let tag_hash of tag_hashes) {
+            let trajectory_hash = flight.getHash() + tag_hash;
+            if (this.markers.has(trajectory_hash)){
+                this.markers.get(trajectory_hash).getElement().classList.add('highlight');
+            }
+        }
+    }
+
+    public clearHighlightFlight(){
+        if (this.highlighted_flight == -1) return;
+        // update display
+        console.log("remove", this.highlighted_flight);
+
+        let flight = this.database.findFlight(this.highlighted_flight);
+        let tag_hashes = flight.getTagsHashes();
+
+        for (let tag_hash of tag_hashes) {
+            let trajectory_hash = flight.getHash() + tag_hash;
+            if (this.markers.has(trajectory_hash)){
+                console.log(trajectory_hash);
+
+                this.markers.get(trajectory_hash).getElement().classList.remove('highlight');
+            }
+        }
+        // clear
+        this.highlighted_flight = -1
+    }
+
+    public getHighlightedFlight() : number{ return this.highlighted_flight; }
+
     public update(minTimestamp:number, maxTimestamp:number) : number // return the number of aircrafts
     {
-        var data:MapMessage[] = []
+        let data:MapMessage[] = []
 
-        var show_range: boolean = false;
+        let show_range: boolean = false;
         if (minTimestamp == maxTimestamp){
             data = this.database.getMapData(minTimestamp);
         }
@@ -185,76 +235,82 @@ export class FlightMap {
             show_range = true;
         }
 
+        let opacity = 1;
 
-        var opacity = 1;
-
-
-        var shown_flight = new Map<number, boolean>();
+        let visible_flight = new Map<number, boolean>();
         for (let key of this.polylines.keys()) {
-            shown_flight.set(key, false);
+            visible_flight.set(key, false);
         }
 
-        for (let i = 0; i < data.length; i++) {
-            var flight_id = data[i].flight_hash
-            var trajectory_hash = flight_id + data[i].tag_hash;
+        for (const traj of data) {
+            let trajectory_hash = traj.flight_hash + traj.tag_hash;
 
-            shown_flight.set(trajectory_hash, true);
+
+            visible_flight.set(trajectory_hash, true);
             if (!this.polylines.has(trajectory_hash)){
-                var poly = new MultiColorPolyLine(data[i].coords, data[i].display_opt, opacity).addTo(this.map);
+                let poly = new MultiColorPolyLine(traj.coords, traj.display_opt, opacity).addTo(this.map);
                 this.polylines.set(trajectory_hash, poly);
 
-                var last = data[i].coords[data[i].coords.length-1];
-                var angle = data[i].rotation + 90;
+                let last = traj.coords[traj.coords.length-1];
+                let angle = traj.rotation + 90;
 
-                var marker: L.Marker;
+                let marker: L.Marker;
                 if (angle < 90 || angle > 270){
                     marker = new L.Marker(
                         {lat:last[0], lng:last[1]},
-                        {icon: icon_map[data[i].type],
+                        {icon: icon_map[traj.type],
                             rotationAngle:angle}).addTo(this.map);
                 }
                 else
                 {
                     marker = new L.Marker(
                         {lat:last[0], lng:last[1]},
-                        {icon: flip_icon_map[data[i].type],
+                        {icon: flip_icon_map[traj.type],
                             rotationAngle:angle + 180}).addTo(this.map);
                 }
                 marker.on('click', (e) => {
-                    this.database.watchFlight(data[i].flight_hash);
+                    this.database.watchFlight(traj.flight_hash);
+                    this.flightAttack.flight_clicked(traj.flight_hash);
                 });
 
                 this.markers.set(trajectory_hash, marker);
+                if (this.highlighted_flight == traj.flight_hash){
+                    marker.getElement().classList.add('highlight');
+                }
             }
             else
             {
-                this.polylines.get(trajectory_hash).setLatLngs(data[i].coords, data[i].display_opt);
+                this.polylines.get(trajectory_hash).setLatLngs(traj.coords, traj.display_opt);
                 this.polylines.get(trajectory_hash).setStyle({opacity: opacity});
 
 
-                var last = data[i].coords[data[i].coords.length-1];
+                let last = traj.coords[traj.coords.length-1];
 
-                var angle = data[i].rotation + 90;
-                var marker = this.markers.get(trajectory_hash);
+                let angle = traj.rotation + 90;
+                let marker = this.markers.get(trajectory_hash);
                 marker.setLatLng({lat: last[0], lng: last[1]});
                 if (angle < 90 || angle > 270){
-                    if (marker.options.icon != icon_map[data[i].type])
-                        marker.setIcon(icon_map[data[i].type]);
+                    if (marker.options.icon != icon_map[traj.type])
+                        marker.setIcon(icon_map[traj.type]);
                     marker.setRotationAngle(angle);
                 }
                 else{
-                    if (marker.options.icon != flip_icon_map[data[i].type])
-                        marker.setIcon(flip_icon_map[data[i].type]);
+                    if (marker.options.icon != flip_icon_map[traj.type])
+                        marker.setIcon(flip_icon_map[traj.type]);
                     marker.setRotationAngle(angle + 180);
+                }
+                if (this.highlighted_flight == traj.flight_hash){
+                    marker.getElement().classList.add('highlight');
                 }
             }
         }
 
         // hide unused polylines
-        for (let [key, value] of shown_flight.entries()) {
-            if (!value){
+        for (let [key, visible] of visible_flight.entries()) {
+            if (!visible){
                 this.polylines.get(key).removeLayer();
                 this.map.removeLayer(this.markers.get(key));
+
                 this.polylines.delete(key);
                 this.markers.delete(key);
             }
@@ -281,4 +337,6 @@ export class FlightMap {
     {
         return this.map.containerPointToLatLng(L.point(x, y));
     }
+
+
 }

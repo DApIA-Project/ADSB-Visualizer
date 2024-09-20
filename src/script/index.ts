@@ -40,6 +40,7 @@ function onPageLoad() {
 
 
     map.setFlightDB(flight_db);
+    map.setFlightAttack(flightAttack);
 
     flight_db.setMap(map);
     flight_db.setTimer(timeManager);

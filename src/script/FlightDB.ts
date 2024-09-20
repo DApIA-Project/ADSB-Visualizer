@@ -402,6 +402,7 @@ export class FlightDB {
         const flight = this.hash_table[flight_hash];
         if (flight == undefined) return;
         this.map.fitBounds(flight.getbounds());
+        this.map.highlightFlight(flight);
 
         // if flight is not visible, set timer to flight start time
         if (this.timer.getTimestamp() < flight.getStartTimestamp()
