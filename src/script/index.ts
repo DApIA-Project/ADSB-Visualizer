@@ -54,6 +54,7 @@ function onPageLoad() {
     timeManager.setInputReader(inpurReader);
     timeManager.setFlightInfoDisplayer(flightInfoDisplayer);
     timeManager.setAnomalyChecker(anomalyChecker);
+    timeManager.setFlightAttack(flightAttack);
 
     streamer.setFlightDB(flight_db);
 

@@ -4,6 +4,7 @@ import { InputReader } from "./InputReader";
 import { FlightMap } from "./FlightMap";
 import * as U from './Utils';
 import {AnomalyChecker} from "./AnomalyChecker";
+import { FlightAttack } from "./FlightAttack";
 
 // manage the timing of the simulation
 // - play/pause
@@ -31,6 +32,7 @@ export class TimeManager{
     private inputReader:InputReader
     private flightInfoDisplayer:FlightInfoDisplayer
     private anomalyChecker:AnomalyChecker
+    private flightAttack: FlightAttack
 
     private time:number = 0.0;
     private time_speed:number = 1.0;
@@ -110,9 +112,11 @@ export class TimeManager{
     public setFlightInfoDisplayer(flightInfoDisplayer:FlightInfoDisplayer){
         this.flightInfoDisplayer = flightInfoDisplayer;
     }
-
     public setAnomalyChecker(anomalyChecker:AnomalyChecker){
         this.anomalyChecker = anomalyChecker;
+    }
+    public setFlightAttack(flightAttack: FlightAttack){
+        this.flightAttack = flightAttack;
     }
 
 
@@ -183,7 +187,8 @@ export class TimeManager{
         // update the map display and the flight info displayed
         if (this.time != this.last_time || this.new_anomaly_received) {
             this.nb_aircraft = this.map.update(this.time, this.time);
-            this.flightInfoDisplayer.update(this.time);
+            this.flightInfoDisplayer.update(this.time);            
+            this.flightAttack.update_stats();
             this.last_time = this.time;
         }
 

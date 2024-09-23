@@ -282,4 +282,10 @@ export class FlightAttack {
 
         this.map.update(this.timeManager.getTimestamp(), this.timeManager.getTimestamp());
     }
+
+    update_stats() {
+        let [valid, invalid] = this.flightDB.getAnomalyStats()
+        document.getElementById("nb-valid-aircraft").innerText = valid.toString();
+        document.getElementById("nb-invalid-aircraft").innerText = invalid.toString();
+    }
 }

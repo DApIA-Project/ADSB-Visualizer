@@ -226,6 +226,11 @@ export class Flight {
     getLastAnomalyIndice(): number {
         return this.last_anomaly;
     }
+    getAnomaly(i=undefined): boolean {
+        if (i==undefined) i = this.last_anomaly;
+        if (i == -1) return undefined;
+        return this.anomaly[i];
+    }
     getLastCheckRequest(): number {
         return this.last_check_request;
     }
@@ -347,9 +352,9 @@ export class Flight {
 
     getMapData(timestamp: number = undefined, end: number = undefined): Array<MapMessage> {
 
-        const BASE_COLOR = "#184296";
-        const NOT_COLOR = "#44bd32";
-        const TRUE_COLOR = "#e84118";
+        // const BASE_COLOR = "#184296";
+        // const NOT_COLOR = "#44bd32";
+        // const TRUE_COLOR = "#e84118";
         const MAX_LENGTH = 10000;
 
         let res: Array<MapMessage> = [];
@@ -392,7 +397,8 @@ export class Flight {
                     "rotation": 0,
                     "start_time": this.start_time,
                     "end_time": this.end_time,
-                    "display_opt": { "color": [], "weight": [] },
+                    "anomaly": [],
+                    // "display_opt": { "color": [], "weight": [] },
                 });
             }
         }
@@ -402,19 +408,7 @@ export class Flight {
 
             res[flight_i].coords.push([this.lat[t], this.lon[t]]);
             res[flight_i].rotation = this.heading[t];
-
-            if (this.anomaly[t] == undefined) {
-                res[flight_i].display_opt["color"].push(BASE_COLOR);
-                res[flight_i].display_opt["weight"].push(2);
-            }
-            else if (this.anomaly[t]) {
-                res[flight_i].display_opt["color"].push(TRUE_COLOR);
-                res[flight_i].display_opt["weight"].push(3);
-            }
-            else {
-                res[flight_i].display_opt["color"].push(NOT_COLOR);
-                res[flight_i].display_opt["weight"].push(3);
-            }
+            res[flight_i].anomaly.push(this.anomaly[t]);
 
             i++;
         }

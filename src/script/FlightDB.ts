@@ -60,6 +60,7 @@ export class FlightDB {
     private filter_type: Map<AircraftType, boolean> = new Map();
     private filter_string: string = "";
 
+    private _stats: { [key: string]: number } = {};
 
     constructor() {
         this.html_flight_list = document.getElementById('flight-list');
@@ -480,6 +481,7 @@ export class FlightDB {
         Array<MapMessage>
     {
         let flight_data:Array<MapMessage> = Array();
+        this._stats = { "valid": 0, "anomaly": 0 };
         for (let i = 0; i < this.flights.length; i++) {
 
             let mid = Math.floor(this.flights[i].callsign.length/2);
@@ -501,6 +503,20 @@ export class FlightDB {
                         this.autoscroll(i);
                     }
                     this.html_flights_visible[i] = true;
+
+                    for (const sub_data of data) {
+                        let t = sub_data.anomaly.length - 1;
+                        while (t >= 0 && sub_data.anomaly[t] == undefined) {
+                            t--;
+                        }
+                        if (t >= 0) {
+                            if (sub_data.anomaly[t]) {
+                                this._stats["anomaly"] = this._stats["anomaly"] + 1;
+                            } else {
+                                this._stats["valid"] = this._stats["valid"] + 1;
+                            }
+                        }
+                    }
                 } else {
                     this.html_flights[i].setAttribute("visible", "false");
                     this.html_flights_visible[i] = false;
@@ -749,5 +765,9 @@ export class FlightDB {
         for (let flight of this.flights) {
             flight.reset();
         }
+    }
+
+    public getAnomalyStats():[number, number]{
+        return [this._stats["valid"], this._stats["anomaly"]];
     }
 }

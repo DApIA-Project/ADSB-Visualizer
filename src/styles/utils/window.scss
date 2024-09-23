@@ -35,6 +35,8 @@
 // }
 
 .window>h1>div{
+    flex-grow: 1;
+
     display: flex;
     justify-content: flex-end;
     align-items: center;

@@ -2,8 +2,9 @@
     <h1>
         Flight Attacks
         <div>
-            <a class="btn-alert material-symbols-outlined" id="refresh-server-status" style="display: none;">refresh</a>
+            <span style="font-size: 16px;">Status :</span>
             <span class="btn-alert material-symbols-outlined" id="server-status">help</span>
+            <a class="btn-alert material-symbols-outlined" id="refresh-server-status" style="display: none;">refresh</a>
         </div>
     </h1>
     <div>
@@ -25,10 +26,10 @@
         <div class="line stats">
             <div style="font-weight: bold; font-size: 20px;">Detections : </div>
             <div>
-                <span>0</span> <span class="btn btn-valid material-symbols-outlined">check_circle</span>
+                <span id="nb-valid-aircraft">0</span> <span class="btn btn-valid material-symbols-outlined">check_circle</span>
             </div>
             <div>
-                <span>0</span> <span class="btn btn-cancel material-symbols-outlined">cancel</span>
+                <span id="nb-invalid-aircraft">0</span> <span class="btn btn-cancel material-symbols-outlined">cancel</span>
             </div>
         </div>
     </div>

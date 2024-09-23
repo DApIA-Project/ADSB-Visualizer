@@ -220,6 +220,11 @@ export class FlightMap {
 
     public update(minTimestamp:number, maxTimestamp:number) : number // return the number of aircrafts
     {
+
+        const BASE_COLOR = "#184296";
+        const VALID_COLOR = "#44bd32";
+        const ANOMALY_COLOR = "#e84118";
+
         let data:MapMessage[] = []
 
         let show_range: boolean = false;
@@ -240,11 +245,28 @@ export class FlightMap {
 
         for (const traj of data) {
             let trajectory_hash = traj.flight_hash + traj.tag_hash;
+            // let color = traj.anomaly == undefined ? BASE_COLOR : traj.anomaly ? ANOMALY_COLOR : VALID_COLOR;
+            // let display_opt = {
+            //     color: color,
+
+            // }
+
+            let display_opt = {
+                color: new Array(traj.coords.length).fill(BASE_COLOR),
+                weight: new Array(traj.coords.length).fill(2),
+            }
+
+            for (let i = 0; i < traj.anomaly.length; i++) {
+                if (traj.anomaly[i] != undefined){
+                    if (traj.anomaly[i]) display_opt.color[i] = ANOMALY_COLOR;
+                    else display_opt.color[i] = VALID_COLOR;
+                }
+            }
 
 
             visible_flight.set(trajectory_hash, true);
             if (!this.polylines.has(trajectory_hash)){
-                let poly = new MultiColorPolyLine(traj.coords, traj.display_opt, opacity).addTo(this.map);
+                let poly = new MultiColorPolyLine(traj.coords, display_opt, opacity).addTo(this.map);
                 this.polylines.set(trajectory_hash, poly);
 
                 let last = traj.coords[traj.coords.length-1];
@@ -276,7 +298,7 @@ export class FlightMap {
             }
             else
             {
-                this.polylines.get(trajectory_hash).setLatLngs(traj.coords, traj.display_opt);
+                this.polylines.get(trajectory_hash).setLatLngs(traj.coords, display_opt);
                 this.polylines.get(trajectory_hash).setStyle({opacity: opacity});
 
 
@@ -324,6 +346,7 @@ export class FlightMap {
                 marker.setOpacity(1);
             }
         }
+
 
         return data.length;
 
