@@ -186,13 +186,31 @@ export class Flight {
         if (this.start_time == 0)
             this.start_time = timestamp;
         this.end_time = timestamp;
-        if (this.icao24 == "") {
+        if (this.icao24 != "") {
             this.icao24 = icao24;
             let mid = Math.floor(this.callsign.length / 2);
             this.type = computeAircraftType(this.callsign[mid], this.icao24);
             this.hash = this.computeHash();
         }
         this.anomaly.push(undefined);
+    }
+
+    slice(start, end){
+        this.time = this.time.slice(start, end);
+        this.lat = this.lat.slice(start, end);
+        this.lon = this.lon.slice(start, end);
+        this.velocity = this.velocity.slice(start, end);
+        this.heading = this.heading.slice(start, end);
+        this.vertical_rate = this.vertical_rate.slice(start, end);
+        this.callsign = this.callsign.slice(start, end);
+        this.on_ground = this.on_ground.slice(start, end);
+        this.alert = this.alert.slice(start, end);
+        this.spi = this.spi.slice(start, end);
+        this.squawk = this.squawk.slice(start, end);
+        this.baro_altitude = this.baro_altitude.slice(start, end);
+        this.geo_altitude = this.geo_altitude.slice(start, end);
+        this.tag = this.tag.slice(start, end);
+        this.anomaly = this.anomaly.slice(start, end);
     }
 
     insert_message_for_saturation(i, lat, lon, track){

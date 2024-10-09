@@ -13,47 +13,12 @@ import * as URL from './Url'
 // - display the aircraft icons using markers
 
 
-// declare module 'leaflet' {
-//     interface MarkerOptions {
-//         rotationAngle?: number | undefined; // Rotation angle, in degrees, clockwise. (Default = 0)
-//         rotationOrigin?: string | undefined; // The rotation center, as a transform-origin CSS rule. (Default = 'bottom center')
-//     }
-
-//     interface Marker {
-//         /*
-//         * Sets the rotation angle value.
-//         */
-//         setRotationAngle(newAngle: number): this;
-
-//         /**
-//          * Sets the rotation origin value.
-//          */
-//         setRotationOrigin(newOrigin: string): this;
-//     }
-// }
 
 import { Flight, AircraftType } from './Flight';
 import { FlightDB } from './FlightDB';
 import { MapMessage } from './Types';
 import { AttackType, FlightAttack } from './FlightAttack';
 
-// export enum AircraftType {
-//     UNKNOWN = 0,
-//     CARGO,
-//     PLANE,
-//     JET,
-//     TURBOPROP,
-//     MEDIUM,
-//     LIGHT,
-//     SUPER_LIGHT,
-//     GLIDER,
-//     HELICOPTER,
-//     ULM,
-//     MILITARY,
-//     SAMU,
-//     GROUND_VEHICLE,
-//     DRONE,
-// }
 
 
 const unknown_img = L.icon({iconUrl: URL.unknown,iconSize: [30, 30],iconAnchor: [15, 15],});

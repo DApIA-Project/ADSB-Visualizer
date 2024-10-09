@@ -34,6 +34,7 @@
     "chart.js": "^4.2.1",
     "leaflet": "^1.9.3",
     "leaflet-rotatedmarker": "^0.2.0",
+    "maplibre-gl": "^4.7.1",
     "parcel-bundler": "^1.12.5",
     "zlib": "^1.0.5"
   }

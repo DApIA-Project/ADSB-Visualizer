@@ -15,6 +15,7 @@ export enum AttackType {
     REPLAY = 2
 }
 
+let replay_icao = 0
 
 // |====================================================================================================================
 // | ANOMALY GENERATION
@@ -201,6 +202,7 @@ export class FlightAttack {
 
 
     public create_replay(lat: number, lon: number) {
+        replay_icao ++;
         let data:MultiADSBMessage = this.replay_db[this.ith_replay]
 
 
@@ -218,6 +220,7 @@ export class FlightAttack {
         data.timestamp = set_start_timestamp(data.timestamp, timestamp);
 
         let flight = new Flight();
+        data.icao24 = "rep"+replay_icao.toString().padStart(4, '0');
         flight.setAttribute(data)
         this.flightDB.addFlight(flight);
 
@@ -243,15 +246,10 @@ export class FlightAttack {
     }
 
     public make_saturation(flight_hash:number) {
-        console.log(flight_hash);
-
         let flight = this.flightDB.findFlight(flight_hash);
-        console.log(flight);
-
         if (flight.getTagsHashes().length > 1) {
             return;// already saturated
         }
-        console.log("ok");
 
         let time = Math.floor(this.timeManager.getTimestamp());
         let i = flight.getIndiceAtTime(time);
@@ -276,7 +274,7 @@ export class FlightAttack {
             for (let j = 0; j < deviant_data.length; j++) {
                 flight.insert_message_for_saturation(t,
                     deviant_data[j][0][ith], deviant_data[j][1][ith], deviant_data[j][2][ith]);
-                flight.setTag(t, flight["icao24"]+"_"+((j+1).toString()))
+                flight.setTag(t, (j+1).toString())
             }
         }
 
