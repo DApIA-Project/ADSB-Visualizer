@@ -1,7 +1,4 @@
-
-export const replays = [
-    require("url:../assets/data/replays/2022-01-01_07-40-16_SAMU31_39ac45.csv"),
-    require("url:../assets/data/replays/2022-01-01_14-05-06_IBB94GT_346398.csv"),
+export const replays = [require("url:../assets/data/replays/2022-01-01_07-40-16_SAMU31_39ac45.csv"),
     require("url:../assets/data/replays/2022-01-01_21-40-18_DLH11C_3c66b6.csv"),
     require("url:../assets/data/replays/2022-01-02_13-00-34_AFR48NP_3950cf.csv"),
     require("url:../assets/data/replays/2022-01-02_18-58-44_AFR64ZR_39b16a.csv"),
@@ -21,7 +18,6 @@ export const replays = [
     require("url:../assets/data/replays/2022-01-02_07-39-20_AFR59AA_392ae2.csv"),
     require("url:../assets/data/replays/2022-01-02_13-13-16_AFR7512_3950ce.csv"),
     require("url:../assets/data/replays/2022-01-03_01-40-07_SAMU31_39ac45.csv"),
-    require("url:../assets/data/replays/2022-01-03_14-33-17_FHOLO_39b96e.csv"),
     require("url:../assets/data/replays/2022-01-04_06-39-38_EJU797D_440128.csv"),
     require("url:../assets/data/replays/2022-01-04_12-38-44_FHJAT_39a413.csv"),
     require("url:../assets/data/replays/2022-01-01_11-15-36_DLH62J_3c6745.csv"),
@@ -39,7 +35,6 @@ export const replays = [
     require("url:../assets/data/replays/2022-01-03_11-11-05_SAMU31_39ac45.csv"),
     require("url:../assets/data/replays/2022-01-03_16-06-25_NAK67N_39b40a.csv"),
     require("url:../assets/data/replays/2022-01-04_09-03-19_AIB45XB_3c1230.csv"),
-    require("url:../assets/data/replays/2022-01-04_12-57-34_IBB94GT_346398.csv"),
     require("url:../assets/data/replays/2022-01-01_12-24-51_DLH67X_3c66aa.csv"),
     require("url:../assets/data/replays/2022-01-01_16-20-36_DLH38M_3c66e5.csv"),
     require("url:../assets/data/replays/2022-01-02_11-22-26_FHJAT_39a413.csv"),
@@ -54,5 +49,4 @@ export const replays = [
     require("url:../assets/data/replays/2022-01-02_18-33-14_AFR56LN_394c13.csv"),
     require("url:../assets/data/replays/2022-01-03_12-28-07_FHRDG_39c466.csv"),
     require("url:../assets/data/replays/2022-01-03_16-31-22_AFR73KY_392aef.csv"),
-    require("url:../assets/data/replays/2022-01-04_11-45-43_RTO086_398627.csv"),
 ];

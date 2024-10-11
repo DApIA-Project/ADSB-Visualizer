@@ -749,7 +749,9 @@ export class FlightDB {
         return this.hash_table[hash]
     }
 
-
+    getAllHashes() : number[]{
+        return Object.keys(this.hash_table).map(Number)
+    }
 
     public getFlightWithICAO(icao : string) : Flight{
         for (const flight of this.flights) {

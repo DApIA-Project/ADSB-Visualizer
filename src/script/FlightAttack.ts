@@ -169,7 +169,7 @@ export class FlightAttack {
         let selected_flight = this.map.getHighlightedFlight();
         if (selected_flight != -1){
 
-            console.log(this.selected_attack);
+            console.log(selected_flight, this.flightDB.getAllHashes());
 
             if (this.selected_attack == AttackType.SPOOFING) {
                 this.make_spoofing(selected_flight);
