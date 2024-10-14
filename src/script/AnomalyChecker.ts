@@ -67,11 +67,13 @@ export class AnomalyChecker {
 
                 for (let i = 0; i < data.length; i++) {
                     let message = result.data[i];
+                    console.log(message);
+
 
                     let flight_hash = messages.flight_hash[i];
                     let flight_t = messages.flight_t[i];
 
-                    let anomaly = (message.replay || message.flooding || message.spoofing);
+                    let anomaly = (message.anomaly != 0);
                     let flight = this.database.findFlight(flight_hash)
 
                     if (flight == undefined) continue;
