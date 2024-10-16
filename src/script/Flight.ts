@@ -1,9 +1,8 @@
 import * as L from 'leaflet';
 import * as U from './Utils';
-import { ADSBMessage, MapMessage, MultiADSBMessage } from './Types';
+import {ADSBMessage, MapMessage, MultiADSBMessage} from './Types';
 // manage the data of a flight
 // - store all the data of a flight
-
 
 
 // array of 3 numbers
@@ -24,8 +23,6 @@ fetch(aircraft_file).then(response => response.text()).then(text => {
         document.getElementById("start-screen").style.display = "none";
     }, 500);
 });
-
-
 
 
 export enum AircraftType {
@@ -85,8 +82,6 @@ function numberToType(number: number): AircraftType {
 }
 
 
-
-
 function computeAircraftType(callsign: string, icao24: string): AircraftType {
     if (callsign.includes("SAMU"))
         return AircraftType.SAMU;
@@ -134,8 +129,6 @@ export class Flight {
     private last_check_request: number = -1;
 
 
-
-
     setAttribute(a: MultiADSBMessage) {
         this.time = a.timestamp;
         this.icao24 = a.icao24;
@@ -161,8 +154,7 @@ export class Flight {
         if (a.anomaly != undefined) {
             this.anomaly = a.anomaly;
             this.last_anomaly = this.anomaly.length - 1;
-        }
-        else {
+        } else {
             this.anomaly = new Array(this.time.length).fill(undefined);
         }
     }
@@ -195,7 +187,7 @@ export class Flight {
         this.anomaly.push(undefined);
     }
 
-    slice(start, end){
+    slice(start, end) {
         this.time = this.time.slice(start, end);
         this.lat = this.lat.slice(start, end);
         this.lon = this.lon.slice(start, end);
@@ -213,20 +205,20 @@ export class Flight {
         this.anomaly = this.anomaly.slice(start, end);
     }
 
-    insert_message_for_saturation(i, lat, lon, track){
-        this.time.splice(i, 0, this.time[i-1]);
+    insert_message_for_saturation(i, lat, lon, track) {
+        this.time.splice(i, 0, this.time[i - 1]);
         this.lat.splice(i, 0, lat);
         this.lon.splice(i, 0, lon);
-        this.velocity.splice(i, 0, this.velocity[i-1]);
+        this.velocity.splice(i, 0, this.velocity[i - 1]);
         this.heading.splice(i, 0, track);
-        this.vertical_rate.splice(i, 0, this.vertical_rate[i-1]);
-        this.callsign.splice(i, 0, this.callsign[i-1]);
-        this.on_ground.splice(i, 0, this.on_ground[i-1]);
-        this.alert.splice(i, 0, this.alert[i-1]);
-        this.spi.splice(i, 0, this.spi[i-1]);
-        this.squawk.splice(i, 0, this.squawk[i-1]);
-        this.baro_altitude.splice(i, 0, this.baro_altitude[i-1]);
-        this.geo_altitude.splice(i, 0, this.geo_altitude[i-1]);
+        this.vertical_rate.splice(i, 0, this.vertical_rate[i - 1]);
+        this.callsign.splice(i, 0, this.callsign[i - 1]);
+        this.on_ground.splice(i, 0, this.on_ground[i - 1]);
+        this.alert.splice(i, 0, this.alert[i - 1]);
+        this.spi.splice(i, 0, this.spi[i - 1]);
+        this.squawk.splice(i, 0, this.squawk[i - 1]);
+        this.baro_altitude.splice(i, 0, this.baro_altitude[i - 1]);
+        this.geo_altitude.splice(i, 0, this.geo_altitude[i - 1]);
         this.tag.splice(i, 0, "0");
         this.anomaly.splice(i, 0, undefined);
     }
@@ -237,21 +229,26 @@ export class Flight {
             this.last_anomaly = indice;
         }
     }
+
     setTag(indice: number, value: string) {
         this.tag[indice] = value;
         this.unique_tag.add(value);
     }
+
     getLastAnomalyIndice(): number {
         return this.last_anomaly;
     }
-    getAnomaly(i=undefined): boolean {
-        if (i==undefined) i = this.last_anomaly;
+
+    getAnomaly(i = undefined): boolean {
+        if (i == undefined) i = this.last_anomaly;
         if (i == -1) return undefined;
         return this.anomaly[i];
     }
+
     getLastCheckRequest(): number {
         return this.last_check_request;
     }
+
     setLastCheckRequest(timestamp: number) {
         this.last_check_request = timestamp;
     }
@@ -295,8 +292,7 @@ export class Flight {
             m = Math.floor((i + j) / 2);
             if (this.time[m] < time) {
                 i = m + 1;
-            }
-            else {
+            } else {
                 j = m;
             }
         }
@@ -317,6 +313,17 @@ export class Flight {
             j++;
         }
         return [i, j];
+    }
+
+    getMessages(timestamp?: number): ADSBMessage[] {
+        const startTimestamp = timestamp ?? this.getStartTimestamp()
+        const [start, end] = this.getIndicesAtTimeRange(startTimestamp, this.getEndTimestamp())
+        const messages: ADSBMessage[] = []
+        for (let i = start; i <= end; i++) {
+            const message = this.getMessage(i)
+            messages.push(message)
+        }
+        return messages
     }
 
     getMessage(i: number): ADSBMessage {
@@ -340,7 +347,6 @@ export class Flight {
     }
 
 
-
     getLatLngs(): [number, number][] {
         let latlngs: [number, number][] = [];
         for (let i = 0; i < this.lat.length; i++) {
@@ -350,6 +356,7 @@ export class Flight {
         }
         return latlngs;
     }
+
     getbounds(): L.LatLngBounds {
         let latlngs = this.getLatLngs();
         let bounds = L.latLngBounds(latlngs);
@@ -357,12 +364,10 @@ export class Flight {
     }
 
 
-
-
-
     getStartTimestamp(): number {
         return this.start_time;
     }
+
     getEndTimestamp(): number {
         return this.end_time;
     }
@@ -454,11 +459,14 @@ export class Flight {
         }
     }
 
-    public getAttributeProfile(attribute: string, timestamp: number, min_timestamp_history: number): { timestamps: number[], values: number[] } {
+    public getAttributeProfile(attribute: string, timestamp: number, min_timestamp_history: number): {
+        timestamps: number[],
+        values: number[]
+    } {
         let [i, j] = this.getIndicesAtTimeRange(timestamp - min_timestamp_history, timestamp);
-        if (j == -1) return { timestamps: [], values: [] };
+        if (j == -1) return {timestamps: [], values: []};
 
-        let profile: { timestamps: number[], values: number[] } = { timestamps: [], values: [] };
+        let profile: { timestamps: number[], values: number[] } = {timestamps: [], values: []};
         for (i; i < j; i++) {
             profile.timestamps.push(this.time[i]);
             profile.values.push(this[attribute][i]);
@@ -470,6 +478,7 @@ export class Flight {
     public getType(): AircraftType {
         return this.type;
     }
+
     public spoof_icao(new_icao: string, callsign: string = "") {
         this.icao24 = new_icao;
         this.callsign.fill(callsign);

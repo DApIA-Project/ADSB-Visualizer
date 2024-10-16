@@ -5,12 +5,13 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "rm -rf dist && parcel serve ./src/index.html -p 3032",
+    "start:dev": "parcel serve ./src/index.html -p 3032",
     "build": "rm -rf public && parcel build ./src/index.html --dist-dir public --public-url ./ "
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@parcel/transformer-sass": "^2.0.0-rc.0",
+    "@parcel/transformer-sass": "^2.12.0",
     "@parcel/validator-typescript": "^2.8.3",
     "@types/animejs": "^3.1.7",
     "@types/leaflet": "^1.9.2",
@@ -27,6 +28,8 @@
     "util": "^0.12.5"
   },
   "dependencies": {
+    "commons-math-interpolation": "^2.2.3",
+    "@dapia-project/alteration-ts": "^0.0.2",
     "@dapia-project/recording-streamer": "^2.4.0",
     "@kurkle/color": "^0.3.2",
     "animejs": "^3.0.1",
