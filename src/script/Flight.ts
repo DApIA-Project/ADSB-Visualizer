@@ -121,6 +121,7 @@ export class Flight {
     private end_time: number = 0;
     private anomaly: Array<boolean> = Array();
     private tag: Array<string> = Array();
+    private debug: { [key: string]: any[] } = {};
     public unique_tag: Set<string> = new Set();
 
     private hash: number = 0;
@@ -233,6 +234,15 @@ export class Flight {
     setTag(indice: number, value: string) {
         this.tag[indice] = value;
         this.unique_tag.add(value);
+    }
+
+    setDebugData(indice: number, data: { [key: string]: any }) {
+        for (let key in data) {
+            if (this.debug[key] == undefined) {
+                this.debug[key] = new Array(this.time.length).fill(undefined);
+            }
+            this.debug[key][indice] = data[key];
+        }
     }
 
     getLastAnomalyIndice(): number {

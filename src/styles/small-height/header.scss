@@ -9,3 +9,25 @@ header>*{
     padding: 0 10px;
     font-size: 4vh;
 }
+
+
+header>nav{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 100%;
+    gap: 2vh;
+}
+
+header>nav>div{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 3vh;
+    gap: 1vh;
+}
+
+header>nav>div>.switch{
+    height: 4vh;
+    width: 8vh;
+}

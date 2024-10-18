@@ -2,8 +2,8 @@ import axios from 'axios';
 import { ApiRequest, ApiResponse } from "./Types";
 import { FlightDB } from './FlightDB';
 
-
 export class AnomalyChecker {
+
 
     private database:FlightDB
     private server_inactivity:number = 0;
@@ -51,7 +51,6 @@ export class AnomalyChecker {
                     document.getElementById("refresh-server-status").style.display = "block";
 
                 }
-
                 console.log(e);
                 for (let i = 0; i < messages.data.length; i++) {
                     let flight_hash = messages.flight_hash[i];
@@ -67,7 +66,6 @@ export class AnomalyChecker {
 
                 for (let i = 0; i < data.length; i++) {
                     let message = result.data[i];
-                    console.log(message);
 
 
                     let flight_hash = messages.flight_hash[i];
@@ -80,6 +78,15 @@ export class AnomalyChecker {
 
                     flight.setAnomaly(flight_t, anomaly)
                     flight.setTag(flight_t, message.tag)
+
+                    var debug_data = {}
+                    for (let key in message) {
+                        if (key.startsWith("debug")) {
+                            debug_data[key] = message[key];
+                        }
+                    }
+                    flight.setDebugData(flight_t, debug_data)
+
                     anomaly_updated = true;
                     document.getElementById("server-status").innerText = "check_circle";
                     document.getElementById("server-status").className = "btn-valid material-symbols-outlined"

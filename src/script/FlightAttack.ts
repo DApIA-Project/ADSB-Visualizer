@@ -100,6 +100,8 @@ export class FlightAttack {
     private timeManager: TimeManager;
     private flightDB: FlightDB;
 
+    private is_open:boolean = false;
+
 
     constructor() {
         this.html_attacks = Array.from(document.querySelectorAll('#window-flight-attack .attack'));
@@ -112,6 +114,15 @@ export class FlightAttack {
 
         // generate seed for ith_replay
         this.ith_replay = Math.floor(Math.random() * this.replay_db.length);
+    }
+
+    public open(){
+        document.getElementById("window-flight-attack").style.display = "flex";
+        this.is_open = true;
+    }
+    public close(){
+        document.getElementById("window-flight-attack").style.display = "none";
+        this.is_open = false;
     }
 
 
@@ -168,6 +179,7 @@ export class FlightAttack {
     }
 
     public make_attack_on_change() {
+        if (!this.is_open) return;
         let selected_flight = this.map.getHighlightedFlight();
         if (selected_flight != -1) {
 
@@ -183,6 +195,7 @@ export class FlightAttack {
     }
 
     public map_clicked(event: L.LeafletMouseEvent) {
+        if (!this.is_open) return;
         if (this.selected_attack == AttackType.REPLAY) {
             this.create_replay(event.latlng.lat, event.latlng.lng);
         }
@@ -254,7 +267,7 @@ export class FlightAttack {
                 saturation({
                     scope: and(always, target(flight.icao24)),
                     aircrafts: 6,
-                    angleMax: 45
+                    angleMax: 45,
                 })
             ]
         })

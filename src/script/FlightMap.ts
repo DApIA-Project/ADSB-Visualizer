@@ -1,7 +1,10 @@
-
+// @ts-nocheck
+import * as PIXI from 'pixi.js';
+import 'leaflet-pixi-overlay';
 import * as L from 'leaflet';
 import "leaflet-rotatedmarker";
 import "leaflet/dist/leaflet.css";
+// import PixiOverlay from ""
 
 import { MultiColorPolyLine } from './MultiColorPolyLine';
 
@@ -18,6 +21,7 @@ import { Flight, AircraftType } from './Flight';
 import { FlightDB } from './FlightDB';
 import { MapMessage } from './Types';
 import { AttackType, FlightAttack } from './FlightAttack';
+import { Debugger } from './Debugger';
 
 
 
@@ -89,7 +93,7 @@ const flip_icon_map = {
     [AircraftType.UNKNOWN]: unknown_img_flip,
 }
 
-
+const cross_svg=`<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><line stroke-width="10" x1="0" y1="0" x2="100" y2="100" stroke="black" /><line stroke-width="10" x1="0" y1="100" x2="100" y2="0" stroke="black" /></svg>`
 
 
 export class FlightMap {
@@ -98,24 +102,101 @@ export class FlightMap {
 
     private database:FlightDB;
     private flightAttack:FlightAttack;
+    private debug:Debugger;
 
     private polylines: Map<number, MultiColorPolyLine> = new Map();
     private markers: Map<number, L.Marker> = new Map();
+    private debug_markers: Map<number, Array<L.Marker>> = new Map();
 
     private highlighted_flight: number = -1;
 
     private on_click_callbacks: Array<(e: L.LeafletMouseEvent) => void> = [];
 
     constructor() {
+
         this.map = L.map('map', {
             center: [0, 0],
             zoom: 2,
             keyboard: false,
+            preferCanvas: true
         });
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: 'Map data © <a href="https://openstreetmap.org">OpenStreetMap</a> contributors'
         }).addTo(this.map);
+
+        const markerTexture = PIXI.Texture.from(cross_svg);
+        const markerLatLng = [47.633331, 6.86667];
+        const marker = new PIXI.Sprite(markerTexture);
+
+        const line = new PIXI.Graphics();
+        // let line_from = project(markerLatLng);
+        // let line_to = project([48.866667, 2.333333]);
+        // line.moveTo(line_from.x, line_from.y);
+        // line.lineTo(line_to.x, line_to.y);
+        // line.endFill();
+
+
+
+        marker.anchor.set(0.5, 0.5);
+        marker.scale.set(1);
+
+        const pixiContainer = new PIXI.Container();
+
+
+        pixiContainer.addChild(line);
+
+        let firstDraw = true;
+        let prevZoom;
+
+        const pixiOverlay = L.pixiOverlay((utils) => {
+            const zoom = utils.getMap().getZoom();
+            const container = utils.getContainer();
+            const renderer = utils.getRenderer();
+            const project = utils.latLngToLayerPoint;
+            const scale = utils.getScale();
+
+            if (firstDraw) {
+                let markerCoords = project(markerLatLng);
+                marker.x = markerCoords.x;
+                marker.y = markerCoords.y;
+                pixiContainer.addChild(marker);
+
+                markerCoords = project([48.633331, 6.86667]);
+                marker.x = markerCoords.x;
+                marker.y = markerCoords.y;
+                pixiContainer.addChild(marker);
+
+                const line_from = project(markerLatLng);
+                const line_to = project([48.866667, 2.333333]);
+                const line_to2 = project([49, 2.333333]);
+
+                line.lineStyle(1, 0x000000, 1, 0.5);
+                line.moveTo(line_from.x, line_from.y);
+                line.lineTo(line_to.x, line_to.y);
+                line.lineStyle(1, 0xff0000, 1, 0.5);
+                line.lineTo(line_to2.x, line_to2.y);
+
+
+                line.lineStyle(0, 0x000000, 1, 0.5);
+                line.beginFill(0xffffff);
+                line.drawCircle(line_from.x, line_from.y, 0.5);
+                line.drawCircle(line_to.x, line_to.y, 0.5);
+                line.drawCircle(line_to2.x, line_to2.y, 0.5);
+                line.endFill();
+            }
+
+            if (firstDraw || prevZoom !== zoom) {
+                // marker.scale.set(1 / scale);
+            }
+
+
+            firstDraw = false;
+            prevZoom = zoom;
+            renderer.render(container);
+        }, pixiContainer);
+
+        pixiOverlay.addTo(this.map);
 
         this.map.on('click', (e) => {
             for (let callback of this.on_click_callbacks) {
@@ -141,6 +222,9 @@ export class FlightMap {
     }
     public setFlightAttack(fa:FlightAttack) : void{
         this.flightAttack = fa;
+    }
+    public setDebugger(debug:Debugger) : void{
+        this.debug = debug;
     }
 
     public fitBounds(box:L.LatLngBounds)
@@ -210,11 +294,6 @@ export class FlightMap {
 
         for (const traj of data) {
             let trajectory_hash = traj.flight_hash + traj.tag_hash;
-            // let color = traj.anomaly == undefined ? BASE_COLOR : traj.anomaly ? ANOMALY_COLOR : VALID_COLOR;
-            // let display_opt = {
-            //     color: color,
-
-            // }
 
             let display_opt = {
                 color: new Array(traj.coords.length).fill(BASE_COLOR),
@@ -227,7 +306,6 @@ export class FlightMap {
                     else display_opt.color[i] = VALID_COLOR;
                 }
             }
-
 
             visible_flight.set(trajectory_hash, true);
             if (!this.polylines.has(trajectory_hash)){

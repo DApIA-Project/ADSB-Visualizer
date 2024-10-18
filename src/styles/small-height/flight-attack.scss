@@ -1,0 +1,64 @@
+#window-flight-attack{
+    top: 0vh;
+    left: 0vh;
+    width: 50vh;
+    height: 30vh;
+
+    transform: translate(4vh, 10vh);
+
+}
+
+#window-flight-attack>h1{
+    font-size: 3vh;
+    height: 6vh;
+    width: 46vh;
+    padding: 0 2vh;
+}
+#window-flight-attack>div{
+    height: 24vh;
+    width: 100%;
+}
+
+#window-flight-attack > h1 > div{
+    font-size: 4vh;
+}
+
+#window-flight-attack > h1 > div > *{
+    margin: 0.5vh;
+    padding: 0.5vh;
+}
+
+
+#window-flight-attack>h1 span{
+    font-size: 2vh;
+}
+
+#window-flight-attack a{
+    font-size: 2.5vh;
+}
+#window-flight-attack img{
+    width: 10vh;
+    border-radius: 2vh;
+    padding: 0vh;
+    border: 0.5vh solid $backgound-2;
+}
+
+#window-flight-attack a.selected>img{
+    border: 0.5vh solid $secondary;
+}
+
+
+
+#window-flight-attack .stats{
+    gap: 1vh;
+    font-size: 2.5vh;
+}
+
+#window-flight-attack .stats>div{
+    gap: 0.5vh;
+}
+
+#window-flight-attack .stats .btn{
+    padding: 1vh;
+    font-size: 1vh;
+}
