@@ -149,54 +149,54 @@ export class FlightMap {
         let firstDraw = true;
         let prevZoom;
 
-        const pixiOverlay = L.pixiOverlay((utils) => {
-            const zoom = utils.getMap().getZoom();
-            const container = utils.getContainer();
-            const renderer = utils.getRenderer();
-            const project = utils.latLngToLayerPoint;
-            const scale = utils.getScale();
+        // const pixiOverlay = L.pixiOverlay((utils) => {
+        //     const zoom = utils.getMap().getZoom();
+        //     const container = utils.getContainer();
+        //     const renderer = utils.getRenderer();
+        //     const project = utils.latLngToLayerPoint;
+        //     const scale = utils.getScale();
 
-            if (firstDraw) {
-                let markerCoords = project(markerLatLng);
-                marker.x = markerCoords.x;
-                marker.y = markerCoords.y;
-                pixiContainer.addChild(marker);
+        //     if (firstDraw) {
+        //         let markerCoords = project(markerLatLng);
+        //         marker.x = markerCoords.x;
+        //         marker.y = markerCoords.y;
+        //         pixiContainer.addChild(marker);
 
-                markerCoords = project([48.633331, 6.86667]);
-                marker.x = markerCoords.x;
-                marker.y = markerCoords.y;
-                pixiContainer.addChild(marker);
+        //         markerCoords = project([48.633331, 6.86667]);
+        //         marker.x = markerCoords.x;
+        //         marker.y = markerCoords.y;
+        //         pixiContainer.addChild(marker);
 
-                const line_from = project(markerLatLng);
-                const line_to = project([48.866667, 2.333333]);
-                const line_to2 = project([49, 2.333333]);
+        //         const line_from = project(markerLatLng);
+        //         const line_to = project([48.866667, 2.333333]);
+        //         const line_to2 = project([49, 2.333333]);
 
-                line.lineStyle(1, 0x000000, 1, 0.5);
-                line.moveTo(line_from.x, line_from.y);
-                line.lineTo(line_to.x, line_to.y);
-                line.lineStyle(1, 0xff0000, 1, 0.5);
-                line.lineTo(line_to2.x, line_to2.y);
-
-
-                line.lineStyle(0, 0x000000, 1, 0.5);
-                line.beginFill(0xffffff);
-                line.drawCircle(line_from.x, line_from.y, 0.5);
-                line.drawCircle(line_to.x, line_to.y, 0.5);
-                line.drawCircle(line_to2.x, line_to2.y, 0.5);
-                line.endFill();
-            }
-
-            if (firstDraw || prevZoom !== zoom) {
-                // marker.scale.set(1 / scale);
-            }
+        //         line.lineStyle(1, 0x000000, 1, 0.5);
+        //         line.moveTo(line_from.x, line_from.y);
+        //         line.lineTo(line_to.x, line_to.y);
+        //         line.lineStyle(1, 0xff0000, 1, 0.5);
+        //         line.lineTo(line_to2.x, line_to2.y);
 
 
-            firstDraw = false;
-            prevZoom = zoom;
-            renderer.render(container);
-        }, pixiContainer);
+        //         line.lineStyle(0, 0x000000, 1, 0.5);
+        //         line.beginFill(0xffffff);
+        //         line.drawCircle(line_from.x, line_from.y, 0.5);
+        //         line.drawCircle(line_to.x, line_to.y, 0.5);
+        //         line.drawCircle(line_to2.x, line_to2.y, 0.5);
+        //         line.endFill();
+        //     }
 
-        pixiOverlay.addTo(this.map);
+        //     if (firstDraw || prevZoom !== zoom) {
+        //         // marker.scale.set(1 / scale);
+        //     }
+
+
+        //     firstDraw = false;
+        //     prevZoom = zoom;
+        //     renderer.render(container);
+        // }, pixiContainer);
+
+        // pixiOverlay.addTo(this.map);
 
         this.map.on('click', (e) => {
             for (let callback of this.on_click_callbacks) {

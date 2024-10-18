@@ -258,7 +258,7 @@ export class FlightAttack {
         this.map.update(this.timeManager.getTimestamp(), this.timeManager.getTimestamp());
     }
 
-    public make_saturation(flight_hash: number) {
+    public make_saturation_(flight_hash: number) {
         let flight = this.flightDB.findFlight(flight_hash);
         if (flight.getTagsHashes().length > 1) {
             return;// already saturated
@@ -294,7 +294,7 @@ export class FlightAttack {
         this.map.update(this.timeManager.getTimestamp(), this.timeManager.getTimestamp());
     }
 
-    public make_saturation_FDIT(flight_hash: number) {
+    public make_saturation(flight_hash: number) {
         let flight = this.flightDB.findFlight(flight_hash);
         if (flight.getTagsHashes().length > 1) {
             return;// already saturated
