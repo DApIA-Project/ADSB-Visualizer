@@ -26,6 +26,7 @@ let replay_icao = 0
 function radians(degrees: number): number {
     return degrees * Math.PI / 180;
 }
+
 function degrees(radians: number): number {
     return radians * 180 / Math.PI;
 }
@@ -33,9 +34,11 @@ function degrees(radians: number): number {
 function x_rotation(x: number, y: number, z: number, a: number): [number, number, number] {
     return [x, y * Math.cos(-a) - z * Math.sin(-a), y * Math.sin(-a) + z * Math.cos(-a)];
 }
+
 function y_rotation(x: number, y: number, z: number, a: number): [number, number, number] {
     return [x * Math.cos(-a) + z * Math.sin(-a), y, -x * Math.sin(-a) + z * Math.cos(-a)];
 }
+
 function z_rotation(x: number, y: number, z: number, a: number): [number, number, number] {
     return [x * Math.cos(a) - y * Math.sin(a), x * Math.sin(a) + y * Math.cos(a), z];
 }
@@ -46,6 +49,7 @@ function spherical_to_cartesian(lat: number, lon: number): [number, number, numb
     let z = Math.sin(radians(lat));
     return [x, y, z];
 }
+
 function cartesian_to_spherical(x: number, y: number, z: number): [number, number] {
     let lat = degrees(Math.asin(z));
     let lon = degrees(Math.atan2(y, x));
@@ -97,6 +101,7 @@ export class FlightAttack {
     private timeManager: TimeManager;
     private flightDB: FlightDB;
 
+    private is_open:boolean = false;
 
 
     constructor() {
@@ -112,6 +117,15 @@ export class FlightAttack {
         this.ith_replay = Math.floor(Math.random() * this.replay_db.length);
     }
 
+    public open(){
+        document.getElementById("window-flight-attack").style.display = "flex";
+        this.is_open = true;
+    }
+    public close(){
+        document.getElementById("window-flight-attack").style.display = "none";
+        this.is_open = false;
+    }
+
 
     private load_replays() {
         for (const replay of replays) {
@@ -124,42 +138,41 @@ export class FlightAttack {
     }
 
 
-
     public setMap(map: FlightMap) {
         this.map = map;
         this.map.addOnClickListener((event) => this.map_clicked(event));
     }
+
     public setTimeManager(timeManager: TimeManager) {
         this.timeManager = timeManager;
     }
+
     public setFlightDB(flightDB: FlightDB) {
         this.flightDB = flightDB;
     }
 
 
-
-
     public select_attack(i: number) {
         if (i != AttackType.NONE &&
-            this.html_attacks[i].classList.contains('selected'))
-        {
+            this.html_attacks[i].classList.contains('selected')) {
             this.html_attacks[i].classList.remove('selected');
             this.selected_attack = AttackType.NONE;
-        }
-        else {
+        } else {
             for (const element of this.html_attacks) {
                 element.classList.remove('selected');
             }
             this.selected_attack = i;
-            if (i != AttackType.NONE){
+            if (i != AttackType.NONE) {
                 this.html_attacks[i].classList.add('selected');
                 this.make_attack_on_change();
             }
         }
     }
+
     public get_selected_attack() {
         return this.selected_attack;
     }
+
     private unselect_all() {
         for (const element of this.html_attacks) {
             element.classList.remove('selected');
@@ -167,15 +180,15 @@ export class FlightAttack {
     }
 
     public make_attack_on_change() {
+        if (!this.is_open) return;
         let selected_flight = this.map.getHighlightedFlight();
-        if (selected_flight != -1){
+        if (selected_flight != -1) {
 
             console.log(selected_flight, this.flightDB.getAllHashes());
 
             if (this.selected_attack == AttackType.SPOOFING) {
                 this.make_spoofing(selected_flight);
-            }
-            else if (this.selected_attack == AttackType.SATURATION) {
+            } else if (this.selected_attack == AttackType.SATURATION) {
                 console.log("saturation");
                 this.make_saturation(selected_flight);
             }
@@ -183,6 +196,7 @@ export class FlightAttack {
     }
 
     public map_clicked(event: L.LeafletMouseEvent) {
+        if (!this.is_open) return;
         if (this.selected_attack == AttackType.REPLAY) {
             this.create_replay(event.latlng.lat, event.latlng.lng);
         }
@@ -192,8 +206,7 @@ export class FlightAttack {
 
         if (this.selected_attack == AttackType.SPOOFING) {
             this.make_spoofing(flight_hash);
-        }
-        else if (this.selected_attack == AttackType.SATURATION) {
+        } else if (this.selected_attack == AttackType.SATURATION) {
 
             this.make_saturation(flight_hash);
         }
@@ -203,8 +216,8 @@ export class FlightAttack {
 
 
     public create_replay(lat: number, lon: number) {
-        replay_icao ++;
-        let data:MultiADSBMessage = this.replay_db[this.ith_replay]
+        replay_icao++;
+        let data: MultiADSBMessage = this.replay_db[this.ith_replay]
 
 
         this.ith_replay++;
@@ -221,32 +234,31 @@ export class FlightAttack {
         data.timestamp = set_start_timestamp(data.timestamp, timestamp);
 
         let flight = new Flight();
-        data.icao24 = "rep"+replay_icao.toString().padStart(4, '0');
+        data.icao24 = "rep" + replay_icao.toString().padStart(4, '0');
         flight.setAttribute(data)
         this.flightDB.addFlight(flight);
 
         this.flightDB.recalculate_db();
         this.flightDB.recalculate_display();
-        this.map.update(this.timeManager. getTimestamp(), this.timeManager.getTimestamp());
+        this.map.update(this.timeManager.getTimestamp(), this.timeManager.getTimestamp());
     }
 
-    public make_spoofing(flight_hash:number) {
+    public make_spoofing(flight_hash: number) {
 
         let flight = this.flightDB.findFlight(flight_hash);
 
-        if (flight.getType() != AircraftType.SAMU){
+        if (flight.getType() != AircraftType.SAMU) {
             flight.spoof_icao(SAMU[Math.floor(Math.random() * SAMU.length)]);
-        }
-        else{
+        } else {
             flight.spoof_icao(MEDIUM[Math.floor(Math.random() * MEDIUM.length)]);
         }
 
         this.flightDB.recalculate_db();
         this.flightDB.recalculate_display();
-        this.map.update(this.timeManager. getTimestamp(), this.timeManager.getTimestamp());
+        this.map.update(this.timeManager.getTimestamp(), this.timeManager.getTimestamp());
     }
 
-    public make_saturation(flight_hash:number) {
+    public make_saturation(flight_hash: number) {
         let flight = this.flightDB.findFlight(flight_hash);
         if (flight.getTagsHashes().length > 1) {
             return;// already saturated

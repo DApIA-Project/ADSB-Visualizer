@@ -1,3 +1,52 @@
 
 
 
+#window-flight-attack{
+
+    background-color: rgba($backgound-1, 0.8);
+
+    top: 0vh;
+    left: 0vw;
+}
+
+
+#window-flight-attack>div{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+}
+
+
+
+#window-flight-attack a{
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+
+}
+
+#window-flight-attack img{
+    background-color: $backgound-2;
+}
+
+#window-flight-attack a.selected>img{
+    border: 2px solid $secondary;
+}
+
+#window-flight-attack img:hover{
+    background-color: $backgound-1;
+    border-color: $backgound-1;
+}
+
+
+#window-flight-attack .stats{
+    justify-content: center !important;
+}
+
+#window-flight-attack .stats>div{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+

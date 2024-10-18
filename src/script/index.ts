@@ -8,6 +8,7 @@ import { FlightInfoDisplayer } from './FlightDataDisplayer';
 import { Streamer } from './Streamer';
 import { AnomalyChecker } from './AnomalyChecker';
 import { FlightAttack } from './FlightAttack';
+import { Debugger } from './Debugger';
 
 
 
@@ -37,10 +38,13 @@ function onPageLoad() {
 
     let flightAttack = new FlightAttack();
 
+    let debug = new Debugger();
+
 
 
     map.setFlightDB(flight_db);
     map.setFlightAttack(flightAttack);
+    map.setDebugger(debug);
 
     flight_db.setMap(map);
     flight_db.setTimer(timeManager);
@@ -72,5 +76,22 @@ function onPageLoad() {
     });
     // streamer.listenFemtoAvionStream();
 
-}
 
+
+    document.getElementById("show-attacks").addEventListener("change", (e) => {
+        let showAttacks = (e.target as HTMLInputElement).checked;
+        if (showAttacks) {
+            flightAttack.open();
+        } else {
+            flightAttack.close();
+        }
+    });
+    document.getElementById("show-debug").addEventListener("change", (e) => {
+        let showDebug = (e.target as HTMLInputElement).checked;
+        if (showDebug) {
+            debug.active();
+        } else {
+            debug.desactive();
+        }
+    });
+}

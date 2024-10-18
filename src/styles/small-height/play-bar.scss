@@ -4,20 +4,20 @@
     left: 50vw;
     width: 95vw;
     height: 5.5vh;
-  
+
     flex-direction: row;
-  
+
     transform: translate(-50%, calc(-100% - 5vh));
 
-    font-size: 3vh;
+    font-size: min(3vh, 16px);
 
 }
 #window-play-bar>a{
     padding: 0.7vh;
 }
-  
 
-  
+
+
 #time-speed{
     width: 4vh;
     height: 3.5vh;
@@ -51,7 +51,7 @@
     background:  $base;
 }
 #time-bar::-webkit-slider-thumb {
-    
+
     height: 0px;
     width: 0px;
     background: transparent;
