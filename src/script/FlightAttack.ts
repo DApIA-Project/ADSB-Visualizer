@@ -5,6 +5,7 @@ import Flight, { AircraftType } from "./Flight";
 import { TimeManager } from "./TimeManager";
 import { FlightDB } from "./FlightDB";
 import { MultiADSBMessage } from "./Types";
+import {always, and, Engine, saturation, target} from "@dapia-project/alteration-ts";
 
 
 
@@ -275,6 +276,65 @@ export class FlightAttack {
                 flight.insert_message_for_saturation(t,
                     deviant_data[j][0][ith], deviant_data[j][1][ith], deviant_data[j][2][ith]);
                 flight.setTag(t, (j+1).toString())
+            }
+        }
+
+        this.map.update(this.timeManager.getTimestamp(), this.timeManager.getTimestamp());
+    }
+
+    public make_saturation_FDIT(flight_hash: number) {
+        let flight = this.flightDB.findFlight(flight_hash);
+        if (flight.getTagsHashes().length > 1) {
+            return;// already saturated
+        }
+        const engine = new Engine({
+            actions: [
+                saturation({
+                    scope: and(always, target(flight.icao24)),
+                    aircrafts: 6,
+                    angleMax: 45,
+                })
+            ]
+        })
+        let time = Math.floor(this.timeManager.getTimestamp());
+        const messages = flight.getMessages(time)
+        const result = engine.run(messages.map(message => ({
+            ...message,
+            messageType: 'MSG',
+            transmissionType: 3,
+            sessionID: 0,
+            aircraftID: flight.getHash(),
+            flightID: flight.getHash(),
+            hexIdent: flight.icao24,
+            timestampGenerated: message.timestamp,
+            timestampLogged: message.timestamp,
+        })))
+        const ghosts: Map<string, number[][]> = new Map()
+        for (const message of result.recording) {
+            if (!ghosts.has(message.hexIdent)) {
+                ghosts.set(message.hexIdent, [])
+            }
+            ghosts.get(message.hexIdent).push([message.latitude, message.longitude, message.track])
+        }
+        let i = flight.getIndiceAtTime(time);
+
+        let deviant_data = [];
+        for (const [icao, coordinates] of Array.from(ghosts.entries())) {
+            if(icao !== flight.icao24) {
+                const lats = coordinates.map(coords => coords[0])
+                const lons = coordinates.map(coords => coords[1])
+                const tracks = coordinates.map(coords => coords[2])
+                deviant_data.push([lats, lons, tracks])
+            }
+        }
+
+        let length = flight["time"].length;
+        for (let t = length - 1; t >= i; t--) {
+            let ith = t - i;
+            for (let j = 0; j < deviant_data.length; j++) {
+                flight.insert_message_for_saturation(t,
+                    deviant_data[j][0][ith], deviant_data[j][1][ith], deviant_data[j][2][ith]);
+                flight.setTag(t, (j + 1).toString())
             }
         }
 
