@@ -259,6 +259,11 @@ export class FlightAttack {
     }
 
     public make_saturation(flight_hash: number) {
+        // this.make_saturation_regular(flight_hash);
+        this.make_saturation_FDIT(flight_hash);
+    }
+
+    public make_saturation_regular(flight_hash: number) {
         let flight = this.flightDB.findFlight(flight_hash);
         if (flight.getTagsHashes().length > 1) {
             return;// already saturated

@@ -305,7 +305,7 @@ export class FlightMap {
                 }
             }
 
-            this.debug_cross_cloud.addMarker(new L.LatLng(traj.coords[traj.coords.length-1][0], traj.coords[traj.coords.length-1][1]));
+            // this.debug_cross_cloud.addMarker(new L.LatLng(traj.coords[traj.coords.length-1][0], traj.coords[traj.coords.length-1][1]));
         }
 
         // hide unused polylines
