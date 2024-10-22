@@ -6,7 +6,7 @@ import "leaflet-rotatedmarker";
 import "leaflet/dist/leaflet.css";
 // import PixiOverlay from ""
 
-import { MultiColorPolyLine } from './MultiColorPolyLine';
+import { CrossCloudLayer, MultiColorPolyLine } from './MultiColorPolyLine';
 
 import * as URL from './Url'
 
@@ -112,6 +112,8 @@ export class FlightMap {
 
     private on_click_callbacks: Array<(e: L.LeafletMouseEvent) => void> = [];
 
+    private debug_cross_cloud: CrossCloudLayer;
+
     constructor() {
 
         this.map = L.map('map', {
@@ -125,78 +127,7 @@ export class FlightMap {
             attribution: 'Map data © <a href="https://openstreetmap.org">OpenStreetMap</a> contributors'
         }).addTo(this.map);
 
-        const markerTexture = PIXI.Texture.from(cross_svg);
-        const markerLatLng = [47.633331, 6.86667];
-        const marker = new PIXI.Sprite(markerTexture);
-
-        const line = new PIXI.Graphics();
-        // let line_from = project(markerLatLng);
-        // let line_to = project([48.866667, 2.333333]);
-        // line.moveTo(line_from.x, line_from.y);
-        // line.lineTo(line_to.x, line_to.y);
-        // line.endFill();
-
-
-
-        marker.anchor.set(0.5, 0.5);
-        marker.scale.set(1);
-
-        const pixiContainer = new PIXI.Container();
-
-
-        pixiContainer.addChild(line);
-
-        let firstDraw = true;
-        let prevZoom;
-
-        // const pixiOverlay = L.pixiOverlay((utils) => {
-        //     const zoom = utils.getMap().getZoom();
-        //     const container = utils.getContainer();
-        //     const renderer = utils.getRenderer();
-        //     const project = utils.latLngToLayerPoint;
-        //     const scale = utils.getScale();
-
-        //     if (firstDraw) {
-        //         let markerCoords = project(markerLatLng);
-        //         marker.x = markerCoords.x;
-        //         marker.y = markerCoords.y;
-        //         pixiContainer.addChild(marker);
-
-        //         markerCoords = project([48.633331, 6.86667]);
-        //         marker.x = markerCoords.x;
-        //         marker.y = markerCoords.y;
-        //         pixiContainer.addChild(marker);
-
-        //         const line_from = project(markerLatLng);
-        //         const line_to = project([48.866667, 2.333333]);
-        //         const line_to2 = project([49, 2.333333]);
-
-        //         line.lineStyle(1, 0x000000, 1, 0.5);
-        //         line.moveTo(line_from.x, line_from.y);
-        //         line.lineTo(line_to.x, line_to.y);
-        //         line.lineStyle(1, 0xff0000, 1, 0.5);
-        //         line.lineTo(line_to2.x, line_to2.y);
-
-
-        //         line.lineStyle(0, 0x000000, 1, 0.5);
-        //         line.beginFill(0xffffff);
-        //         line.drawCircle(line_from.x, line_from.y, 0.5);
-        //         line.drawCircle(line_to.x, line_to.y, 0.5);
-        //         line.drawCircle(line_to2.x, line_to2.y, 0.5);
-        //         line.endFill();
-        //     }
-
-        //     if (firstDraw || prevZoom !== zoom) {
-        //         // marker.scale.set(1 / scale);
-        //     }
-
-
-        //     firstDraw = false;
-        //     prevZoom = zoom;
-        //     renderer.render(container);
-        // }, pixiContainer);
-
-        // pixiOverlay.addTo(this.map);
+        let last_marker = undefined
 
         this.map.on('click', (e) => {
             for (let callback of this.on_click_callbacks) {
@@ -207,8 +138,17 @@ export class FlightMap {
             // if (this.flightAttack.get_selected_attack() != AttackType.REPLAY){
             //     this.flightAttack.select_attack(AttackType.NONE);
             // }
+
+            if (last_marker != undefined){
+                this.debug_cross_cloud.removeMarker(last_marker);
+            }
+
+            let latlng = e.latlng;
+            last_marker = this.debug_cross_cloud.addMarker(latlng);
         });
 
+        this.debug_cross_cloud = new CrossCloudLayer(this.map);
+        this.debug_cross_cloud.addMarker(new L.LatLng(47.633331, 6.86667));
     }
 
     public addOnClickListener(callback: (e: L.LeafletMouseEvent) => void) : void{
@@ -364,6 +304,8 @@ export class FlightMap {
                     marker.getElement().classList.add('highlight');
                 }
             }
+
+            this.debug_cross_cloud.addMarker(new L.LatLng(traj.coords[traj.coords.length-1][0], traj.coords[traj.coords.length-1][1]));
         }
 
         // hide unused polylines

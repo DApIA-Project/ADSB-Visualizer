@@ -1,4 +1,7 @@
+// @ts-nocheck
 
+import * as PIXI from 'pixi.js';
+import 'leaflet-pixi-overlay';
 import * as L from 'leaflet';
 
 
@@ -126,4 +129,97 @@ export class MultiColorPolyLine{
         }
         return this;
     }
+}
+
+const cross_svg=`<svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><line stroke-width="4" x1="5" y1="5" x2="15" y2="15" stroke="black" /><line stroke-width="4" x1="5" y1="15" x2="15" y2="5" stroke="black" /></svg>`
+const markerTexture = PIXI.Texture.from(cross_svg);
+
+class MarkerInfo{
+    latlng: L.LatLng;
+    needUpdate: boolean;
+    constructor(latlng: L.LatLng){
+        this.latlng = latlng;
+        this.needUpdate = true;
+    }
+}
+
+export class CrossCloudLayer{
+
+    private map: L.Map;
+    private pixiContainer:PIXI.Container;
+    private pixiOverlay:L.pixiOverlay;
+    private makers:PIXI.Sprite[] = [];
+    private makers_info:MarkerInfo[] = [];
+    private available_slots:number[] = [];
+
+
+
+    constructor(map: L.Map){
+        this.map = map;
+        let prevZoom;
+
+        let marker = new PIXI.Sprite(markerTexture);
+        marker.anchor.set(0.5, 0.5);
+        marker.scale.set(1);
+
+        this.pixiContainer = new PIXI.Container();
+        this.pixiOverlay = L.pixiOverlay((utils) => {
+            console.log("render");
+
+
+            const zoom = utils.getMap().getZoom();
+            const container = utils.getContainer();
+            const renderer = utils.getRenderer();
+            const project = utils.latLngToLayerPoint;
+            const scale = utils.getScale();
+
+            for (let i = 0; i < this.makers_info.length; i++) {
+                if (!this.makers_info[i].needUpdate) continue;
+
+                let markerCoords = project(this.makers_info[i].latlng);
+                this.makers[i].x = markerCoords.x;
+                this.makers[i].y = markerCoords.y;
+            }
+
+
+            prevZoom = zoom;
+            renderer.render(container);
+
+        }, this.pixiContainer);
+
+        this.pixiOverlay.addTo(this.map);
+    }
+
+
+    public addMarker(latlng: L.LatLng) : number{
+        let index =  -1;
+        if (this.available_slots.length > 0){
+            index = this.available_slots.pop();
+        }
+        else{
+            index = this.makers.length;
+            this.makers.push(new PIXI.Sprite(markerTexture));
+            this.makers_info.push(new MarkerInfo(latlng));
+            this.pixiContainer.addChild(this.makers[index]);
+            this.makers[index].anchor.set(0.5, 0.5);
+            this.makers[index].scale.set(0.1);
+        }
+        console.log("add at", index);
+
+        this.makers[index].visible = true;
+        this.makers_info[index].latlng = latlng;
+        this.makers_info[index].needUpdate = true;
+        this.pixiOverlay.redraw();
+
+        return index;
+    }
+
+    public removeMarker(index:number){
+        if (index == undefined) return;
+        let marker = this.makers[index];
+        marker.visible = false;
+        this.pixiOverlay.redraw();
+        this.available_slots.push(index);
+    }
+
 }
