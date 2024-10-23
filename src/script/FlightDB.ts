@@ -477,7 +477,7 @@ export class FlightDB {
     }
 
 
-    public getMapData(timestamp:number = undefined, end:number = undefined) :
+    public getMapData(timestamp:number = undefined, end:number = undefined, debug:boolean = false):
         Array<MapMessage>
     {
         let flight_data:Array<MapMessage> = Array();
@@ -490,7 +490,7 @@ export class FlightDB {
                 (this.filter_type.get(this.flights[i].getType()) && this.match_filter_string(this.flights[i].icao24, this.flights[i].callsign[mid]))){
 
 
-                let data = this.flights[i].getMapData(timestamp, end)
+                let data = this.flights[i].getMapData(timestamp, end, debug)
                 for (const sub_data of data) {
                     flight_data.push(sub_data);
                 }
@@ -525,6 +525,8 @@ export class FlightDB {
         }
         return flight_data;
     }
+
+
 
     public getMessagesForAnomalyChecker(timestamp:number = undefined) : ApiRequest
     {

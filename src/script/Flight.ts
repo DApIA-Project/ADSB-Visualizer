@@ -242,6 +242,7 @@ export class Flight {
                 this.debug[key] = new Array(this.time.length).fill(undefined);
             }
             this.debug[key][indice] = data[key];
+
         }
     }
 
@@ -383,7 +384,7 @@ export class Flight {
     }
 
 
-    getMapData(timestamp: number = undefined, end: number = undefined): Array<MapMessage> {
+    getMapData(timestamp: number = undefined, end: number = undefined, debug:boolean=false): Array<MapMessage> {
 
         // const BASE_COLOR = "#184296";
         // const NOT_COLOR = "#44bd32";
@@ -421,29 +422,38 @@ export class Flight {
             if (flight_i == undefined) {
                 sub_flights[tag] = res.length;
 
-                res.push({
+                let coords = Array.from<any,any>({ length: j - i + 1 }, () => new Array(2).fill(0));
+                let message:MapMessage = {
                     "type": this.type,
                     "flight_hash": this.hash,
                     "icao24": this.icao24,
                     "tag_hash": this.hashTag(tag),
-                    "coords": [],
+                    "coords": coords,
                     "rotation": 0,
                     "start_time": this.start_time,
                     "end_time": this.end_time,
-                    "anomaly": [],
-                    // "display_opt": { "color": [], "weight": [] },
-                });
+                    "anomaly": new Array(j - i + 1).fill(undefined),
+                };
+                if(debug){
+                    message["debug_flooding_lat_lon"] = Array.from<any,any>({ length: j - i + 1 }, () => new Array(2).fill(0));
+                }
+                res.push(message);
             }
         }
-
         for (let t = i; t <= j; t++) {
+            let n = t - i
             let flight_i = sub_flights[this.tag[t]];
 
-            res[flight_i].coords.push([this.lat[t], this.lon[t]]);
+            res[flight_i].coords[n][0] = this.lat[t]
+            res[flight_i].coords[n][1] = this.lon[t];
             res[flight_i].rotation = this.heading[t];
-            res[flight_i].anomaly.push(this.anomaly[t]);
+            res[flight_i].anomaly[n] = this.anomaly[t];
 
-            i++;
+            if (debug && this.debug["debug_lat_lon"] != undefined){
+                if (this.debug["debug_lat_lon"][t] != undefined){
+                    res[flight_i].debug_flooding_lat_lon[n] = [this.debug["debug_lat_lon"][t][0], this.debug["debug_lat_lon"][t][1]];
+                }
+            }
         }
 
         return res

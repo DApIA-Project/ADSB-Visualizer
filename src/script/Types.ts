@@ -14,7 +14,7 @@ export function init_MultiADSBMessage(length:number): MultiADSBMessage{
             spi: Array(length).fill(false), squawk: Array(length).fill(0), altitude: Array(length).fill(0), geoaltitude: Array(length).fill(0)};
 }
 
-export type MapMessage = {type: AircraftType;flight_hash:number;icao24: string;tag_hash:number;coords: [number, number][];rotation:number;start_time: number;end_time: number, anomaly:boolean[]}; //display_opt: {[key:string]:any[]}};
+export type MapMessage = {type: AircraftType;flight_hash:number;icao24: string;tag_hash:number;coords: [number, number][];rotation:number;start_time: number;end_time: number, anomaly:boolean[], debug_flooding_lat_lon?: [number, number][]}; //display_opt: {[key:string]:any[]}};
 
 export type ApiRequest = {data : ADSBMessage[], flight_hash:number[], flight_t:number[]};
 export type ApiResponse = {data : {tag:string, anomaly:number}[]};

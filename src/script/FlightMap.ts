@@ -106,13 +106,15 @@ export class FlightMap {
 
     private polylines: Map<number, MultiColorPolyLine> = new Map();
     private markers: Map<number, L.Marker> = new Map();
-    private debug_markers: Map<number, Array<L.Marker>> = new Map();
 
     private highlighted_flight: number = -1;
 
     private on_click_callbacks: Array<(e: L.LeafletMouseEvent) => void> = [];
 
     private debug_cross_cloud: CrossCloudLayer;
+    private debug_markers: Map<number, Array<number>> = new Map();
+
+    private last_update_timestamp: [number, number] = [undefined, undefined]
 
     constructor() {
 
@@ -139,16 +141,11 @@ export class FlightMap {
             //     this.flightAttack.select_attack(AttackType.NONE);
             // }
 
-            if (last_marker != undefined){
-                this.debug_cross_cloud.removeMarker(last_marker);
-            }
 
             let latlng = e.latlng;
-            last_marker = this.debug_cross_cloud.addMarker(latlng);
         });
 
         this.debug_cross_cloud = new CrossCloudLayer(this.map);
-        this.debug_cross_cloud.addMarker(new L.LatLng(47.633331, 6.86667));
     }
 
     public addOnClickListener(callback: (e: L.LeafletMouseEvent) => void) : void{
@@ -209,7 +206,7 @@ export class FlightMap {
 
     public update(minTimestamp:number, maxTimestamp:number) : number // return the number of aircrafts
     {
-
+        this.last_update_timestamp = [minTimestamp, maxTimestamp]
         const BASE_COLOR = "#184296";
         const VALID_COLOR = "#44bd32";
         const ANOMALY_COLOR = "#e84118";
@@ -218,7 +215,7 @@ export class FlightMap {
 
         let show_range: boolean = false;
         if (minTimestamp == maxTimestamp){
-            data = this.database.getMapData(minTimestamp);
+            data = this.database.getMapData(minTimestamp, undefined, this.debug.isActived());
         }
         else{
             data = this.database.getMapData(minTimestamp, maxTimestamp);
@@ -278,6 +275,7 @@ export class FlightMap {
                 if (this.highlighted_flight == traj.flight_hash){
                     marker.getElement().classList.add('highlight');
                 }
+
             }
             else
             {
@@ -305,7 +303,30 @@ export class FlightMap {
                 }
             }
 
-            // this.debug_cross_cloud.addMarker(new L.LatLng(traj.coords[traj.coords.length-1][0], traj.coords[traj.coords.length-1][1]));
+            if (this.debug.isActived()){
+
+                let actual_makers = this.debug_markers.get(trajectory_hash);
+                if (actual_makers == undefined){
+                    actual_makers = [];
+                    this.debug_markers.set(trajectory_hash, actual_makers);
+                }
+                let debug_flooding = traj.debug_flooding_lat_lon;
+
+                console.log(actual_makers, debug_flooding);
+
+                for (let i = 0; i < debug_flooding.length; i++) {
+                    if (i < actual_makers.length){
+                        if (actual_makers[i] == -1){
+                            let marker = this.debug_cross_cloud.addMarker({lat: debug_flooding[i][0], lng: debug_flooding[i][1]});
+                            actual_makers[i] = marker;
+                        }
+                    }
+                    else{
+                        let marker = this.debug_cross_cloud.addMarker({lat: debug_flooding[i][0], lng: debug_flooding[i][1]});
+                        actual_makers.push(marker);
+                    }
+                }
+            }
         }
 
         // hide unused polylines
@@ -342,5 +363,14 @@ export class FlightMap {
         return this.map.containerPointToLatLng(L.point(x, y));
     }
 
+    public debug_mode_changed(){
+        if (this.debug.isActived()){
+            this.update(this.last_update_timestamp[0], this.last_update_timestamp[1])
+        }
+        else{
+            this.debug_cross_cloud.clear();
+            this.debug_markers.clear();
+        }
+    }
 
 }

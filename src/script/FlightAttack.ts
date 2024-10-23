@@ -183,13 +183,9 @@ export class FlightAttack {
         if (!this.is_open) return;
         let selected_flight = this.map.getHighlightedFlight();
         if (selected_flight != -1) {
-
-            console.log(selected_flight, this.flightDB.getAllHashes());
-
             if (this.selected_attack == AttackType.SPOOFING) {
                 this.make_spoofing(selected_flight);
             } else if (this.selected_attack == AttackType.SATURATION) {
-                console.log("saturation");
                 this.make_saturation(selected_flight);
             }
         }
@@ -259,8 +255,8 @@ export class FlightAttack {
     }
 
     public make_saturation(flight_hash: number) {
-        // this.make_saturation_regular(flight_hash);
-        this.make_saturation_FDIT(flight_hash);
+        this.make_saturation_regular(flight_hash);
+        // this.make_saturation_FDIT(flight_hash);
     }
 
     public make_saturation_regular(flight_hash: number) {
@@ -309,7 +305,7 @@ export class FlightAttack {
                 saturation({
                     scope: and(always, target(flight.icao24)),
                     aircrafts: 6,
-                    angleMax: 5,
+                    angleMax: 15,
                 })
             ]
         })

@@ -23,8 +23,11 @@
     justify-content: center;
     flex-direction: column;
     align-items: center;
-
+    user-select: none;
 }
+
+
+
 
 #window-flight-attack img{
     background-color: $backgound-2;

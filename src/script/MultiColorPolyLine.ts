@@ -131,7 +131,7 @@ export class MultiColorPolyLine{
     }
 }
 
-const cross_svg=`<svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><line stroke-width="4" x1="5" y1="5" x2="15" y2="15" stroke="black" /><line stroke-width="4" x1="5" y1="15" x2="15" y2="5" stroke="black" /></svg>`
+const cross_svg=`<svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><line stroke-width="2" x1="5" y1="5" x2="15" y2="15" stroke="black" /><line stroke-width="2" x1="5" y1="15" x2="15" y2="5" stroke="black" /></svg>`
 const markerTexture = PIXI.Texture.from(cross_svg);
 
 class MarkerInfo{
@@ -164,9 +164,7 @@ export class CrossCloudLayer{
 
         this.pixiContainer = new PIXI.Container();
         this.pixiOverlay = L.pixiOverlay((utils) => {
-            console.log("render");
-
-
+            console.log("render pixi overlay");
             const zoom = utils.getMap().getZoom();
             const container = utils.getContainer();
             const renderer = utils.getRenderer();
@@ -175,6 +173,7 @@ export class CrossCloudLayer{
 
             for (let i = 0; i < this.makers_info.length; i++) {
                 if (!this.makers_info[i].needUpdate) continue;
+                if (this.makers_info[i].latlng.lat == undefined) continue;
 
                 let markerCoords = project(this.makers_info[i].latlng);
                 this.makers[i].x = markerCoords.x;
@@ -192,6 +191,10 @@ export class CrossCloudLayer{
 
 
     public addMarker(latlng: L.LatLng) : number{
+        console.log(latlng);
+
+        if (latlng.lat == undefined) return -1;
+        if (latlng.lat == 0) return -1;
         let index =  -1;
         if (this.available_slots.length > 0){
             index = this.available_slots.pop();
@@ -202,11 +205,9 @@ export class CrossCloudLayer{
             this.makers_info.push(new MarkerInfo(latlng));
             this.pixiContainer.addChild(this.makers[index]);
             this.makers[index].anchor.set(0.5, 0.5);
-            this.makers[index].scale.set(0.1);
+            this.makers[index].scale.set(0.002);
         }
-        console.log("add at", index);
-
-        this.makers[index].visible = true;
+        this.makers[index].visible = (latlng.lat != undefined);
         this.makers_info[index].latlng = latlng;
         this.makers_info[index].needUpdate = true;
         this.pixiOverlay.redraw();
@@ -220,6 +221,14 @@ export class CrossCloudLayer{
         marker.visible = false;
         this.pixiOverlay.redraw();
         this.available_slots.push(index);
+    }
+
+    public clear(){
+        for (let i = 0; i < this.makers.length; i++) {
+            this.makers[i].visible = false;
+            this.available_slots.push(i);
+        }
+        this.pixiOverlay.redraw();
     }
 
 }

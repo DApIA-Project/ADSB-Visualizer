@@ -39,7 +39,6 @@ export class Streamer{
                 this.updateFemtoAvionStream(data);
                 fails = 0;
             }catch(e){
-                console.log(e);
                 fails++;
                 if (fails > 10){
                     clearInterval(this.interval);

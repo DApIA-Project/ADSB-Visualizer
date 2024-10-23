@@ -71,6 +71,8 @@ function onPageLoad() {
     inpurReader.loadDefaultExample();
     timeManager.start();
 
+    debug.setMap(map);
+
     window.addEventListener("message", (e) => {
         inpurReader.addFile(e.data.filename, e.data.content );
     });

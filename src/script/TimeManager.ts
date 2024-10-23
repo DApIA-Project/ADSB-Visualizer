@@ -187,9 +187,10 @@ export class TimeManager{
         // update the map display and the flight info displayed
         if (this.time != this.last_time || this.new_anomaly_received) {
             this.nb_aircraft = this.map.update(this.time, this.time);
-            this.flightInfoDisplayer.update(this.time);            
+            this.flightInfoDisplayer.update(this.time);
             this.flightAttack.update_stats();
             this.last_time = this.time;
+            this.new_anomaly_received = false;
         }
 
         // do a jump is there is nothing to display or if the jump is activated
