@@ -305,7 +305,7 @@ export class FlightAttack {
                 saturation({
                     scope: and(always, target(flight.icao24)),
                     aircrafts: 6,
-                    angleMax: 15,
+                    angleMax: 45,
                 })
             ]
         })
