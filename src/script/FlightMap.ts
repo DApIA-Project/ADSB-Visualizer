@@ -187,9 +187,10 @@ export class FlightMap {
 
     public clearHighlightFlight(){
         if (this.highlighted_flight == -1) return;
-        // update display
 
+        // update display
         let flight = this.database.findFlight(this.highlighted_flight);
+        this.highlighted_flight = -1;
         let tag_hashes = flight.getTagsHashes();
 
         for (let tag_hash of tag_hashes) {
@@ -198,8 +199,6 @@ export class FlightMap {
                 this.markers.get(trajectory_hash).getElement().classList.remove('highlight');
             }
         }
-        // clear
-        this.highlighted_flight = -1
     }
 
     public getHighlightedFlight() : number{ return this.highlighted_flight; }
@@ -312,9 +311,8 @@ export class FlightMap {
                 }
                 let debug_flooding = traj.debug_flooding_lat_lon;
 
-                console.log(actual_makers, debug_flooding);
-
-                for (let i = 0; i < debug_flooding.length; i++) {
+                let i = 0
+                for (i = 0; i < debug_flooding.length; i++) {
                     if (i < actual_makers.length){
                         if (actual_makers[i] == -1){
                             let marker = this.debug_cross_cloud.addMarker({lat: debug_flooding[i][0], lng: debug_flooding[i][1]});
@@ -326,6 +324,9 @@ export class FlightMap {
                         actual_makers.push(marker);
                     }
                 }
+                while (i < actual_makers.length) {
+                    this.debug_cross_cloud.removeMarker(actual_makers.pop());
+                }
             }
         }
 
@@ -336,6 +337,10 @@ export class FlightMap {
                 this.map.removeLayer(this.markers.get(key));
 
                 this.polylines.delete(key);
+
+                for (let marker of this.debug_markers.get(key)) {
+                    this.debug_cross_cloud.removeMarker(marker);
+                }
                 this.markers.delete(key);
             }
 

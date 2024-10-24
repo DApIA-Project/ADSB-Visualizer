@@ -164,7 +164,6 @@ export class CrossCloudLayer{
 
         this.pixiContainer = new PIXI.Container();
         this.pixiOverlay = L.pixiOverlay((utils) => {
-            console.log("render pixi overlay");
             const zoom = utils.getMap().getZoom();
             const container = utils.getContainer();
             const renderer = utils.getRenderer();
@@ -191,7 +190,6 @@ export class CrossCloudLayer{
 
 
     public addMarker(latlng: L.LatLng) : number{
-        console.log(latlng);
 
         if (latlng.lat == undefined) return -1;
         if (latlng.lat == 0) return -1;
@@ -206,6 +204,8 @@ export class CrossCloudLayer{
             this.pixiContainer.addChild(this.makers[index]);
             this.makers[index].anchor.set(0.5, 0.5);
             this.makers[index].scale.set(0.002);
+            // set rotation
+            this.makers[index].rotation = Math.random() * Math.PI * 2;
         }
         this.makers[index].visible = (latlng.lat != undefined);
         this.makers_info[index].latlng = latlng;
@@ -217,6 +217,7 @@ export class CrossCloudLayer{
 
     public removeMarker(index:number){
         if (index == undefined) return;
+        if (index == -1) return;
         let marker = this.makers[index];
         marker.visible = false;
         this.pixiOverlay.redraw();

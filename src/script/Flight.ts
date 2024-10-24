@@ -416,13 +416,15 @@ export class Flight {
         }
 
         // compute sub-flights
+        let i_per_tag = {}
         for (let t = i; t <= j; t++) {
             let tag = this.tag[t];
             let flight_i = sub_flights[tag];
             if (flight_i == undefined) {
                 sub_flights[tag] = res.length;
+                i_per_tag[tag] = 0
 
-                let coords = Array.from<any,any>({ length: j - i + 1 }, () => new Array(2).fill(0));
+                let coords = Array.from<any,any>({ length: j - i + 1 }, () => new Array(2).fill(undefined));
                 let message:MapMessage = {
                     "type": this.type,
                     "flight_hash": this.hash,
@@ -440,9 +442,10 @@ export class Flight {
                 res.push(message);
             }
         }
+
         for (let t = i; t <= j; t++) {
-            let n = t - i
             let flight_i = sub_flights[this.tag[t]];
+            let n = i_per_tag[this.tag[t]];
 
             res[flight_i].coords[n][0] = this.lat[t]
             res[flight_i].coords[n][1] = this.lon[t];
@@ -453,6 +456,18 @@ export class Flight {
                 if (this.debug["debug_lat_lon"][t] != undefined){
                     res[flight_i].debug_flooding_lat_lon[n] = [this.debug["debug_lat_lon"][t][0], this.debug["debug_lat_lon"][t][1]];
                 }
+            }
+            i_per_tag[this.tag[t]] += 1;
+        }
+
+        // splice for eacg tag
+        for (let tag in sub_flights) {
+            let flight_i = sub_flights[tag];
+            let n = i_per_tag[tag];
+            res[flight_i].coords = res[flight_i].coords.slice(0, n);
+            res[flight_i].anomaly = res[flight_i].anomaly.slice(0, n);
+            if (debug && this.debug["debug_lat_lon"] != undefined){
+                res[flight_i].debug_flooding_lat_lon = res[flight_i].debug_flooding_lat_lon.slice(0, n);
             }
         }
 
