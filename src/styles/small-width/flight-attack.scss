@@ -1,36 +1,64 @@
 #window-flight-attack{
-    width: 350px;
-    transform: translate(20px, 70px);
+    top: 0vw;
+    left: 0vw;
+    width: 40vw;
+    height: 30vw;
+
+    transform: translate(4vw, 10vw);
+
+}
+
+#window-flight-attack>h1{
+    font-size: 2.2vw;
+    height: 6vw;
+    width: 36vw;
+    padding: 0 2vw;
+}
+#window-flight-attack>div{
+    height: 24vw;
+    width: 100%;
+}
+
+#window-flight-attack > h1 > div{
+    font-size: 3vw;
+}
+
+#window-flight-attack > h1 > div > *{
+    margin: 0.5vw;
+    padding: 0.5vw;
 }
 
 
-#window-flight-attack img{
-    width: 64px;
+#window-flight-attack>h1 span{
+    font-size: 1.8vw;
+}
 
-    border-radius: 8px;
-    padding: 5px;
-    border: 2px solid $backgound-2;
+#window-flight-attack a{
+    font-size: 2vw;
+}
+#window-flight-attack img{
+    width: 10vw;
+    border-radius: 2vw;
+    padding: 0vw;
+    border: 0.5vw solid $backgound-2;
 }
 
 #window-flight-attack a.selected>img{
-    border: 2px solid $secondary;
+    border: 0.5vw solid $secondary;
 }
 
 
-#window-flight-attack>div{
-    width: 100%;
-    padding: 20px 0;
-}
 
 #window-flight-attack .stats{
-    gap: 2em;
+    gap: 1vw;
+    font-size: 2.5vw;
 }
 
 #window-flight-attack .stats>div{
-    gap: 0.5em;
+    gap: 0.5vw;
 }
 
 #window-flight-attack .stats .btn{
-    padding: 3px;
-    font-size: 25px;
+    padding: 1vw;
+    font-size: 1vw;
 }

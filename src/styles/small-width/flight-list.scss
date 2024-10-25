@@ -8,8 +8,25 @@
     height: 40vw;
 
     transform: translate(calc(-100% - 4vw), 10vw);
+}
 
 
+#window-flight-list>h1{
+    font-size: 3vw;
+    height: 6vw;
+    width: 36vw;
+
+    padding: 0 2vw;
+}
+
+
+#window-flight-list > h1 > div{
+    font-size: 2.2vw;
+}
+
+#window-flight-list > h1 > div > *{
+    margin: 0.5vw;
+    padding: 0.5vw;
 }
 
 

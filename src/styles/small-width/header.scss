@@ -1,11 +1,33 @@
 header{
     background-color: $backgound-1;
-    height: 6vw;
+    height: 5vw;
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
 header>*{
     padding: 0 10px;
-    font-size: 4vw;
+    font-size: 3vw;
+}
+
+
+header>nav{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 100%;
+    gap: 2vw;
+}
+
+header>nav>div{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 2vw;
+    gap: 1vw;
+}
+
+header>nav>div>.switch{
+    height: 2vw;
+    width: 4vw;
 }

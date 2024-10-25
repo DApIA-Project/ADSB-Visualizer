@@ -338,10 +338,12 @@ export class FlightMap {
 
                 this.polylines.delete(key);
 
-                for (let marker of this.debug_markers.get(key)) {
-                    this.debug_cross_cloud.removeMarker(marker);
+                if (this.debug.isActived()){
+                    for (let marker of this.debug_markers.get(key)) {
+                        this.debug_cross_cloud.removeMarker(marker);
+                    }
+                    this.markers.delete(key);
                 }
-                this.markers.delete(key);
             }
 
         }

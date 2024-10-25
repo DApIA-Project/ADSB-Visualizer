@@ -1,34 +1,32 @@
 
-  
-  
+
+
 #window-flight-data{
     top: 0vh;
     left: 0vw;
     width: 50vh;
     height: 50vh;
-    
-    transform: translate(calc(4vw), 10vh); 
+
+    transform: translate(calc(4vw), 10vh);
 
     font-size: 2.5vh;
 }
-  
+
 #window-flight-data>h1{
-    width: calc(100% - 2vh);
-    height: 5vh;
-    margin: 0;
-    padding: 0 1vh;
-    text-align: center;
-    font-size: 3.5vh;
+    font-size: 3vh;
+    height: 6vh;
+    width: 46vh;
+    padding: 0 2vh;
 }
 
-#window-flight-data>h1>div{
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    flex-direction: row;
-    width: 20%;
+#window-flight-attack>div{
+    height: 24vh;
+    width: 100%;
 }
 
+#window-flight-attack > h1 > div{
+    font-size: 4vh;
+}
 
 
 
@@ -38,7 +36,7 @@
     /* overflow Y */
     overflow-y: scroll;
     overflow-x: hidden;
-  
+
     margin: 0px 2vh;
 
     display: flex;
@@ -61,7 +59,7 @@
 
 #flight-data>.line
 {
-    min-height: 12vh; 
+    min-height: 12vh;
     flex-direction: column;
     justify-content: center;
 }
@@ -72,7 +70,7 @@
 
 
 #flight-data-graph-container{
-    
+
     width: 100%;
     min-height: calc(100% - 12vh);
 }
@@ -82,7 +80,7 @@ select#variable-selector{
     width: 30vh;
     -webkit-appearance: none;
     -moz-appearance: none;
-    
+
 }
 
 input#window-length{
@@ -99,7 +97,7 @@ input#window-length{
 #flight-attributes tr td{
     width: 1%;
     white-space: nowrap;
-    
+
 }
 
 
