@@ -17,15 +17,11 @@ export class Debugger {
 
 
     public active(){
-        console.log("active");
-
         this.is_active = true;
         this.map.debug_mode_changed();
     }
 
     public desactive(){
-        console.log("desactive");
-
         this.is_active = false;
         this.is_open = false;
         this.map.debug_mode_changed();

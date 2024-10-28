@@ -4,7 +4,7 @@ import { loadFromCSV } from "./parsers/parse_csv";
 import Flight, { AircraftType } from "./Flight";
 import { TimeManager } from "./TimeManager";
 import { FlightDB } from "./FlightDB";
-import { MultiADSBMessage } from "./Types";
+import { ADSBMessage, MultiADSBMessage } from "./Types";
 import {always, and, Engine, saturation, target} from "@dapia-project/alteration-ts";
 
 
@@ -101,7 +101,7 @@ export class FlightAttack {
     private timeManager: TimeManager;
     private flightDB: FlightDB;
 
-    private is_open:boolean = false;
+    private is_open:boolean;
 
 
     constructor() {
@@ -115,6 +115,10 @@ export class FlightAttack {
 
         // generate seed for ith_replay
         this.ith_replay = Math.floor(Math.random() * this.replay_db.length);
+
+        this.is_open = false;
+        document.getElementById("window-flight-attack").style.display = "none";
+
     }
 
     public open(){
@@ -179,6 +183,13 @@ export class FlightAttack {
         }
     }
 
+
+    update_stats() {
+        let [valid, invalid] = this.flightDB.getAnomalyStats()
+        document.getElementById("nb-valid-aircraft").innerText = valid.toString();
+        document.getElementById("nb-invalid-aircraft").innerText = invalid.toString();
+    }
+
     public make_attack_on_change() {
         if (!this.is_open) return;
         let selected_flight = this.map.getHighlightedFlight();
@@ -192,7 +203,9 @@ export class FlightAttack {
     }
 
     public map_clicked(event: L.LeafletMouseEvent) {
+
         if (!this.is_open) return;
+
         if (this.selected_attack == AttackType.REPLAY) {
             this.create_replay(event.latlng.lat, event.latlng.lng);
         }
@@ -255,11 +268,11 @@ export class FlightAttack {
     }
 
     public make_saturation(flight_hash: number) {
-        // this.make_saturation_regular(flight_hash);
+        // this.make_test_saturation(flight_hash);
         this.make_saturation_FDIT(flight_hash);
     }
 
-    public make_saturation_regular(flight_hash: number) {
+    public make_test_saturation(flight_hash: number) {
         let flight = this.flightDB.findFlight(flight_hash);
         if (flight.getTagsHashes().length > 1) {
             return;// already saturated
@@ -268,7 +281,6 @@ export class FlightAttack {
         let time = Math.floor(this.timeManager.getTimestamp());
         let i = flight.getIndiceAtTime(time);
 
-        let length = flight["time"].length;
         let lats = flight["lat"].slice(i);
         let lons = flight["lon"].slice(i);
         let tracks = flight["heading"].slice(i);
@@ -282,35 +294,69 @@ export class FlightAttack {
             deviant_data.push([dlats, dlons, dtracks]);
         }
 
-
-        for (let t = length - 1; t >= i; t--){
+        for (let t = flight.getLength() - 1; t >= i; t--) {
             let ith = t - i;
             for (let j = 0; j < deviant_data.length; j++) {
-                flight.insert_message_for_saturation(t,
+                flight.insert_message_for_saturation(t + 1,
                     deviant_data[j][0][ith], deviant_data[j][1][ith], deviant_data[j][2][ith]);
-                flight.setTag(t, (j+1).toString())
+                flight.setTag(t + 1, (j + 1).toString())
             }
         }
 
         this.map.update(this.timeManager.getTimestamp(), this.timeManager.getTimestamp());
     }
 
+
     public make_saturation_FDIT(flight_hash: number) {
         let flight = this.flightDB.findFlight(flight_hash);
         if (flight.getTagsHashes().length > 1) {
             return;// already saturated
         }
+
+
+        let time = Math.floor(this.timeManager.getTimestamp());
+        let i = flight.getIndiceAtTime(time);
+
+        const ghosts = this.call_FDIT_engine(flight, i);
+
+        let deviant_data = [];
+        for (const [icao, coordinates] of Array.from(ghosts.entries())) {
+            if(icao !== flight.icao24) {
+                const lats = coordinates.map(coords => coords[0])
+                const lons = coordinates.map(coords => coords[1])
+                const tracks = coordinates.map(coords => coords[2])
+                deviant_data.push([lats, lons, tracks])
+            }
+        }
+
+        for (let t = flight.getLength() - 1; t >= i; t--) {
+            let ith = t - i;
+            for (let j = 0; j < deviant_data.length; j++) {
+                flight.insert_message_for_saturation(t+1,
+                    deviant_data[j][0][ith], deviant_data[j][1][ith], deviant_data[j][2][ith]);
+                flight.setTag(t + 1, (j + 1).toString())
+            }
+        }
+
+        this.map.update(this.timeManager.getTimestamp(), this.timeManager.getTimestamp());
+    }
+
+
+    public call_FDIT_engine(flight:Flight, i:number) {
+
         const engine = new Engine({
             actions: [
                 saturation({
                     scope: and(always, target(flight.icao24)),
                     aircrafts: 6,
-                    angleMax: 45,
+                    angleMax: 30,
                 })
             ]
         })
-        let time = Math.floor(this.timeManager.getTimestamp());
-        const messages = flight.getMessages(time)
+
+        const messages = flight.getMessages(i, flight.getLength());
+
+
         const result = engine.run(messages.map(message => ({
             ...message,
             messageType: 'MSG',
@@ -329,34 +375,7 @@ export class FlightAttack {
             }
             ghosts.get(message.hexIdent).push([message.latitude, message.longitude, message.track])
         }
-        let i = flight.getIndiceAtTime(time);
-
-        let deviant_data = [];
-        for (const [icao, coordinates] of Array.from(ghosts.entries())) {
-            if(icao !== flight.icao24) {
-                const lats = coordinates.map(coords => coords[0])
-                const lons = coordinates.map(coords => coords[1])
-                const tracks = coordinates.map(coords => coords[2])
-                deviant_data.push([lats, lons, tracks])
-            }
-        }
-
-        let length = flight["time"].length;
-        for (let t = length - 1; t >= i; t--) {
-            let ith = t - i;
-            for (let j = 0; j < deviant_data.length; j++) {
-                flight.insert_message_for_saturation(t,
-                    deviant_data[j][0][ith], deviant_data[j][1][ith], deviant_data[j][2][ith]);
-                flight.setTag(t, (j + 1).toString())
-            }
-        }
-
-        this.map.update(this.timeManager.getTimestamp(), this.timeManager.getTimestamp());
+        return ghosts
     }
 
-    update_stats() {
-        let [valid, invalid] = this.flightDB.getAnomalyStats()
-        document.getElementById("nb-valid-aircraft").innerText = valid.toString();
-        document.getElementById("nb-invalid-aircraft").innerText = invalid.toString();
-    }
 }

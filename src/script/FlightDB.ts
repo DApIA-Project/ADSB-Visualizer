@@ -541,12 +541,12 @@ export class FlightDB {
                 let start_i = flight.getLastCheckRequest() + 1;
                 let end_i = flight.getIndiceAtTime(timestamp, start_i-1);
                 if(end_i == -1) continue;
-                for (let j = start_i; j < end_i; j++) {
+                for (let j = start_i; j <= end_i; j++) {
                     data.push(flight.getMessage(j));
                     flight_hash.push(flight.getHash());
                     flight_t.push(j);
                 }
-                flight.setLastCheckRequest(end_i - 1);
+                flight.setLastCheckRequest(end_i);
             }
         }
 

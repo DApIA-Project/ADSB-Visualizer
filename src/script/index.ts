@@ -67,6 +67,7 @@ function onPageLoad() {
     flightAttack.setMap(map);
     flightAttack.setTimeManager(timeManager);
     flightAttack.setFlightDB(flight_db);
+    flightAttack.open();
 
     inpurReader.loadDefaultExample();
     timeManager.start();

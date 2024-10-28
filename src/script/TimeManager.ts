@@ -139,7 +139,6 @@ export class TimeManager{
         if (!this.anomalyChecker.isServerInactive()){
             // gather for all visible aircrafts their messages since the last anomaly check
             let messages = this.database.getMessagesForAnomalyChecker(this.time)
-
             if (await this.anomalyChecker.checkMessages(messages)){
                 this.new_anomaly_received = true;
             }

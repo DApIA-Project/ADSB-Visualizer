@@ -292,22 +292,19 @@ export class Flight {
     }
 
     getIndiceAtTime(time: number, i: number = 0): number {
-        // stocastic search
-        let j = this.time.length - 1;
-
+        // stocastic search, return the highest indice of the biggest time smaller or equal to the time
+        let j = this.time.length;
         if (time < this.time[i]) return -1;
-        if (time > this.time[j]) return -2;
-        let m = 0;
 
         while (i < j) {
-            m = Math.floor((i + j) / 2);
-            if (this.time[m] < time) {
+            let m = Math.floor((i + j) / 2);
+            if (this.time[m] <= time) {
                 i = m + 1;
             } else {
                 j = m;
             }
         }
-        return i;
+        return i-1;
     }
 
     getIndicesAtTimeRange(start: number, end: number): [number, number] {
@@ -316,25 +313,18 @@ export class Flight {
 
         let i = this.getIndiceAtTime(start);
         if (i == -1) i = 0;
+        if (this.time[i] < start) i++;
 
         let j = this.getIndiceAtTime(end, i);
-        if (j == -2) j = this.time.length - 1;
-
-        while (j + 1 < this.time.length && this.time[j + 1] == end) {
-            j++;
-        }
         return [i, j];
     }
 
-    getMessages(timestamp?: number): ADSBMessage[] {
-        const startTimestamp = timestamp ?? this.getStartTimestamp()
-        const [start, end] = this.getIndicesAtTimeRange(startTimestamp, this.getEndTimestamp())
-        const messages: ADSBMessage[] = []
-        for (let i = start; i <= end; i++) {
-            const message = this.getMessage(i)
-            messages.push(message)
+    getMessages(i, j): ADSBMessage[] {
+        const messages = [];
+        for (let k = i; k < j; k++) {
+            messages.push(this.getMessage(k));
         }
-        return messages
+        return messages;
     }
 
     getMessage(i: number): ADSBMessage {
@@ -537,6 +527,10 @@ export class Flight {
         if (attribute == "baro_altitude") return this.baro_altitude;
         if (attribute == "geo_altitude") return this.geo_altitude;
         return undefined;
+    }
+
+    public getLength(): number {
+        return this.time.length;
     }
 
 

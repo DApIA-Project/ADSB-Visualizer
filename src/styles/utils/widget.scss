@@ -25,6 +25,7 @@ input:focus {
     -moz-user-select: none; /* Firefox */
     -ms-user-select: none; /* IE10+/Edge */
     user-select: none; /* Standard */
+    user-drag: none;
 
     font-size: inherit;
 }
@@ -79,7 +80,11 @@ a.btn-info:hover{
 }
 
 
+img{
 
+    user-drag: none;
+    -webkit-user-drag: none;
+}
 
 input[type="text"]{
     color: $base;

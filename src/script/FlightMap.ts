@@ -266,8 +266,12 @@ export class FlightMap {
                             rotationAngle:angle + 180}).addTo(this.map);
                 }
                 marker.on('click', (e) => {
-                    this.database.watchFlight(traj.flight_hash);
-                    this.flightAttack.flight_clicked(traj.flight_hash);
+                    if (this.flightAttack.get_selected_attack() == AttackType.NONE){
+                        this.database.watchFlight(traj.flight_hash);
+                    }
+                    else{
+                        this.flightAttack.flight_clicked(traj.flight_hash);
+                    }
                 });
 
                 this.markers.set(trajectory_hash, marker);
