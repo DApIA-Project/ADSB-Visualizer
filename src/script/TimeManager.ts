@@ -5,6 +5,7 @@ import { FlightMap } from "./FlightMap";
 import * as U from './Utils';
 import {AnomalyChecker} from "./AnomalyChecker";
 import { FlightAttack } from "./FlightAttack";
+import { Debugger } from "./Debugger";
 
 // manage the timing of the simulation
 // - play/pause
@@ -33,6 +34,7 @@ export class TimeManager{
     private flightInfoDisplayer:FlightInfoDisplayer
     private anomalyChecker:AnomalyChecker
     private flightAttack: FlightAttack
+    private debugger:Debugger
 
     private time:number = 0.0;
     private time_speed:number = 1.0;
@@ -118,6 +120,9 @@ export class TimeManager{
     public setFlightAttack(flightAttack: FlightAttack){
         this.flightAttack = flightAttack;
     }
+    public setDebugger(debug:Debugger){
+        this.debugger = debug;
+    }
 
 
 
@@ -171,7 +176,6 @@ export class TimeManager{
             }
         }
         let ratio = (this.time - min_time) / (max_time - min_time);
-        this.html_time_range.value = ratio.toString();
 
 
         // update the time display
@@ -180,13 +184,18 @@ export class TimeManager{
         if (this.time < 0) {
             timestamp = this.today.getTime() / 1000.0
         }
-        this.html_time_display.innerHTML = U.timestamp_to_date_hour(timestamp);
 
 
         // update the map display and the flight info displayed
-        if (this.time != this.last_time || this.new_anomaly_received) {
+        if (Math.floor(this.time) != Math.floor(this.last_time) || this.new_anomaly_received) {
+
+            this.html_time_range.value = ratio.toString();
+            this.html_time_display.innerHTML = U.timestamp_to_date_hour(timestamp);
+
             this.nb_aircraft = this.map.update(this.time, this.time);
             this.flightInfoDisplayer.update(this.time);
+            this.debugger.update(this.time);
+
             this.flightAttack.update_stats();
             this.last_time = this.time;
             this.new_anomaly_received = false;

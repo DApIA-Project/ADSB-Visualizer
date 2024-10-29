@@ -1,21 +1,21 @@
 
-
+// import scss sizing.scss
+@import "sizing.scss";
 
 #window-flight-attack{
 
     background-color: rgba($backgound-1, 0.8);
 
-    top: 0vh;
-    left: 0vw;
-}
+    top: ratio-from(70px);
+    left: ratio-from(20px);
 
+    width: ratio-from(350px);
+    height: ratio-from(250px);
+}
 
 #window-flight-attack>div{
-    display: flex;
-    flex-direction: column;
     justify-content: space-evenly;
 }
-
 
 
 #window-flight-attack a{
@@ -24,17 +24,23 @@
     flex-direction: column;
     align-items: center;
     user-select: none;
-}
 
+    font-size: ratio-from(16px);
+}
 
 
 
 #window-flight-attack img{
     background-color: $backgound-2;
+
+    width: ratio-from(10vw);
+    border-radius: ratio-from(2vw);
+    padding: 0;
+    border: ratio-from(0.5vw) solid $backgound-2;
 }
 
 #window-flight-attack a.selected>img{
-    border: 2px solid $secondary;
+    border: ratio-from(0.5vw) solid $secondary;
 }
 
 #window-flight-attack img:hover{
@@ -45,11 +51,20 @@
 
 #window-flight-attack .stats{
     justify-content: center !important;
+    gap: ratio-from(1vw);
+    font-size: ratio-from(2.5vw);
 }
 
 #window-flight-attack .stats>div{
     display: flex;
     justify-content: center;
     align-items: center;
+    gap: ratio-from(0.5vw);
+}
+
+
+#window-flight-attack .stats .btn{
+    padding: ratio-from(1vw);
+    font-size: ratio-from(1vw);
 }
 

@@ -18,6 +18,8 @@ import { Debugger } from './Debugger';
 
 window.addEventListener('load', onPageLoad);
 
+// const debug_csv = require('url:../assets/data/2022-01-16_11-55-25_FHOLO_39b96e.csv');
+
 
 // create function
 function onPageLoad() {
@@ -49,6 +51,7 @@ function onPageLoad() {
     flight_db.setMap(map);
     flight_db.setTimer(timeManager);
     flight_db.setFlightInfoDisplayer(flightInfoDisplayer);
+    flight_db.setDebugger(debug);
 
     inpurReader.setFlightDB(flight_db);
     inpurReader.setMap(map);
@@ -59,6 +62,7 @@ function onPageLoad() {
     timeManager.setFlightInfoDisplayer(flightInfoDisplayer);
     timeManager.setAnomalyChecker(anomalyChecker);
     timeManager.setFlightAttack(flightAttack);
+    timeManager.setDebugger(debug);
 
     streamer.setFlightDB(flight_db);
 
@@ -97,4 +101,20 @@ function onPageLoad() {
             debug.desactive();
         }
     });
+
+
+    // setTimeout(() => {
+    //     fetch(debug_csv).then(response => response.text()).then(text => {
+    //         var content = text;
+    //         inpurReader.addFile("debug.csv", content);
+    //     });
+
+    //     // simulate
+    //     document.getElementById("show-debug").click();
+
+    // }, 1000);
+
+
+
+    // flight_db.ondrop()
 }

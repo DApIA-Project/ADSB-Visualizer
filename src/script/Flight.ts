@@ -222,6 +222,9 @@ export class Flight {
         this.geo_altitude.splice(i, 0, this.geo_altitude[i - 1]);
         this.tag.splice(i, 0, "0");
         this.anomaly.splice(i, 0, undefined);
+        for (let key in this.debug) {
+            this.debug[key].splice(i, 0, undefined);
+        }
     }
 
     setAnomaly(indice: number, value: boolean) {
@@ -244,6 +247,9 @@ export class Flight {
             this.debug[key][indice] = data[key];
 
         }
+    }
+    getDebugData(key: string): any[] {
+        return this.debug[key];
     }
 
     getLastAnomalyIndice(): number {
@@ -526,6 +532,7 @@ export class Flight {
         if (attribute == "squawk") return this.squawk;
         if (attribute == "baro_altitude") return this.baro_altitude;
         if (attribute == "geo_altitude") return this.geo_altitude;
+        if (attribute == "tag") return this.tag;
         return undefined;
     }
 

@@ -12,6 +12,7 @@ import {FlightInfoDisplayer} from './FlightDataDisplayer';
 import * as URL from './Url'
 import {Recording} from "@dapia-project/recording-streamer/dist/types";
 import { ADSBMessage, ApiRequest, MapMessage } from './Types';
+import { Debugger } from './Debugger';
 
 
 // manage the flight database
@@ -30,6 +31,7 @@ export class FlightDB {
     private map: M.FlightMap = undefined;
     private timer: TimeManager = undefined;
     private flightInfoDisplayer: FlightInfoDisplayer = undefined;
+    private debugger: Debugger = undefined;
 
     private flights: Array<Flight> = Array();
     private hash_table: { [key: number]: Flight } = {};
@@ -159,6 +161,10 @@ export class FlightDB {
 
     public setFlightInfoDisplayer(flightInfoDisplayer: FlightInfoDisplayer): void {
         this.flightInfoDisplayer = flightInfoDisplayer;
+    }
+
+    public setDebugger(debug: any): void {
+        this.debugger = debug;
     }
 
     private static parseFile(filename: string, content: string): Array<Flight> {
@@ -317,10 +323,16 @@ export class FlightDB {
         this.html_flights.splice(index, 1);
         this.html_flights_visible.splice(index, 1);
 
-        if (this.flightInfoDisplayer.flight != undefined &&
-            this.flightInfoDisplayer.flight == flight) {
+        const watched_flight = this.flightInfoDisplayer.getFlight();
+        if (watched_flight != undefined && watched_flight == flight) {
             this.flightInfoDisplayer.close();
             this.flightInfoDisplayer.displayFlight(undefined);
+        }
+
+        const debug_flight = this.debugger.getFlight();
+        if (debug_flight != undefined && debug_flight == flight) {
+            this.debugger.close();
+            this.debugger.displayFlight(undefined);
         }
 
         this.recalculate_db();
@@ -426,6 +438,10 @@ export class FlightDB {
         this.flightInfoDisplayer.displayFlight(flight);
         this.flightInfoDisplayer.update(this.timer.getTimestamp());
 
+        if (this.debugger.isActived()){
+            this.debugger.displayFlight(flight);
+            this.debugger.update(this.timer.getTimestamp());
+        }
     }
 
     public recalculate_db(): void {
@@ -662,10 +678,18 @@ export class FlightDB {
                 delete this.hash_table[this.flights[j].getHash()];
                 this.flights.splice(j, 1);
 
-                if (this.flightInfoDisplayer.flight == undefined &&
-                    this.flightInfoDisplayer.flight == this.flights[j]) {
+                const watched_flight = this.flightInfoDisplayer.getFlight();
+                if (watched_flight != undefined &&
+                    watched_flight == this.flights[j]) {
                     this.flightInfoDisplayer.close();
                     this.flightInfoDisplayer.displayFlight(undefined);
+                }
+                if (this.debugger.isActived()){
+                    const debug_flight = this.debugger.getFlight();
+                    if (debug_flight != undefined && debug_flight == this.flights[j]) {
+                        this.debugger.close();
+                        this.debugger.displayFlight(undefined);
+                    }
                 }
             }
         } else {
@@ -678,6 +702,7 @@ export class FlightDB {
             this.max_timestamp = -1;
 
             this.flightInfoDisplayer.close();
+            if (this.debugger.isActived()) this.debugger.close();
         }
         this.recalculate_db();
     }

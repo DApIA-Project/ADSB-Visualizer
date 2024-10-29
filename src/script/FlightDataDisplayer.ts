@@ -1,5 +1,5 @@
 // @ts-nocheck
-// forced to disable ts check because of 
+// forced to disable ts check because of
 // the chart.js library type definition wich is not up to date
 
 import Chart from 'chart.js/auto';
@@ -147,14 +147,18 @@ export class FlightInfoDisplayer{
                 },
 
             }
-        });  
+        });
 
         this.chart.update();
 
         window.addEventListener('resize', () => {this.update_size();});
         this.update_size();
 
-        
+
+    }
+
+    public getFlight():Flight{
+        return this.flight;
     }
 
     displayFlight(flight:Flight){
@@ -178,7 +182,7 @@ export class FlightInfoDisplayer{
             this.icao24_html.innerHTML = variables.icao24;
         this.velocity_html.innerHTML = float_to_string(variables.velocity, 0);
         this.heading_html.innerHTML = float_to_string(variables.heading, 0);
-        this.altitude_html.innerHTML = float_to_string(variables.altitude, 0);   
+        this.altitude_html.innerHTML = float_to_string(variables.altitude, 0);
         this.vertical_rate_html.innerHTML = float_to_string(variables.vertical_rate, 0);
         this.on_ground_html.innerHTML = variables.on_ground ? "on ground" : "in flight";
         this.squawk_html.innerHTML = variables.squawk != undefined ? variables.squawk.toString() : "None";
@@ -216,7 +220,7 @@ export class FlightInfoDisplayer{
             for (var i = 0; i < ts.length; i++){
                 ts[i] = ts[i] / 60;
             }
-        }      
+        }
 
 
 
@@ -243,7 +247,7 @@ export class FlightInfoDisplayer{
         this.chart.data.datasets[0].label = selected_variable;
         this.chart.options.scales.x.title.text = 'Time (' + this.time_unit + ')';
 
-        
+
         // this.chart.options.scales.x.ticks.font..size = 10;
         // this.chart.options.scales.y.ticks.fontSize = 10;
         this.chart.update();
@@ -251,7 +255,7 @@ export class FlightInfoDisplayer{
 
     update_size(){
         var font_size = Math.min(window.innerWidth / 100 * 2, window.innerHeight / 100 * 2, 15);
-        
+
         this.chart.options.scales.x.ticks.font.size = font_size
         this.chart.options.scales.y.ticks.font.size = font_size
         this.chart.options.scales.x.ticks.padding = font_size / 4.0
@@ -273,7 +277,7 @@ export class FlightInfoDisplayer{
             }
         }
 
-        
+
         this.chart.update();
     }
 
@@ -287,7 +291,7 @@ export class FlightInfoDisplayer{
             opacity: 1,
             duration: 200,
             easing: 'linear'
-        });        
+        });
     }
 
     close(){
@@ -319,7 +323,7 @@ export class FlightInfoDisplayer{
                 if (value != "∞"){
                     this.window_lenght_html.value = "∞";
                 }
-            } 
+            }
         }
         else {
             // set value to ∞
