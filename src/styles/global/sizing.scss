@@ -1,0 +1,42 @@
+@use 'sass:math';
+
+$vw: 1vw;
+$px: 1px;
+
+
+$page-max-width: 1000;
+$page-width: 100;
+$page-ratio: math.div($page-max-width,  math.div($page-width, 100));
+
+
+@function make-unitless($value){
+    @if (type-of($value) != number) {@return $value;}
+
+    @if (unit($value) == px) {@return math.div($value, 1px);}
+    @if (unit($value) == vw) {@return math.div($value, 1vw);}
+    @if (unit($value) == vh) {@return math.div($value, 1vh);}
+    @if (unit($value) == em) {@return math.div($value, 1em);}
+    @if (unit($value) == "%") {@return math.div($value, 1%);}
+
+    @return $value;
+}
+@function px-to-vw($px, $ratio){
+    @return math.div($px*100, $ratio) * $vw;
+}
+@function vw-to-px($vw, $ratio){
+    @return math.div($vw*$ratio, 100) * $px;
+}
+@function ratio-from-px($_px, $ratio){
+    @return min(make-unitless($_px)*$px, px-to-vw(make-unitless($_px), $ratio));
+}
+@function ratio-from-vw($_vw, $ratio){
+    @return min(make-unitless($_vw)*$vw, vw-to-px(make-unitless($_vw), $ratio));
+}
+
+
+@function ratio-from($_px){
+    @if (unit($_px) == px) {@return ratio-from-px($_px, $page-ratio);}
+    @if (unit($_px) == vw) {@return ratio-from-vw($_px, $page-ratio);}
+    // exeption
+    @return $error "unit not supported";
+}

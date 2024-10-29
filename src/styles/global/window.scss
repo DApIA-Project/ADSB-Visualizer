@@ -1,0 +1,86 @@
+
+@import "sizing.scss";
+
+.window{
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    z-index: 1000;
+    background-color: $backgound-1;
+
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    flex-direction: column;
+    border-radius: min(1vw, 1vh, 10px);
+}
+
+.window>h1{
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    box-sizing: border-box;
+    width: 100%;
+    height: ratio-from(40px);
+
+    margin: 0px;
+    padding: 0 ratio-from(15px);
+
+    font-size: ratio-from(20px);
+    text-align: center;
+
+    border-radius: min(1vw, 1vh, 10px) min(1vw, 1vh, 10px) 0 0;
+    background-color: $backgound-2;
+}
+
+
+.window>h1>div{
+    flex-grow: 1;
+
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    flex-direction: row;
+    width: 20%;
+    height: 100%;
+
+    font-size: ratio-from(3vw);
+}
+
+.window>h1>div>*{
+    margin: ratio-from(3px);
+    padding: ratio-from(3px);
+}
+
+.window>h1 span{
+    font-size: ratio-from(15px);
+}
+
+
+.window>div{
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    width: 100%;
+    overflow-y: auto;
+    padding: 0 ratio-from(5px);
+}
+
+.window>div>.line{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    align-items: center;
+    width: 100%;
+}
+
+
+// .window>div>h2{
+//     margin: 10px 0px 0px 30px;
+//     font-size: 20px;
+// }
+
+

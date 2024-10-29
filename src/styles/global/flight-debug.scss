@@ -1,0 +1,14 @@
+
+// import scss sizing.scss
+@import "sizing.scss";
+
+#window-flight-debug{
+
+    background-color: rgba($backgound-1, 0.8);
+
+    top: ratio-from(340px);
+    left: ratio-from(20px);
+
+    width: ratio-from(350px);
+    height: ratio-from(250px);
+}

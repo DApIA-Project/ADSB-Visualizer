@@ -1,0 +1,157 @@
+
+input:focus {
+    outline: none;
+}
+
+
+.btn, .btn-valid, .btn-alert, .btn-cancel, .btn-info{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    width: fit-content;
+
+    background-color: $backgound-1;
+    border: none;
+    color: #d6d6d6;
+    text-decoration: none;
+
+    padding: min(2%, 5px);
+    border-radius: 20%;
+
+    transition: all 0.1s ease-in-out;
+
+    -webkit-user-select: none; /* Safari */
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* IE10+/Edge */
+    user-select: none; /* Standard */
+    user-drag: none;
+
+    font-size: inherit;
+}
+
+a.btn{
+    cursor: pointer;
+
+}
+.btn-valid{
+    background-color: #5d8c43;
+
+}
+.btn-alert{
+    background-color: #b38833;
+
+}
+.btn-cancel{
+    background-color: #c23616;
+}
+.btn-info{
+    background-color: #43688c;
+}
+a.btn:hover{
+    background-color: $backgound-1;
+
+    transform: scale(1.05);
+    transition: all 0.1s ease-in-out;
+}
+a.btn-valid:hover{
+    background-color: #3a6523;
+
+    transform: scale(1.05);
+    transition: all 0.1s ease-in-out;
+}
+a.btn-alert:hover{
+    background-color: #9b752b;
+
+    transform: scale(1.05);
+    transition: all 0.1s ease-in-out;
+}
+a.btn-cancel:hover{
+    background-color: #8c1e05;
+
+    transform: scale(1.05);
+    transition: all 0.1s ease-in-out;
+}
+a.btn-info:hover{
+    background-color: #43688c;
+
+    transform: scale(1.05);
+    transition: all 0.1s ease-in-out;
+}
+
+
+img{
+
+    user-drag: none;
+    -webkit-user-drag: none;
+}
+
+input[type="text"]{
+    color: $base;
+    background-color: $backgound-3;
+    border: 1px solid $backgound-1;
+}
+
+select{
+    color: $base;
+    background-color: $backgound-3;
+    border: 1px solid $backgound-1;
+}
+
+
+/* The switch - the box around the slider */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 30px;
+    height: 16px;
+}
+
+  /* Hide default HTML checkbox */
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+  /* The slider */
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    -webkit-transition: .4s;
+    transition: .4s;
+    border-radius: 10000px;
+}
+
+.slider>span {
+    position: absolute;
+    content: "";
+    height: 80%;
+    aspect-ratio : 1 / 1;
+    left: 0;
+    bottom: 10%;
+    border-radius: 50%;
+    background-color: white;
+    -webkit-transition: .4s;
+    transition: .4s;
+
+    transform: translateX(15%);
+}
+
+input:checked + .slider {
+    background-color: #2196F3;
+}
+
+input:focus + .slider {
+    box-shadow: 0 0 1px #2196F3;
+}
+
+input:checked + .slider>span {
+    transform: translateX(-115%);
+    left: 100%;
+}
