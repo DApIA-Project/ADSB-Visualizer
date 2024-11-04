@@ -103,16 +103,16 @@ function onPageLoad() {
     });
 
 
-    // setTimeout(() => {
-    //     fetch(debug_csv).then(response => response.text()).then(text => {
-    //         var content = text;
-    //         inpurReader.addFile("debug.csv", content);
-    //     });
+    setTimeout(() => {
+        // fetch(debug_csv).then(response => response.text()).then(text => {
+        //     var content = text;
+        //     inpurReader.addFile("debug.csv", content);
+        // });
 
-    //     // simulate
-    //     document.getElementById("show-debug").click();
+        // simulate
+        // document.getElementById("show-debug").click();
 
-    // }, 1000);
+    }, 1000);
 
 
 

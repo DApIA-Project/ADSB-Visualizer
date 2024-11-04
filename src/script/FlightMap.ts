@@ -192,9 +192,11 @@ export class FlightMap {
         let flight = this.database.findFlight(this.highlighted_flight);
         this.highlighted_flight = -1;
         let tag_hashes = flight.getTagsHashes();
-
+        
         for (let tag_hash of tag_hashes) {
             let trajectory_hash = flight.getHash() + tag_hash;
+            console.log(trajectory_hash);
+
             if (this.markers.has(trajectory_hash)){
                 this.markers.get(trajectory_hash).getElement().classList.remove('highlight');
             }

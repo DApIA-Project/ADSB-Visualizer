@@ -1,3 +1,4 @@
+@import "sizing.scss";
 
 input:focus {
     outline: none;
@@ -16,7 +17,9 @@ input:focus {
     color: #d6d6d6;
     text-decoration: none;
 
-    padding: min(2%, 5px);
+
+    // margin: ratio-from(3px);
+    padding: ratio-from(3px);
     border-radius: 20%;
 
     transition: all 0.1s ease-in-out;

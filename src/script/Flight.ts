@@ -149,6 +149,7 @@ export class Flight {
         this.end_time = a.timestamp[a.timestamp.length - 1];
 
         this.tag = new Array(this.time.length).fill("0");
+        this.unique_tag = new Set(["0"]);
         this.type = computeAircraftType(this.callsign[Math.floor(this.callsign.length / 2)], this.icao24);
         this.hash = this.computeHash();
 

@@ -96,7 +96,14 @@ export class Debugger {
     constructor() {
         this.init_flooding_chart();
         this.init_spoofing_chart();
+
         this.html = document.getElementById('window-flight-debug');
+        this.html.style.display = 'none';
+
+        document.getElementById('close-flight-debug-btn').addEventListener('click', () => {
+            this.close();
+        });
+
     }
 
     public setMap(map: FlightMap) {
@@ -107,11 +114,14 @@ export class Debugger {
     public active(){
         this.is_active = true;
         this.map.debug_mode_changed();
+        if (this.flight != undefined)
+            this.open();
     }
 
     public desactive(){
         this.is_active = false;
         this.map.debug_mode_changed();
+        this.close();
     }
 
     public open(){
@@ -180,13 +190,18 @@ export class Debugger {
     private update_flooding_chart(timestamp:number){
         const COLORS = ["#e74c3c", "#f39c12", "#2ecc71", "#3498db", "#9b59b6", "#34495e", "#16a085", ];
 
+        let flight_flooding_loss = this.flight.getDebugData("debug_flooding_loss")
+        if (flight_flooding_loss == undefined) return;
+
         // loss timeserie for sub-flights
         let sub_flights:{[key:string]:number[]} = {};
         let [a, b] = this.flight.getIndicesAtTimeRange(timestamp-max_lenght*2, timestamp);
 
-        let flight_flooding_loss = this.flight.getDebugData("debug_flooding_loss").slice(a, b);
+        flight_flooding_loss = flight_flooding_loss.slice(a, b);
         let tags = this.flight.get("tag").slice(a, b);
         let ts_ = this.flight.get("time").slice(a, b);
+
+
 
 
 
@@ -256,9 +271,12 @@ export class Debugger {
 
     private update_spoofing_chart(timestamp:number){
         const filter_tag = "0"
+        let flight_spoofing_proba = this.flight.getDebugData("debug_spoofing_proba")
+        if (flight_spoofing_proba == undefined) return;
+
         let [a, b] = this.flight.getIndicesAtTimeRange(timestamp-max_lenght*2, timestamp);
 
-        let flight_spoofing_proba = this.flight.getDebugData("debug_spoofing_proba").slice(a, b);
+        flight_spoofing_proba = flight_spoofing_proba.slice(a, b);
         let tags = this.flight.get("tag").slice(a, b);
         let ts_ = this.flight.get("time").slice(a, b);
 

@@ -437,11 +437,8 @@ export class FlightDB {
 
         this.flightInfoDisplayer.displayFlight(flight);
         this.flightInfoDisplayer.update(this.timer.getTimestamp());
-
-        if (this.debugger.isActived()){
-            this.debugger.displayFlight(flight);
-            this.debugger.update(this.timer.getTimestamp());
-        }
+        this.debugger.displayFlight(flight);
+        this.debugger.update(this.timer.getTimestamp());
     }
 
     public recalculate_db(): void {
