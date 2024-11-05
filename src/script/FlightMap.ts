@@ -192,7 +192,7 @@ export class FlightMap {
         let flight = this.database.findFlight(this.highlighted_flight);
         this.highlighted_flight = -1;
         let tag_hashes = flight.getTagsHashes();
-        
+
         for (let tag_hash of tag_hashes) {
             let trajectory_hash = flight.getHash() + tag_hash;
             console.log(trajectory_hash);
@@ -331,8 +331,12 @@ export class FlightMap {
                     }
                 }
                 while (i < actual_makers.length) {
+                    console.log("remove marker");
+
                     this.debug_cross_cloud.removeMarker(actual_makers.pop());
                 }
+                console.log(this.debug_markers);
+
             }
         }
 
@@ -341,17 +345,16 @@ export class FlightMap {
             if (!visible){
                 this.polylines.get(key).removeLayer();
                 this.map.removeLayer(this.markers.get(key));
-
+                this.markers.delete(key);
                 this.polylines.delete(key);
 
                 if (this.debug.isActived()){
                     for (let marker of this.debug_markers.get(key)) {
                         this.debug_cross_cloud.removeMarker(marker);
                     }
-                    this.markers.delete(key);
+                    this.debug_markers.delete(key);
                 }
             }
-
         }
 
         // if show range hide all markers

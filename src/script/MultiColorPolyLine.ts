@@ -196,6 +196,8 @@ export class CrossCloudLayer{
         let index =  -1;
         if (this.available_slots.length > 0){
             index = this.available_slots.pop();
+            if (this.makers[index].visible)
+                console.log("Error: marker is already visible");
         }
         else{
             index = this.makers.length;
@@ -221,7 +223,12 @@ export class CrossCloudLayer{
         let marker = this.makers[index];
         marker.visible = false;
         this.pixiOverlay.redraw();
+        // check if index is in available_slots
+        if (this.available_slots.indexOf(index) != -1) {
+            console.log("Error: index is already in available_slots");
+        }
         this.available_slots.push(index);
+
     }
 
     public clear(){

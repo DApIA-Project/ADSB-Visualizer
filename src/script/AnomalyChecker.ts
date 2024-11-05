@@ -30,7 +30,7 @@ export class AnomalyChecker {
     }
 
     public async checkMessages(messages:ApiRequest) {
-        if(messages == undefined || messages.data.length == 0) return true
+        if(messages == undefined || messages.data.length == 0) return false;
 
         let anomaly_updated = false;
 

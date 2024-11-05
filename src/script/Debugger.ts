@@ -152,7 +152,6 @@ export class Debugger {
     }
 
     public update(timestamp:number){
-        console.log("update debugger");
 
         if (!this.is_open)
             return;
@@ -285,7 +284,6 @@ export class Debugger {
 
         for (let i = 0; i < flight_spoofing_proba.length; i++) {
             if (tags[i] == filter_tag){
-                console.log(flight_spoofing_proba[i]);
                 if(flight_spoofing_proba[i]==undefined){
                     data[0].push(undefined);
                     data[1].push(undefined);
