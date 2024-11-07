@@ -36,11 +36,11 @@
     width: ratio-from(8vw);
     border-radius: ratio-from(5px);
     padding: 0;
-    border: ratio-from(0.5vw) solid $backgound-2;
+    border: ratio-from(3px) solid $backgound-2;
 }
 
 #window-flight-attack a.selected>img{
-    border: ratio-from(0.5vw) solid $secondary;
+    border: ratio-from(3px) solid $secondary;
 }
 
 #window-flight-attack img:hover{

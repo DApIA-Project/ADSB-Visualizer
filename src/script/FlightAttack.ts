@@ -268,8 +268,30 @@ export class FlightAttack {
     }
 
     public make_saturation(flight_hash: number) {
-        // this.make_test_saturation(flight_hash);
-        this.make_saturation_FDIT(flight_hash);
+        this.make_test_saturation(flight_hash);
+        // this.make_saturation_FDIT(flight_hash);
+    }
+
+    private check_validity_for_saturation(timestamps:number[], lats:number[], lons:number[], i) {
+        const check_delay = 5
+        if (i < check_delay) {
+            return false;
+        }
+        if (i > timestamps.length - check_delay) {
+            return false;
+        }
+
+        // the flight should not have any missing timestamp between i-check_delay and i+check_delay
+        for (let j = i - check_delay; j <= i + check_delay; j++) {
+            if (timestamps[j] - timestamps[j - 1] > 1) {
+                return false;
+            }
+            if (lats[j] == lats[j - 1] && lons[j] == lons[j - 1]) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     public make_test_saturation(flight_hash: number) {
@@ -281,9 +303,24 @@ export class FlightAttack {
         let time = Math.floor(this.timeManager.getTimestamp());
         let i = flight.getIndiceAtTime(time);
 
-        let lats = flight["lat"].slice(i);
-        let lons = flight["lon"].slice(i);
-        let tracks = flight["heading"].slice(i);
+        let timestamps = flight["time"];
+        let lats = flight["lat"]
+        let lons = flight["lon"]
+        let tracks = flight["heading"]
+
+        while(i < timestamps.length && !this.check_validity_for_saturation(timestamps, lats, lons, i)) {
+            i++;
+        }
+
+        lats = lats.slice(i);
+        lons = lons.slice(i);
+        tracks = tracks.slice(i);
+
+
+        if (i >= timestamps.length) {
+            console.log("cannot saturate this flight");
+            return;
+        }
 
         const devs_ = [[45, 30, 15, -15, -30, -45], [60, 45, 30, 15, -15, -30], [30, 15, -15, -30, -45, -60], [75, 60, 45, 30, 15, -15], [15, -15, -30, -45, -60, -75]];
         let devs = devs_[Math.floor(Math.random() * devs_.length)];
