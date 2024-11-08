@@ -121,6 +121,8 @@ export class FlightMap {
         this.map = L.map('map', {
             center: [0, 0],
             zoom: 2,
+            zoomDelta: 0.25,
+            wheelPxPerZoomLevel: 264,
             keyboard: false,
             preferCanvas: true
         });
