@@ -268,8 +268,8 @@ export class FlightAttack {
     }
 
     public make_saturation(flight_hash: number) {
-        this.make_test_saturation(flight_hash);
-        // this.make_saturation_FDIT(flight_hash);
+        // this.make_test_saturation(flight_hash);
+        this.make_saturation_FDIT(flight_hash);
     }
 
     private check_validity_for_saturation(timestamps: number[], lats: number[], lons: number[], i) {
