@@ -1,12 +1,11 @@
-import { FlightMap } from "./FlightMap";
-import { replays } from "./Replays";
-import { loadFromCSV } from "./parsers/parse_csv";
-import Flight, { AircraftType } from "./Flight";
-import { TimeManager } from "./TimeManager";
-import { FlightDB } from "./FlightDB";
-import { ADSBMessage, MultiADSBMessage } from "./Types";
+import {FlightMap} from "./FlightMap";
+import {replays} from "./Replays";
+import {loadFromCSV} from "./parsers/parse_csv";
+import Flight, {AircraftType} from "./Flight";
+import {TimeManager} from "./TimeManager";
+import {FlightDB} from "./FlightDB";
+import {MultiADSBMessage} from "./Types";
 import {always, and, Engine, saturation, target} from "@dapia-project/alteration-ts";
-
 
 
 export enum AttackType {
@@ -101,7 +100,7 @@ export class FlightAttack {
     private timeManager: TimeManager;
     private flightDB: FlightDB;
 
-    private is_open:boolean;
+    private is_open: boolean;
 
 
     constructor() {
@@ -121,11 +120,12 @@ export class FlightAttack {
 
     }
 
-    public open(){
+    public open() {
         document.getElementById("window-flight-attack").style.display = "flex";
         this.is_open = true;
     }
-    public close(){
+
+    public close() {
         document.getElementById("window-flight-attack").style.display = "none";
         this.is_open = false;
     }
@@ -272,7 +272,7 @@ export class FlightAttack {
         // this.make_saturation_FDIT(flight_hash);
     }
 
-    private check_validity_for_saturation(timestamps:number[], lats:number[], lons:number[], i) {
+    private check_validity_for_saturation(timestamps: number[], lats: number[], lons: number[], i) {
         const check_delay = 5
         if (i < check_delay) {
             return false;
@@ -308,7 +308,7 @@ export class FlightAttack {
         let lons = flight["lon"]
         let tracks = flight["heading"]
 
-        while(i < timestamps.length && !this.check_validity_for_saturation(timestamps, lats, lons, i)) {
+        while (i < timestamps.length && !this.check_validity_for_saturation(timestamps, lats, lons, i)) {
             i++;
         }
 
@@ -358,7 +358,7 @@ export class FlightAttack {
 
         let deviant_data = [];
         for (const [icao, coordinates] of Array.from(ghosts.entries())) {
-            if(icao !== flight.icao24) {
+            if (icao !== flight.icao24) {
                 const lats = coordinates.map(coords => coords[0])
                 const lons = coordinates.map(coords => coords[1])
                 const tracks = coordinates.map(coords => coords[2])
@@ -369,7 +369,7 @@ export class FlightAttack {
         for (let t = flight.getLength() - 1; t >= i; t--) {
             let ith = t - i;
             for (let j = 0; j < deviant_data.length; j++) {
-                flight.insert_message_for_saturation(t+1,
+                flight.insert_message_for_saturation(t + 1,
                     deviant_data[j][0][ith], deviant_data[j][1][ith], deviant_data[j][2][ith]);
                 flight.setTag(t + 1, (j + 1).toString())
             }
@@ -379,7 +379,7 @@ export class FlightAttack {
     }
 
 
-    public call_FDIT_engine(flight:Flight, i:number) {
+    public call_FDIT_engine(flight: Flight, i: number) {
 
         const engine = new Engine({
             actions: [
@@ -402,8 +402,8 @@ export class FlightAttack {
             aircraftID: flight.getHash(),
             flightID: flight.getHash(),
             hexIdent: flight.icao24,
-            timestampGenerated: message.timestamp,
-            timestampLogged: message.timestamp,
+            timestampGenerated: message.timestamp * 1000,
+            timestampLogged: message.timestamp * 1000,
         })))
         const ghosts: Map<string, number[][]> = new Map()
         for (const message of result.recording) {
