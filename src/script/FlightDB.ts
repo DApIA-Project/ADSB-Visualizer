@@ -551,7 +551,7 @@ export class FlightDB {
 
         for (const flight of this.flights) {
             // if flight is not visible, we don't need to get the messages
-            if (flight.getStartTimestamp() <= timestamp && timestamp <= flight.getEndTimestamp() && icao24.has(flight.icao24)) {
+            if (flight.getStartTimestamp() <= timestamp && timestamp <= flight.getEndTimestamp() && !icao24.has(flight.icao24)) {
 
                 let start_i = flight.getLastCheckRequest() + 1;
                 if (start_i == 0) flight_to_reset.push(flight.icao24);
