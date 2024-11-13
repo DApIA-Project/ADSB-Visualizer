@@ -541,21 +541,25 @@ export class FlightDB {
 
 
 
-    public getMessagesForAnomalyChecker(timestamp:number = undefined) : ApiRequest
+    public getMessagesForAnomalyChecker(timestamp:number = undefined) : [ApiRequest, Array<string>]
     {
         let data = Array<ADSBMessage>();
-        let flight_hash = Array<number>();
-        let flight_t = Array<number>();
+        let flight_hash = new Array<number>();
+        let flight_t = new Array<number>();
+        let icao24 = new Set<string>();
+        let flight_to_reset = new Array<string>();
 
         for (const flight of this.flights) {
             // if flight is not visible, we don't need to get the messages
-            if (flight.getStartTimestamp() <= timestamp && timestamp <= flight.getEndTimestamp()) {
+            if (flight.getStartTimestamp() <= timestamp && timestamp <= flight.getEndTimestamp() && icao24.has(flight.icao24)) {
 
                 let start_i = flight.getLastCheckRequest() + 1;
+                if (start_i == 0) flight_to_reset.push(flight.icao24);
                 let end_i = flight.getIndiceAtTime(timestamp, start_i-1);
                 if(end_i == -1) continue;
                 for (let j = start_i; j <= end_i; j++) {
                     data.push(flight.getMessage(j));
+                    icao24.add(flight.icao24);
                     flight_hash.push(flight.getHash());
                     flight_t.push(j);
                 }
@@ -563,7 +567,7 @@ export class FlightDB {
             }
         }
 
-        return {data: data, flight_hash: flight_hash, flight_t: flight_t};
+        return [{data: data, flight_hash: flight_hash, flight_t: flight_t}, flight_to_reset];
     }
 
 
@@ -788,8 +792,16 @@ export class FlightDB {
     }
 
     public reset() {
-        for (let flight of this.flights) {
-            flight.reset();
+        for (let i = 0; i < this.flights.length; i++) {
+            const flight = this.flights[i];
+            if (flight.getBaseIcao().startsWith("rep"))
+            {
+                this.removeFlight(i);
+                i--;
+            }
+            else{
+                flight.reset();
+            }
         }
     }
 

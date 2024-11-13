@@ -252,14 +252,43 @@ export class FlightAttack {
         this.map.update(this.timeManager.getTimestamp(), this.timeManager.getTimestamp());
     }
 
+    private can_spoof(start_time: number, end_time: number, icao: string) {
+        let flights = this.flightDB.getFlights()
+        // check if there is no other flight with the same icao24
+        for (const flight of flights) {
+            const s = flight.getStartTimestamp();
+            const e = flight.getEndTimestamp();
+            if (!(s > end_time || e < start_time)){
+                if (flight["icao24"] == icao)
+                    return false;
+            }
+        }
+        return true;
+    }
+
     public make_spoofing(flight_hash: number) {
 
         let flight = this.flightDB.findFlight(flight_hash);
+        const start_time = flight.getStartTimestamp();
+        const end_time = flight.getEndTimestamp();
 
-        if (flight.getType() != AircraftType.SAMU) {
-            flight.spoof_icao(SAMU[Math.floor(Math.random() * SAMU.length)]);
-        } else {
-            flight.spoof_icao(MEDIUM[Math.floor(Math.random() * MEDIUM.length)]);
+        let DB = SAMU
+        if (flight.getType() == AircraftType.SAMU) {
+            DB = MEDIUM
+        }
+        let found = false;
+        const i = Math.floor(Math.random() * DB.length);
+        for (let d = 0; d < DB.length; d++) {
+            const icao = DB[(i+d)%DB.length];
+            if (this.can_spoof(start_time, end_time, icao)) {
+                flight.spoof_icao(icao);
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            console.log("[ERROR] Cannot spoof this flight");
+            return;
         }
 
         this.flightDB.recalculate_db();
@@ -274,7 +303,7 @@ export class FlightAttack {
 
     private check_validity_for_saturation(timestamps: number[], lats: number[], lons: number[], i) {
         const check_delay = 5
-        if (i < check_delay) {
+        if (i < 30) {
             return false;
         }
         if (i > timestamps.length - check_delay) {
@@ -352,7 +381,14 @@ export class FlightAttack {
 
 
         let time = Math.floor(this.timeManager.getTimestamp());
+        let timestamps = flight["time"];
+        let lats = flight["lat"]
+        let lons = flight["lon"]
         let i = flight.getIndiceAtTime(time);
+
+        while (i < timestamps.length && !this.check_validity_for_saturation(timestamps, lats, lons, i)) {
+            i++;
+        }
 
         const ghosts = this.call_FDIT_engine(flight, i);
 

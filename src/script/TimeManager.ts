@@ -141,9 +141,18 @@ export class TimeManager{
 
     /** Toutes les secondes -> checkAnomaly et setAnomaly **/
     private async  updateAnomaly(){
+        console.log("ok");
+
         if (!this.anomalyChecker.isServerInactive()){
             // gather for all visible aircrafts their messages since the last anomaly check
-            let messages = this.database.getMessagesForAnomalyChecker(this.time)
+            let  [messages, icao24_to_reset] = this.database.getMessagesForAnomalyChecker(this.time)
+            console.log(messages);
+            console.log(icao24_to_reset);
+
+
+            if (icao24_to_reset.length > 0){
+                await this.anomalyChecker.resetFlights(icao24_to_reset);
+            }
             if (await this.anomalyChecker.checkMessages(messages)){
                 this.new_anomaly_received = true;
             }

@@ -129,10 +129,13 @@ export class Flight {
     private last_anomaly: number = -1;
     private last_check_request: number = -1;
 
+    private base_icao: string = "" // save original icao to revert spoofing attacks
+
 
     setAttribute(a: MultiADSBMessage) {
         this.time = a.timestamp;
         this.icao24 = a.icao24;
+        this.base_icao = this.icao24;
         this.lat = a.latitude;
         this.lon = a.longitude;
         this.velocity = a.groundspeed;
@@ -273,12 +276,16 @@ export class Flight {
 
     computeHash(): number {
         let hash = 1;
-        hash += U.hash_string(this.icao24);
+        hash += U.hash_string(this.base_icao);
         hash += this.start_time;
         hash += this.lat[0] * 10e6 + this.lon[0] * 10e6;
         hash %= 10e9;
 
         return hash;
+    }
+
+    getBaseIcao(): string {
+        return this.base_icao;
     }
 
     getHash(): number {
@@ -512,9 +519,15 @@ export class Flight {
     }
 
     public spoof_icao(new_icao: string, callsign: string = "") {
+        if (this.base_icao != this.icao24) return false;
         this.icao24 = new_icao;
         this.callsign.fill(callsign);
         this.type = computeAircraftType(this.callsign[Math.floor(this.callsign.length / 2)], this.icao24);
+        this.anomaly.fill(undefined);
+        this.last_anomaly = -1; // recalculate the whole flight
+        this.last_check_request = -1;
+
+        return true;
     }
 
     // overlead the [] operator
@@ -546,6 +559,7 @@ export class Flight {
         let f = new Flight();
         f.time = [...this.time];
         f.icao24 = this.icao24;
+        f.base_icao = this.base_icao;
         f.lat = [...this.lat];
         f.lon = [...this.lon];
         f.velocity = [...this.velocity];
@@ -570,9 +584,45 @@ export class Flight {
     }
 
     public reset() {
+        this.icao24 = this.base_icao; // revert spoofing attacks
+        this.type = computeAircraftType(this.callsign[Math.floor(this.callsign.length / 2)], this.icao24);
+
+        this.reset_saturation();
         this.anomaly.fill(undefined);
         this.last_anomaly = -1;
         this.last_check_request = -1;
+
+        for (let key in this.debug) {
+            this.debug[key].fill(undefined);
+        }
+    }
+
+    private reset_saturation() {
+        // remove every message with a tag different from 0
+        for (let i = 0; i < this.tag.length; i++) {
+            if (this.tag[i] != "0") {
+                this.time.splice(i, 1);
+                this.lat.splice(i, 1);
+                this.lon.splice(i, 1);
+                this.velocity.splice(i, 1);
+                this.heading.splice(i, 1);
+                this.vertical_rate.splice(i, 1);
+                this.callsign.splice(i, 1);
+                this.on_ground.splice(i, 1);
+                this.alert.splice(i, 1);
+                this.spi.splice(i, 1);
+                this.squawk.splice(i, 1);
+                this.baro_altitude.splice(i, 1);
+                this.geo_altitude.splice(i, 1);
+                this.tag.splice(i, 1);
+                this.anomaly.splice(i, 1);
+                for (let key in this.debug) {
+                    this.debug[key].splice(i, 1);
+                }
+                i--;
+            }
+        }
+        this.unique_tag = new Set(["0"]);
     }
 }
 
