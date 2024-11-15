@@ -30,11 +30,8 @@ export class AnomalyChecker {
     }
 
     public async resetFlights(icaos: string[]){
-        console.log(icaos);
-
         try{
             let result = await axios.post("http://127.0.0.1:3033/reset", icaos, {responseType: 'json'});
-            console.log(result);
         }
         catch(e){
             console.log(e);

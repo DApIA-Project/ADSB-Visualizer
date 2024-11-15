@@ -419,8 +419,7 @@ export class FlightDB {
     public watchFlight(flight_hash: number): void {
         const flight = this.hash_table[flight_hash];
         if (flight == undefined) return;
-        this.map.fitBounds(flight.getbounds());
-        this.map.highlightFlight(flight);
+
 
         // if flight is not visible, set timer to flight start time
         if (this.timer.getTimestamp() < flight.getStartTimestamp()
@@ -429,8 +428,16 @@ export class FlightDB {
             this.timer.setTimestamp(flight.getStartTimestamp());
         }
 
-        // if the user never used the timer (inital configuration -> paused timer),
-        // play it automatically
+        let t = flight.getIndiceAtTime(this.timer.getTimestamp());
+        let message = flight.getMessage(t);
+        if (!this.map.getBounds().contains([message.latitude, message.longitude])) {
+            this.map.fitBounds(flight.getbounds());
+        }
+
+        this.map.highlightFlight(flight);
+
+        // if the user never used the timer (first file loaded)
+        // play it automatically when the user click on a flight
         if (this.timer.neverPlayed()) {
             this.timer.onPlayButton();
         }

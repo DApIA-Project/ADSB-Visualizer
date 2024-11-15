@@ -210,7 +210,7 @@ export class Flight {
         this.anomaly = this.anomaly.slice(start, end);
     }
 
-    insert_message_for_saturation(i, lat, lon, track) {
+    insert_message_for_flooding(i, lat, lon, track) {
         this.time.splice(i, 0, this.time[i - 1]);
         this.lat.splice(i, 0, lat);
         this.lon.splice(i, 0, lon);
@@ -274,12 +274,17 @@ export class Flight {
         this.last_check_request = timestamp;
     }
 
+    simple_hash_int(int:number):number{
+        return (int >> 7 * int << 3) % 1e9;
+    }
+
     computeHash(): number {
         let hash = 1;
         hash += U.hash_string(this.base_icao);
-        hash += this.start_time;
-        hash += this.lat[0] * 10e6 + this.lon[0] * 10e6;
-        hash %= 10e9;
+        hash += this.simple_hash_int(Math.round(this.start_time));
+        hash += this.simple_hash_int(Math.round(this.lat[0] * 10e6)) + this.simple_hash_int(Math.round(this.lon[0] * 1e6));
+        hash %= 1e9;
+        while (hash < 0) hash += 1e9;
 
         return hash;
     }
@@ -587,7 +592,7 @@ export class Flight {
         this.icao24 = this.base_icao; // revert spoofing attacks
         this.type = computeAircraftType(this.callsign[Math.floor(this.callsign.length / 2)], this.icao24);
 
-        this.reset_saturation();
+        this.reset_flooding();
         this.anomaly.fill(undefined);
         this.last_anomaly = -1;
         this.last_check_request = -1;
@@ -597,7 +602,7 @@ export class Flight {
         }
     }
 
-    private reset_saturation() {
+    private reset_flooding() {
         // remove every message with a tag different from 0
         for (let i = 0; i < this.tag.length; i++) {
             if (this.tag[i] != "0") {

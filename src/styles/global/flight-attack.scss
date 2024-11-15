@@ -26,8 +26,14 @@
     user-select: none;
 
     font-size: ratio-from(16px);
+
+    position: relative;
 }
 
+
+#window-flight-attack a.failed>img{
+    border: ratio-from(3px) solid #e2502f !important;
+}
 
 
 #window-flight-attack img{
@@ -46,6 +52,12 @@
 #window-flight-attack img:hover{
     background-color: $backgound-1;
     border-color: $backgound-1;
+}
+
+#window-flight-attack .loading{
+    position: absolute;
+    top: 0;
+    left: 0;
 }
 
 

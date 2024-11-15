@@ -2,6 +2,7 @@
 import Chart from 'chart.js/auto';
 import { FlightMap } from "./FlightMap";
 import Flight from './Flight';
+import { TimeManager } from './TimeManager';
 
 
 const baseColor = "#dfe6e9"
@@ -83,9 +84,12 @@ function make_chart(id, dataset, y_min?:number, y_max?:number):Chart{
 
 export class Debugger {
 
+
+    private map: FlightMap;
+    private timeManager: TimeManager;
+
     private is_active:boolean = false;
     private is_open:boolean = false
-    private map: FlightMap;
     private flight:Flight = undefined;
     private html:HTMLElement = undefined;
 
@@ -109,13 +113,19 @@ export class Debugger {
     public setMap(map: FlightMap) {
         this.map = map;
     }
+    public setTimer(timeManager:TimeManager){
+        this.timeManager = timeManager;
+    }
 
 
     public active(){
         this.is_active = true;
         this.map.debug_mode_changed();
-        if (this.flight != undefined)
+        if (this.flight != undefined){
             this.open();
+            this.update(this.timeManager.getTimestamp());
+        }
+
     }
 
     public desactive(){

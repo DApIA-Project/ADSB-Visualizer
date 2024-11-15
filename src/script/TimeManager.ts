@@ -141,14 +141,10 @@ export class TimeManager{
 
     /** Toutes les secondes -> checkAnomaly et setAnomaly **/
     private async  updateAnomaly(){
-        console.log("ok");
 
         if (!this.anomalyChecker.isServerInactive()){
             // gather for all visible aircrafts their messages since the last anomaly check
             let  [messages, icao24_to_reset] = this.database.getMessagesForAnomalyChecker(this.time)
-            console.log(messages);
-            console.log(icao24_to_reset);
-
 
             if (icao24_to_reset.length > 0){
                 await this.anomalyChecker.resetFlights(icao24_to_reset);
@@ -208,6 +204,8 @@ export class TimeManager{
             this.flightAttack.update_stats();
             this.last_time = this.time;
             this.new_anomaly_received = false;
+
+            this.flightAttack.update(this.time);
         }
 
         // do a jump is there is nothing to display or if the jump is activated

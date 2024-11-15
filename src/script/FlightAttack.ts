@@ -11,7 +11,7 @@ import {always, and, Engine, saturation, target} from "@dapia-project/alteration
 export enum AttackType {
     NONE = -1,
     SPOOFING = 0,
-    SATURATION = 1,
+    FLOODING = 1,
     REPLAY = 2
 }
 
@@ -102,12 +102,17 @@ export class FlightAttack {
 
     private is_open: boolean;
 
+    private html_loading: HTMLElement;
+    private flooding_timestamp:number = -1;
+    private last_update_timestamp:number = -1;
+
 
     constructor() {
         this.html_attacks = Array.from(document.querySelectorAll('#window-flight-attack .attack'));
         for (let i = 0; i < this.html_attacks.length; i++) {
             this.html_attacks[i].addEventListener('click', (event) => this.select_attack(i));
         }
+        this.html_loading = document.getElementById("loading-flooding");
         setTimeout(() => {
             this.load_replays();
         }, 1000);
@@ -183,6 +188,40 @@ export class FlightAttack {
         }
     }
 
+    private start_flooding_loading(until_timestamp){
+        this.flooding_timestamp = until_timestamp;
+        this.html_loading.style.display = "block";
+    }
+    private stop_flooding_loading(){
+        this.flooding_timestamp = -1;
+        this.html_loading.style.display = "none";
+    }
+    private animate_flooding_failed(){
+        this.html_attacks[AttackType.FLOODING].classList.add("failed");
+        setTimeout(() => {
+            this.html_attacks[AttackType.FLOODING].classList.remove("failed");
+        }, 500);
+
+    }
+    private animate_spooofing_failed(){
+        this.html_attacks[AttackType.SPOOFING].classList.add("failed");
+        setTimeout(() => {
+            this.html_attacks[AttackType.SPOOFING].classList.remove("failed");
+        }, 500);
+    }
+
+
+    public update(timestamp:number){
+        // update loading animation
+        if (this.flooding_timestamp != -1 && timestamp > this.flooding_timestamp){
+            this.stop_flooding_loading();
+        }
+        if (this.last_update_timestamp > timestamp){
+            this.stop_flooding_loading();
+        }
+
+        this.last_update_timestamp = timestamp;
+    }
 
     update_stats() {
         let [valid, invalid] = this.flightDB.getAnomalyStats()
@@ -193,11 +232,18 @@ export class FlightAttack {
     public make_attack_on_change() {
         if (!this.is_open) return;
         let selected_flight = this.map.getHighlightedFlight();
+
         if (selected_flight != -1) {
             if (this.selected_attack == AttackType.SPOOFING) {
                 this.make_spoofing(selected_flight);
-            } else if (this.selected_attack == AttackType.SATURATION) {
-                this.make_saturation(selected_flight);
+                setTimeout(() => {
+                    this.select_attack(AttackType.NONE);
+                }, 500);
+            } else if (this.selected_attack == AttackType.FLOODING) {
+                this.make_flooding(selected_flight);
+                setTimeout(() => {
+                    this.select_attack(AttackType.NONE);
+                }, 500);
             }
         }
     }
@@ -211,15 +257,16 @@ export class FlightAttack {
         }
     }
 
-    public flight_clicked(flight_hash: number) {
+    public flight_highlighted(flight_hash: number) {
+        this.stop_flooding_loading();
+        console.log("flight_highlighted", flight_hash);
+
 
         if (this.selected_attack == AttackType.SPOOFING) {
             this.make_spoofing(flight_hash);
-        } else if (this.selected_attack == AttackType.SATURATION) {
-
-            this.make_saturation(flight_hash);
+        } else if (this.selected_attack == AttackType.FLOODING) {
+            this.make_flooding(flight_hash);
         }
-
         this.select_attack(AttackType.NONE);
     }
 
@@ -288,6 +335,7 @@ export class FlightAttack {
         }
         if (!found) {
             console.log("[ERROR] Cannot spoof this flight");
+            this.animate_spooofing_failed();
             return;
         }
 
@@ -296,12 +344,39 @@ export class FlightAttack {
         this.map.update(this.timeManager.getTimestamp(), this.timeManager.getTimestamp());
     }
 
-    public make_saturation(flight_hash: number) {
-        // this.make_test_saturation(flight_hash);
-        this.make_saturation_FDIT(flight_hash);
+    public make_flooding(flight_hash: number) {
+        // check if flooding possible
+        let flight = this.flightDB.findFlight(flight_hash);
+        if (flight.getTagsHashes().length > 1) {
+            this.animate_flooding_failed();
+            return;// already saturated
+        }
+
+        let time = Math.floor(this.timeManager.getTimestamp());
+        let i = flight.getIndiceAtTime(time);
+
+        let timestamps = flight["time"];
+        let lats = flight["lat"]
+        let lons = flight["lon"]
+
+        while (i < timestamps.length && !this.check_validity_for_flooding(timestamps, lats, lons, i)) {
+            i++;
+        }
+
+        if (i >= timestamps.length) {
+            this.animate_flooding_failed();
+            return;
+        }
+        else{
+            this.start_flooding_loading(timestamps[i]);
+            this.flooding_timestamp = timestamps[i];
+        }
+
+        // this.make_test_flooding(flight, i);
+        this.make_flooding_FDIT(flight, i);
     }
 
-    private check_validity_for_saturation(timestamps: number[], lats: number[], lons: number[], i) {
+    private check_validity_for_flooding(timestamps: number[], lats: number[], lons: number[], i) {
         const check_delay = 5
         if (i < 30) {
             return false;
@@ -323,33 +398,11 @@ export class FlightAttack {
         return true;
     }
 
-    public make_test_saturation(flight_hash: number) {
-        let flight = this.flightDB.findFlight(flight_hash);
-        if (flight.getTagsHashes().length > 1) {
-            return;// already saturated
-        }
+    public make_test_flooding(flight: Flight, i: number) {
 
-        let time = Math.floor(this.timeManager.getTimestamp());
-        let i = flight.getIndiceAtTime(time);
-
-        let timestamps = flight["time"];
-        let lats = flight["lat"]
-        let lons = flight["lon"]
-        let tracks = flight["heading"]
-
-        while (i < timestamps.length && !this.check_validity_for_saturation(timestamps, lats, lons, i)) {
-            i++;
-        }
-
-        lats = lats.slice(i);
-        lons = lons.slice(i);
-        tracks = tracks.slice(i);
-
-
-        if (i >= timestamps.length) {
-            console.log("cannot saturate this flight");
-            return;
-        }
+        let lats = flight["lat"].slice(i)
+        let lons = flight["lon"].slice(i)
+        let tracks = flight["heading"].slice(i)
 
         const devs_ = [[45, 30, 15, -15, -30, -45], [60, 45, 30, 15, -15, -30], [30, 15, -15, -30, -45, -60], [75, 60, 45, 30, 15, -15], [15, -15, -30, -45, -60, -75]];
         let devs = devs_[Math.floor(Math.random() * devs_.length)];
@@ -363,7 +416,7 @@ export class FlightAttack {
         for (let t = flight.getLength() - 1; t >= i; t--) {
             let ith = t - i;
             for (let j = 0; j < deviant_data.length; j++) {
-                flight.insert_message_for_saturation(t + 1,
+                flight.insert_message_for_flooding(t + 1,
                     deviant_data[j][0][ith], deviant_data[j][1][ith], deviant_data[j][2][ith]);
                 flight.setTag(t + 1, (j + 1).toString())
             }
@@ -373,22 +426,7 @@ export class FlightAttack {
     }
 
 
-    public make_saturation_FDIT(flight_hash: number) {
-        let flight = this.flightDB.findFlight(flight_hash);
-        if (flight.getTagsHashes().length > 1) {
-            return;// already saturated
-        }
-
-
-        let time = Math.floor(this.timeManager.getTimestamp());
-        let timestamps = flight["time"];
-        let lats = flight["lat"]
-        let lons = flight["lon"]
-        let i = flight.getIndiceAtTime(time);
-
-        while (i < timestamps.length && !this.check_validity_for_saturation(timestamps, lats, lons, i)) {
-            i++;
-        }
+    public make_flooding_FDIT(flight: Flight, i: number) {
 
         const ghosts = this.call_FDIT_engine(flight, i);
 
@@ -405,7 +443,7 @@ export class FlightAttack {
         for (let t = flight.getLength() - 1; t >= i; t--) {
             let ith = t - i;
             for (let j = 0; j < deviant_data.length; j++) {
-                flight.insert_message_for_saturation(t + 1,
+                flight.insert_message_for_flooding(t + 1,
                     deviant_data[j][0][ith], deviant_data[j][1][ith], deviant_data[j][2][ith]);
                 flight.setTag(t + 1, (j + 1).toString())
             }
