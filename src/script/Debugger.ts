@@ -71,7 +71,7 @@ function make_chart(id, dataset, y_min?:number, y_max?:number, y_ticks?:number[]
             },
             plugins: {
                 legend: {
-                    display: true,
+                    display: false,
                 },
                 filler: {
                     propagate: false,
