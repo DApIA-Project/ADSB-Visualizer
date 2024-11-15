@@ -12,7 +12,7 @@ const bacgroundColor = "#8a8e90"
 const max_lenght = 1*60; // 10 minutes
 
 
-function make_chart(id, dataset, y_min?:number, y_max?:number):Chart{
+function make_chart(id, dataset, y_min?:number, y_max?:number, y_ticks?:number[], stacked?:boolean):Chart{
     return new Chart(id, {
         type: 'line',
         data: {
@@ -65,12 +65,17 @@ function make_chart(id, dataset, y_min?:number, y_max?:number):Chart{
                     },
                     min: y_min,
                     max: y_max,
+                    afterBuildTicks: (y_ticks != undefined) ? (axis => axis.ticks = y_ticks.map(v => ({ value: v }))):undefined,
+                    stacked: stacked,
                 },
             },
             plugins: {
                 legend: {
-                    display: false,
-                }
+                    display: true,
+                },
+                filler: {
+                    propagate: false,
+                },
             },
             animation: {
                 duration: 0,
@@ -185,15 +190,16 @@ export class Debugger {
             datasets.push({
                 label: labels[i],
                 data: [],
-                backgroundColor: colors[i],
+                backgroundColor: colors[i]+"80",
                 borderColor: colors[i],
                 borderWidth: 2,
                 pointRadius: 0,
                 cubicInterpolationMode: 'monotone',
+                fill:i==0 ? 'origin' : '-1',
             });
 
         }
-        this.spoofing_chart = make_chart('spoofing-debug-graph', datasets, 0, 1);
+        this.spoofing_chart = make_chart('spoofing-debug-graph', datasets, -0.1, 1.1, [0, 1], true);
     }
 
     private update_flooding_chart(timestamp:number){
@@ -209,8 +215,6 @@ export class Debugger {
         flight_flooding_loss = flight_flooding_loss.slice(a, b);
         let tags = this.flight.get("tag").slice(a, b);
         let ts_ = this.flight.get("time").slice(a, b);
-
-
 
 
 
@@ -286,6 +290,7 @@ export class Debugger {
         let [a, b] = this.flight.getIndicesAtTimeRange(timestamp-max_lenght*2, timestamp);
 
         flight_spoofing_proba = flight_spoofing_proba.slice(a, b);
+
         let tags = this.flight.get("tag").slice(a, b);
         let ts_ = this.flight.get("time").slice(a, b);
 
@@ -293,26 +298,31 @@ export class Debugger {
         let ts = [];
 
         for (let i = 0; i < flight_spoofing_proba.length; i++) {
-            if (tags[i] == filter_tag){
+
+            if (tags[i] == filter_tag && ts_[i] - timestamp + 2 >= -max_lenght) {
+
                 if(flight_spoofing_proba[i]==undefined){
                     data[0].push(undefined);
                     data[1].push(undefined);
                     data[2].push(undefined);
-                    ts.push(ts_[i] - timestamp + 1);
                 }
-                else if (flight_spoofing_proba[i][0] + flight_spoofing_proba[i][1] + flight_spoofing_proba[i][2] > 0)
-                {
-                    data[0].push(flight_spoofing_proba[i][0]);
-                    data[1].push(flight_spoofing_proba[i][1]);
-                    data[2].push(flight_spoofing_proba[i][2]);
-                    ts.push(ts_[i] - timestamp + 2);
-                }
-                else{
+                else if (flight_spoofing_proba[i][0] + flight_spoofing_proba[i][1] + flight_spoofing_proba[i][2] <= 0){
                     data[0].push(data[0][data[0].length-1]);
                     data[1].push(data[1][data[1].length-1]);
                     data[2].push(data[2][data[2].length-1]);
-                    ts.push(ts_[i] - timestamp + 2);
                 }
+                else{
+                    const tot = flight_spoofing_proba[i][0] + flight_spoofing_proba[i][1] + flight_spoofing_proba[i][2];
+
+                    flight_spoofing_proba[i][0] = flight_spoofing_proba[i][0] / tot;
+                    flight_spoofing_proba[i][1] = flight_spoofing_proba[i][1] / tot;
+                    flight_spoofing_proba[i][2] = flight_spoofing_proba[i][2] / tot;
+
+                    data[0].push(flight_spoofing_proba[i][0]);
+                    data[1].push(flight_spoofing_proba[i][1]);
+                    data[2].push(flight_spoofing_proba[i][2]);
+                }
+                ts.push(ts_[i] - timestamp + 2);
             }
         }
 

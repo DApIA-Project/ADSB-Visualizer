@@ -77,6 +77,7 @@ export class AnomalyChecker {
                 let message = result.data[i];
 
 
+
                 let flight_hash = messages.flight_hash[i];
                 let flight_t = messages.flight_t[i];
 

@@ -58,6 +58,12 @@
     font-size: ratio-from(15px);
 }
 
+.window h2{
+    margin: 0;
+    margin-top: ratio-from(10px);
+    font-size: ratio-from(20px);
+    text-align: center;
+}
 
 .window>div{
     box-sizing: border-box;

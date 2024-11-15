@@ -220,6 +220,7 @@ export class FlightMap {
         const BASE_COLOR = "#184296";
         const VALID_COLOR = "#44bd32";
         const ANOMALY_COLOR = "#e84118";
+        const NB_MARKER_MAX = 256;
 
         let data:MapMessage[] = []
 
@@ -328,7 +329,13 @@ export class FlightMap {
 
                 let i = 0
                 for (i = 0; i < debug_flooding.length; i++) {
-                    if (i < actual_makers.length){
+                    if (i < debug_flooding.length - NB_MARKER_MAX){
+                        if (actual_makers[i] != -1){
+                            this.debug_cross_cloud.removeMarker(actual_makers[i]);
+                            actual_makers[i] = -1;
+                        }
+                    }
+                    else if (i < actual_makers.length){
                         if (actual_makers[i] == -1){
                             let marker = this.debug_cross_cloud.addMarker({lat: debug_flooding[i][0], lng: debug_flooding[i][1]});
                             actual_makers[i] = marker;
