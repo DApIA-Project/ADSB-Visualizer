@@ -4,7 +4,7 @@
   "description": "ADS-B vizualizer",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "rm -rf dist && parcel serve ./src/index.html -p 3032",
+    "start": "rm -rf dist && parcel serve ./src/index.html -p 3031",
     "start:dev": "parcel serve ./src/index.html -p 3032",
     "build": "rm -rf public && parcel build ./src/index.html --dist-dir public --public-url ./ "
   },

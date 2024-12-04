@@ -197,8 +197,6 @@ export class FlightMap {
         if (this.highlighted_flight == -1) return;
 
         // update display
-        console.log("debug", this.highlighted_flight);
-
         let flight = this.database.findFlight(this.highlighted_flight);
         this.highlighted_flight = -1;
         let tag_hashes = flight.getTagsHashes();

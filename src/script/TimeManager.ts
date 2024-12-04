@@ -45,7 +45,8 @@ export class TimeManager{
     private view_all:boolean = false;
 
     // optimization
-    private last_time:number = 0.0;
+    private last_update_time:number = 0.0;
+    private last_anomaly_time:number = 0.0;
     private nb_aircraft:number = 0;
     private new_anomaly_received:boolean = false;
 
@@ -94,7 +95,7 @@ export class TimeManager{
             this.time = 0;
             this.time_speed = 1;
             this.html_speed_input.value = this.time_speed.toString();
-            this.looping = false;
+            this.looping = true;
             if (this.running){
                 this.onPlayButton();
             }
@@ -140,19 +141,35 @@ export class TimeManager{
     }
 
     /** Toutes les secondes -> checkAnomaly et setAnomaly **/
-    private async  updateAnomaly(){
+    private updateAnomaly(){
+
+        if (Math.floor(this.time) == Math.floor(this.last_anomaly_time)){
+            return;
+        }
 
         if (!this.anomalyChecker.isServerInactive()){
             // gather for all visible aircrafts their messages since the last anomaly check
+            let start = new Date().getTime();
             let  [messages, icao24_to_reset] = this.database.getMessagesForAnomalyChecker(this.time)
+            console.log("elapsed time to get messages for anomaly checker", new Date().getTime() - start, "ms (time:", this.time%3600, ")");
+            
 
             if (icao24_to_reset.length > 0){
-                await this.anomalyChecker.resetFlights(icao24_to_reset);
-            }
-            if (await this.anomalyChecker.checkMessages(messages)){
-                this.new_anomaly_received = true;
+                this.anomalyChecker.resetFlights(icao24_to_reset)
+
+                this.anomalyChecker.checkMessages(messages).then((updated) => {
+                    if (updated) this.new_anomaly_received = true;
+                });
+                
+            } else {
+                this.anomalyChecker.checkMessages(messages).then((updated) => {
+                    if (updated) this.new_anomaly_received = true;
+                });
             }
         }
+        this.last_anomaly_time = this.time;
+        console.log("Update anomaly ended");
+        
     }
 
     private async update() {
@@ -174,6 +191,8 @@ export class TimeManager{
         if (this.time > max_time) {
             if (this.looping) {
                 this.time = min_time;
+                this.database.reset();
+                // reset
             } else { // stop the timer
                 this.time = max_time;
                 this.running = false;
@@ -192,7 +211,7 @@ export class TimeManager{
 
 
         // update the map display and the flight info displayed
-        if (Math.floor(this.time) != Math.floor(this.last_time) || this.new_anomaly_received) {
+        if (Math.floor(this.time) != Math.floor(this.last_update_time) || this.new_anomaly_received) {
 
             this.html_time_range.value = ratio.toString();
             this.html_time_display.innerHTML = U.timestamp_to_date_hour(timestamp);
@@ -202,7 +221,7 @@ export class TimeManager{
             this.debugger.update(this.time);
 
             this.flightAttack.update_stats();
-            this.last_time = this.time;
+            this.last_update_time = this.time;
             this.new_anomaly_received = false;
 
             this.flightAttack.update(this.time);

@@ -259,8 +259,6 @@ export class FlightAttack {
 
     public flight_highlighted(flight_hash: number) {
         this.stop_flooding_loading();
-        console.log("flight_highlighted", flight_hash);
-
 
         if (this.selected_attack == AttackType.SPOOFING) {
             this.make_spoofing(flight_hash);
