@@ -282,8 +282,11 @@ export class Flight {
         let hash = 1;
         hash += U.hash_string(this.base_icao);
         hash += this.simple_hash_int(Math.round(this.start_time));
-        hash += this.simple_hash_int(Math.round(this.lat[0] * 10e6)) + this.simple_hash_int(Math.round(this.lon[0] * 1e6));
-        hash %= 1e9;
+        for (let i = 0; i < 10; i++) {
+            hash += this.simple_hash_int(Math.round(this.lat[i] * 10e6)) + this.simple_hash_int(Math.round(this.lon[i] * 1e6));
+            hash %= 1e9;
+        }
+       
         while (hash < 0) hash += 1e9;
 
         return hash;
