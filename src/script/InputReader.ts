@@ -16,8 +16,8 @@ var Buffer = require('buffer').Buffer;
 // - ask the database to add the flight
 // - manage nice loading screen
 
-var filename_ext = "sbs";
-var default_example = require("url:/example/sbs/record_AFR.sbs")
+var filename_ext = "csv";
+var default_example = require("url:/example/csv/merged.csv")
 
 
 

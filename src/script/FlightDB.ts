@@ -10,7 +10,6 @@ import {FlightInfoDisplayer} from './FlightDataDisplayer';
 
 
 import * as URL from './Url'
-import {Recording} from "@dapia-project/recording-streamer/dist/types";
 import { ADSBMessage, ApiRequest, MapMessage } from './Types';
 import { Debugger } from './Debugger';
 
