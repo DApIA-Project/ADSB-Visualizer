@@ -4,15 +4,18 @@ import {loadFromCSV} from "./parsers/parse_csv";
 import Flight, {AircraftType} from "./Flight";
 import {TimeManager} from "./TimeManager";
 import {FlightDB} from "./FlightDB";
-import {MultiADSBMessage} from "./Types";
+import {init_MultiADSBMessage, MultiADSBMessage} from "./Types";
 import {always, and, Engine, saturation, target} from "@dapia-project/alteration-ts";
+import * as L from 'leaflet';
+import { cartesian_to_spherical, radians, spherical_to_cartesian, waypoints_to_trajectory, x_rotation, y_rotation, z_rotation, bearing, distance_m } from "./Utils";
 
 
 export enum AttackType {
     NONE = -1,
     SPOOFING = 0,
     FLOODING = 1,
-    REPLAY = 2
+    REPLAY = 2,
+    INTERPOLATED = 3
 }
 
 let replay_icao = 0
@@ -22,38 +25,8 @@ let replay_icao = 0
 // |====================================================================================================================
 
 
-function radians(degrees: number): number {
-    return degrees * Math.PI / 180;
-}
 
-function degrees(radians: number): number {
-    return radians * 180 / Math.PI;
-}
 
-function x_rotation(x: number, y: number, z: number, a: number): [number, number, number] {
-    return [x, y * Math.cos(-a) - z * Math.sin(-a), y * Math.sin(-a) + z * Math.cos(-a)];
-}
-
-function y_rotation(x: number, y: number, z: number, a: number): [number, number, number] {
-    return [x * Math.cos(-a) + z * Math.sin(-a), y, -x * Math.sin(-a) + z * Math.cos(-a)];
-}
-
-function z_rotation(x: number, y: number, z: number, a: number): [number, number, number] {
-    return [x * Math.cos(a) - y * Math.sin(a), x * Math.sin(a) + y * Math.cos(a), z];
-}
-
-function spherical_to_cartesian(lat: number, lon: number): [number, number, number] {
-    let x = Math.cos(radians(lon)) * Math.cos(radians(lat));
-    let y = Math.sin(radians(lon)) * Math.cos(radians(lat));
-    let z = Math.sin(radians(lat));
-    return [x, y, z];
-}
-
-function cartesian_to_spherical(x: number, y: number, z: number): [number, number] {
-    let lat = degrees(Math.asin(z));
-    let lon = degrees(Math.atan2(y, x));
-    return [lat, lon];
-}
 
 function translate_rotate(lats: number[], lons: number[], tracks: number[], lat, lon, track): [number[], number[], number[]] {
     // cpy lats, lons, tracks
@@ -105,6 +78,8 @@ export class FlightAttack {
     private html_loading: HTMLElement;
     private flooding_timestamp:number = -1;
     private last_update_timestamp:number = -1;
+
+    private interpolated_waypoints:[number[], number[]] = [[], []];
 
 
     constructor() {
@@ -255,6 +230,29 @@ export class FlightAttack {
         if (this.selected_attack == AttackType.REPLAY) {
             this.create_replay(event.latlng.lat, event.latlng.lng);
         }
+
+
+        if (this.selected_attack == AttackType.INTERPOLATED) {
+
+            // compute lat lon distance, if less than 1m log "ok"
+            let waypoints = this.interpolated_waypoints;
+            let distance = 10;
+            if (waypoints[0].length != 0) {
+                distance = event.latlng.distanceTo(new L.LatLng(waypoints[0][waypoints[0].length - 1], waypoints[1][waypoints[1].length - 1]));
+            }
+            if (distance < 1) {
+                this.create_interpolated(waypoints);
+                this.interpolated_waypoints = [[], []];
+                this.map.clearInterpolatedTraj();
+                this.select_attack(AttackType.NONE);
+            }
+            else{
+                waypoints[0].push(event.latlng.lat);
+                waypoints[1].push(event.latlng.lng);
+                let [traj_lat, traj_lon] = waypoints_to_trajectory(waypoints[0], waypoints[1]);
+                this.map.showIterpolatedTraj(traj_lat, traj_lon, waypoints);
+            }
+        }
     }
 
     public flight_highlighted(flight_hash: number) {
@@ -295,6 +293,39 @@ export class FlightAttack {
         this.flightDB.recalculate_db();
         this.flightDB.recalculate_display();
         this.map.update(this.timeManager.getTimestamp(), this.timeManager.getTimestamp());
+    }
+
+    public create_interpolated(waypoints: [number[], number[]]) {
+        let [data_lat, data_lon] = waypoints_to_trajectory(waypoints[0], waypoints[1]);
+
+        let data: MultiADSBMessage = init_MultiADSBMessage(data_lat.length);
+        data.latitude = data_lat;
+        data.longitude = data_lon;
+        data.icao24 = "interp";
+        data.callsign = Array(data_lat.length).fill("INTERP");
+        let timestamp = Math.floor(this.timeManager.getTimestamp());
+        data.timestamp = []
+        for (let i = 0; i < data.latitude.length; i++) {
+            data.timestamp.push(timestamp + i);
+            if (i == 0){
+                data.track[i] = bearing(data.latitude[0], data.longitude[0], data.latitude[1], data.longitude[1]);
+                data.groundspeed[i] = distance_m(data.latitude[0], data.longitude[0], data.latitude[1], data.longitude[1]) * 1.94384;
+            } else{
+                data.track[i] = bearing(data.latitude[i-1], data.longitude[i-1], data.latitude[i], data.longitude[i]);
+                data.groundspeed[i] = distance_m(data.latitude[i-1], data.longitude[i-1], data.latitude[i], data.longitude[i]) * 1.94384;
+            }
+        }
+
+        let flight = new Flight();
+        flight.setAttribute(data)
+        console.log(flight);
+        
+
+        this.flightDB.addFlight(flight);
+        this.flightDB.recalculate_db();
+        this.flightDB.recalculate_display();
+        this.map.update(this.timeManager.getTimestamp(), this.timeManager.getTimestamp());
+
     }
 
     private can_spoof(start_time: number, end_time: number, icao: string) {
@@ -370,8 +401,8 @@ export class FlightAttack {
             this.flooding_timestamp = timestamps[i];
         }
 
-        // this.make_test_flooding(flight, i);
-        this.make_flooding_FDIT(flight, i);
+        this.make_test_flooding(flight, i);
+        // this.make_flooding_FDIT(flight, i);
     }
 
     private check_validity_for_flooding(timestamps: number[], lats: number[], lons: number[], i) {
@@ -457,7 +488,7 @@ export class FlightAttack {
             actions: [
                 saturation({
                     scope: and(always, target(flight.icao24)),
-                    aircrafts: 6,
+                    aircrafts: 30,
                     angleMax: 30,
                 })
             ]

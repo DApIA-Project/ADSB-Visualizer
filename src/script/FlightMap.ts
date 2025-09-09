@@ -6,7 +6,7 @@ import "leaflet-rotatedmarker";
 import "leaflet/dist/leaflet.css";
 // import PixiOverlay from ""
 
-import { CrossCloudLayer, MultiColorPolyLine } from './MultiColorPolyLine';
+import { DotCloudLayer, MultiColorPolyLine } from './MultiColorPolyLine';
 
 import * as URL from './Url'
 
@@ -22,6 +22,7 @@ import { FlightDB } from './FlightDB';
 import { MapMessage } from './Types';
 import { AttackType, FlightAttack } from './FlightAttack';
 import { Debugger } from './Debugger';
+import { waypoints_to_trajectory } from './Utils';
 
 
 
@@ -111,10 +112,13 @@ export class FlightMap {
 
     private on_click_callbacks: Array<(e: L.LeafletMouseEvent) => void> = [];
 
-    private debug_cross_cloud: CrossCloudLayer;
+    private debug_cross_cloud: DotCloudLayer;
     private debug_markers: Map<number, Array<number>> = new Map();
 
     private last_update_timestamp: [number, number] = [undefined, undefined]
+
+    private interpolatedPolyline: MultiColorPolyLine = undefined;
+    private interpolatedDot: DotCloudLayer = undefined;
 
     constructor() {
 
@@ -147,7 +151,8 @@ export class FlightMap {
             let latlng = e.latlng;
         });
 
-        this.debug_cross_cloud = new CrossCloudLayer(this.map);
+        this.debug_cross_cloud = new DotCloudLayer(this.map, 'cross');
+        this.interpolatedDot = new DotCloudLayer(this.map, 'dot', "#f39c12", 5, false);
     }
 
     public addOnClickListener(callback: (e: L.LeafletMouseEvent) => void) : void{
@@ -400,4 +405,32 @@ export class FlightMap {
         }
     }
 
+    public clearInterpolatedTraj(){
+        if (this.interpolatedPolyline != undefined){
+            this.interpolatedPolyline.removeLayer();
+            this.interpolatedPolyline = undefined;
+            this.interpolatedDot.clear();
+        }
+    }
+
+    public showIterpolatedTraj(traj_lat:number[], traj_lon:number[], waypoints:[number[], number[]]){
+
+        let coords = [];
+        for (let i = 0; i < traj_lat.length; i++) {
+            coords.push([traj_lat[i], traj_lon[i]]);
+        }
+        console.log(coords);
+        this.clearInterpolatedTraj();
+
+        let w = []
+        for (let i = 0; i < waypoints[0].length; i++) {
+            w.push([waypoints[0][i], waypoints[1][i]]);
+            this.interpolatedDot.addMarker(L.latLng(waypoints[0][i], waypoints[1][i]));
+        }
+        this.interpolatedPolyline = new MultiColorPolyLine(coords, {
+            color: new Array(coords.length).fill("#f39c12"),
+            weight: new Array(coords.length).fill(2),
+        }, 1).addTo(this.map);
+
+    }
 }

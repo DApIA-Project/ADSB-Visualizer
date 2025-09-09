@@ -131,8 +131,6 @@ export class MultiColorPolyLine{
     }
 }
 
-const cross_svg=`<svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><line stroke-width="2" x1="5" y1="5" x2="15" y2="15" stroke="black" /><line stroke-width="2" x1="5" y1="15" x2="15" y2="5" stroke="black" /></svg>`
-const markerTexture = PIXI.Texture.from(cross_svg);
 
 class MarkerInfo{
     latlng: L.LatLng;
@@ -143,24 +141,38 @@ class MarkerInfo{
     }
 }
 
-export class CrossCloudLayer{
+export class DotCloudLayer{
 
     private map: L.Map;
+    private marker_texture = undefined;
     private pixiContainer:PIXI.Container;
     private pixiOverlay:L.pixiOverlay;
     private makers:PIXI.Sprite[] = [];
     private makers_info:MarkerInfo[] = [];
     private available_slots:number[] = [];
 
+    private zoom: boolean = true;
+    private size: number = 5;
 
 
-    constructor(map: L.Map){
+
+    constructor(map: L.Map, symbol: 'cross' | 'dot' = 'cross', color: string = 'black', size: number = 5, zoom: boolean = true){
         this.map = map;
+
+        let svg = "";
+        if (symbol == 'cross')
+            svg =`<svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><line stroke-width="2" x1="5" y1="5" x2="15" y2="15" stroke="${color}" /><line stroke-width="2" x1="5" y1="15" x2="15" y2="5" stroke="${color}" /></svg>`
+        else if (symbol == 'dot')
+            svg =`<svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><circle cx="10" cy="10" r="5" fill="${color}" /></svg>`
+        this.marker_texture = PIXI.Texture.from(svg);
+        this.zoom = zoom;
+        this.size = size;
+
         let prevZoom;
 
-        let marker = new PIXI.Sprite(markerTexture);
+        let marker = new PIXI.Sprite(this.marker_texture);
         marker.anchor.set(0.5, 0.5);
-        marker.scale.set(1);
+        marker.scale.set(this.size/3.0);
 
         this.pixiContainer = new PIXI.Container();
         this.pixiOverlay = L.pixiOverlay((utils) => {
@@ -177,6 +189,9 @@ export class CrossCloudLayer{
                 let markerCoords = project(this.makers_info[i].latlng);
                 this.makers[i].x = markerCoords.x;
                 this.makers[i].y = markerCoords.y;
+
+                if (!this.zoom)
+                    this.makers[i].scale.set(1.0/scale * this.size/45.0);
             }
 
 
@@ -201,7 +216,7 @@ export class CrossCloudLayer{
         }
         else{
             index = this.makers.length;
-            this.makers.push(new PIXI.Sprite(markerTexture));
+            this.makers.push(new PIXI.Sprite(this.marker_texture));
             this.makers_info.push(new MarkerInfo(latlng));
             this.pixiContainer.addChild(this.makers[index]);
             this.makers[index].anchor.set(0.5, 0.5);
