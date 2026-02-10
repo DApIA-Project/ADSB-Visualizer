@@ -185,7 +185,7 @@ export class FlightDB {
             flight.setAttribute(attributes[i]);
             flights.push(flight);
         }
-
+        
         return flights;
     }
 
@@ -510,7 +510,7 @@ export class FlightDB {
 
 
                 let data = this.flights[i].getMapData(timestamp, end, debug)
-                for (const sub_data of data) {
+                for (const sub_data of data) {                    
                     flight_data.push(sub_data);
                 }
 

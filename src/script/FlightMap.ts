@@ -228,15 +228,16 @@ export class FlightMap {
         let data:MapMessage[] = []
 
         let show_range: boolean = false;
+        let opacity = 1;
         if (minTimestamp == maxTimestamp){
             data = this.database.getMapData(minTimestamp, undefined, this.debug.isActived());
         }
         else{
             data = this.database.getMapData(minTimestamp, maxTimestamp);
             show_range = true;
+            opacity = 0.3;
         }
 
-        let opacity = 1;
 
         let visible_flight = new Map<number, boolean>();
         for (let key of this.polylines.keys()) {
@@ -297,6 +298,8 @@ export class FlightMap {
             }
             else
             {
+                console.log(traj.coords, traj.icao24);
+                
                 this.polylines.get(trajectory_hash).setLatLngs(traj.coords, display_opt);
                 this.polylines.get(trajectory_hash).setStyle({opacity: opacity});
 

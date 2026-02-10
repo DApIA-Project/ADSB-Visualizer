@@ -100,10 +100,12 @@ export class Debugger {
 
 
     private flooding_chart:Chart;
+    private interp_chart:Chart;
     private spoofing_chart:Chart;
 
     constructor() {
         this.init_flooding_chart();
+        this.init_interp_chart();
         this.init_spoofing_chart();
 
         this.html = document.getElementById('window-flight-debug');
@@ -172,6 +174,7 @@ export class Debugger {
             return;
 
         this.update_flooding_chart(timestamp);
+        this.update_interp_chart(timestamp);
         this.update_spoofing_chart(timestamp);
 
     }
@@ -179,6 +182,18 @@ export class Debugger {
 
     private init_flooding_chart(){
         this.flooding_chart = make_chart('flooding-debug-graph', []);
+    }
+
+    private init_interp_chart(){
+        this.interp_chart = make_chart('interp-debug-graph', [{
+            label: "interp error",
+            data: [],
+            backgroundColor: secondaryColor+"80",
+            borderColor: secondaryColor,
+            borderWidth: 2,
+            pointRadius: 0,
+            cubicInterpolationMode: 'monotone',
+        } ], 0, 1);
     }
 
     private init_spoofing_chart(){
@@ -277,6 +292,42 @@ export class Debugger {
         }
 
         this.flooding_chart.update();
+    }
+
+    private   update_interp_chart(timestamp:number){
+        const filter_tag = "0"
+        let flight_interp_error = this.flight.getDebugData("debug_interp_loss")
+        if (flight_interp_error == undefined) return;
+
+        let [a, b] = this.flight.getIndicesAtTimeRange(timestamp-max_lenght*2, timestamp);
+
+        flight_interp_error = flight_interp_error.slice(a, b);
+
+        let tags = this.flight.get("tag").slice(a, b);
+        let ts_ = this.flight.get("time").slice(a, b);
+
+        let data = [];
+        let ts = [];
+
+        for (let i = 0; i < flight_interp_error.length; i++) {
+
+            if (tags[i] == filter_tag && ts_[i] - timestamp + 2 >= -max_lenght) {
+                data.push(flight_interp_error[i]);
+                ts.push(ts_[i] - timestamp + 2);
+            }
+        }
+
+        console.log(data);
+
+        // if (this.interp_chart.data.datasets.length == 0){
+        //     this.interp_chart.data.datasets.push();
+        // }
+        
+
+        this.interp_chart.data.labels = ts;
+        this.interp_chart.data.datasets[0].data = data;
+        this.interp_chart.update();
+
     }
 
 

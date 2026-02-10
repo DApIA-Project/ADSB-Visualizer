@@ -196,5 +196,7 @@ export function loadFromCSV(filename:string, file_content:string) : MultiADSBMes
             res.push(c);
         }
     }
+    console.log(res);
+    
     return res
 }
